@@ -1,0 +1,12 @@
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\bin\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.deps.json
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\bin\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.dll
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\bin\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.pdb
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\bin\Release\netstandard2.1\XTI_WebApp.CodeGeneration.dll
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\bin\Release\netstandard2.1\XTI_WebApp.CodeGeneration.pdb
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\obj\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.csprojAssemblyReference.cache
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\obj\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.AssemblyInfoInputs.cache
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\obj\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.AssemblyInfo.cs
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\obj\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.csproj.CoreCompileInputs.cache
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\obj\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.csproj.CopyComplete
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\obj\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.dll
+C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.ClientGenerator.Typescript\obj\Release\netstandard2.1\XTI_WebApp.ClientGenerator.Typescript.pdb

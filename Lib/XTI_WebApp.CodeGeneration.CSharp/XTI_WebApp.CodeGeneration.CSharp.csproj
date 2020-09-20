@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <Import Project="..\\..\\Version.Targets" />
+  
+  <ItemGroup>
+    <ProjectReference Include="..\XTI_WebApp.CodeGeneration\XTI_WebApp.CodeGeneration.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0" />
+  </ItemGroup>
+
+</Project>

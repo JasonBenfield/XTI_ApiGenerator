@@ -1,0 +1,4 @@
+C:\XTI\src\XTI_ApiGenerator\Output\FakeWebAppClient\bin\Debug\netstandard2.1\FakeWebAppClient.deps.json
+C:\XTI\src\XTI_ApiGenerator\Output\FakeWebAppClient\bin\Debug\netstandard2.1\FakeWebAppClient.dll
+C:\XTI\src\XTI_ApiGenerator\Output\FakeWebAppClient\obj\Debug\netstandard2.1\FakeWebAppClient.AssemblyInfoInputs.cache
+C:\XTI\src\XTI_ApiGenerator\Output\FakeWebAppClient\obj\Debug\netstandard2.1\FakeWebAppClient.AssemblyInfo.cs
