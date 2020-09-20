@@ -1,9 +1,0 @@
-C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.CodeGeneration\bin\Release\netstandard2.1\XTI_WebApp.CodeGeneration.deps.json
-C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.CodeGeneration\bin\Release\netstandard2.1\XTI_WebApp.CodeGeneration.dll
-C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.CodeGeneration\bin\Release\netstandard2.1\XTI_WebApp.CodeGeneration.pdb
-C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.CodeGeneration\obj\Release\netstandard2.1\XTI_WebApp.CodeGeneration.csprojAssemblyReference.cache
-C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.CodeGeneration\obj\Release\netstandard2.1\XTI_WebApp.CodeGeneration.AssemblyInfoInputs.cache
-C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.CodeGeneration\obj\Release\netstandard2.1\XTI_WebApp.CodeGeneration.AssemblyInfo.cs
-C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.CodeGeneration\obj\Release\netstandard2.1\XTI_WebApp.CodeGeneration.csproj.CoreCompileInputs.cache
-C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.CodeGeneration\obj\Release\netstandard2.1\XTI_WebApp.CodeGeneration.dll
-C:\XTI\src\XTI_ApiGenerator\Lib\XTI_WebApp.CodeGeneration\obj\Release\netstandard2.1\XTI_WebApp.CodeGeneration.pdb

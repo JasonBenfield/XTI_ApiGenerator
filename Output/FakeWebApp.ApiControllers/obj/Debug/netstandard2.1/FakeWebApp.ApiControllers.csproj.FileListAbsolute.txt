@@ -1,4 +1,0 @@
-C:\XTI\src\XTI_ApiGenerator\Output\FakeWebApp.ApiControllers\bin\Debug\netstandard2.1\FakeWebApp.ApiControllers.deps.json
-C:\XTI\src\XTI_ApiGenerator\Output\FakeWebApp.ApiControllers\bin\Debug\netstandard2.1\FakeWebApp.ApiControllers.dll
-C:\XTI\src\XTI_ApiGenerator\Output\FakeWebApp.ApiControllers\obj\Debug\netstandard2.1\FakeWebApp.ApiControllers.AssemblyInfoInputs.cache
-C:\XTI\src\XTI_ApiGenerator\Output\FakeWebApp.ApiControllers\obj\Debug\netstandard2.1\FakeWebApp.ApiControllers.AssemblyInfo.cs
