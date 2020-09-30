@@ -16,11 +16,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FakeWebApp.Api" Version="1.0.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.8" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.8" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.8" />
-    <PackageReference Include="XTI_Configuration.Extensions" Version="1.0.4" />
-    <PackageReference Include="XTI_WebApp.Fakes" Version="1.0.4" />
+    <PackageReference Include="XTI_Configuration.Extensions" Version="1.0.7" />
+    <PackageReference Include="XTI_ConsoleApp.Extensions" Version="1.0.7" />
+    <PackageReference Include="XTI_WebApp.Fakes" Version="1.0.7" />
   </ItemGroup>
 
   <ItemGroup>

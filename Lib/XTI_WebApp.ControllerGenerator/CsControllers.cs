@@ -314,8 +314,7 @@ namespace XTI_WebApp.ControllerGenerator
                     (
                         SingletonSeparatedList<TypeSyntax>
                         (
-                            SyntaxFactory
-                                .GenericName(Identifier("ResultContainer"))
+                            GenericName(Identifier("ResultContainer"))
                                 .WithTypeArgumentList
                                 (
                                     TypeArgumentList
@@ -359,6 +358,19 @@ namespace XTI_WebApp.ControllerGenerator
                             (
                                 Parameter(Identifier("model"))
                                     .WithType(typeSyntax(action.ModelTemplate))
+                                    .WithAttributeLists
+                                    (
+                                        SingletonList
+                                        (
+                                            AttributeList
+                                            (
+                                                SingletonSeparatedList
+                                                (
+                                                    Attribute(IdentifierName("FromBody"))
+                                                )
+                                            )
+                                        )
+                                    )
                             )
                         )
                     );

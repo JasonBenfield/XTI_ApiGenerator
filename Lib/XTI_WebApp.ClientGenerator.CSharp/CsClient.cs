@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using XTI_App;
 using XTI_WebApp.Api;
 using XTI_WebApp.CodeGeneration;
 using XTI_WebApp.CodeGeneration.CSharp;
@@ -15,12 +16,14 @@ namespace XTI_WebApp.ClientGenerator.CSharp
 {
     public sealed class CsClient : CodeGenerator
     {
-        public CsClient(string ns, Func<string, Stream> createStream)
+        public CsClient(AppFactory appFactory, string ns, Func<string, Stream> createStream)
         {
+            this.appFactory = appFactory;
             this.ns = ns;
             this.createStream = createStream;
         }
 
+        private readonly AppFactory appFactory;
         private readonly string ns;
         private readonly Func<string, Stream> createStream;
 
@@ -60,17 +63,17 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             await outputClass(apiObject, className);
         }
 
-        private async Task outputGroup(AppApiGroupTemplate group)
+        private async Task outputGroup(AppApiGroupTemplate groupTemplate)
         {
-            var groupClient = createGroupClient(group);
-            var className = getGroupClassName(group);
+            var groupClient = createGroupClient(groupTemplate);
+            var className = getGroupClassName(groupTemplate);
             await outputClass(groupClient, className);
         }
 
-        private async Task outputApp(AppApiTemplate app)
+        private async Task outputApp(AppApiTemplate appTemplate)
         {
-            var appClient = createAppClient(app);
-            var className = getAppClassName(app);
+            var appClient = await createAppClient(appTemplate);
+            var className = getAppClassName(appTemplate);
             await outputClass(appClient, className);
         }
 
@@ -80,7 +83,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             await cSharpFile.Output();
         }
 
-        private CompilationUnitSyntax createApiObject(ObjectValueTemplate obj)
+        private CompilationUnitSyntax createApiObject(ObjectValueTemplate objTemplate)
         {
             return CompilationUnit()
                 .WithUsings
@@ -108,7 +111,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                             (
                                 SingletonList<MemberDeclarationSyntax>
                                 (
-                                    ClassDeclaration(obj.DataType.Name)
+                                    ClassDeclaration(objTemplate.DataType.Name)
                                         .WithModifiers
                                         (
                                             TokenList
@@ -124,7 +127,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                                         (
                                             List
                                             (
-                                                getProperties(obj.PropertyTemplates)
+                                                getProperties(objTemplate.PropertyTemplates)
                                             )
                                         )
                                     )
@@ -166,9 +169,9 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             );
         }
 
-        private static string getGroupClassName(AppApiGroupTemplate group) => $"{group.Name}Group";
+        private static string getGroupClassName(AppApiGroupTemplate groupTemplate) => $"{groupTemplate.Name}Group";
 
-        private CompilationUnitSyntax createGroupClient(AppApiGroupTemplate group)
+        private CompilationUnitSyntax createGroupClient(AppApiGroupTemplate groupTemplate)
         {
             return CompilationUnit()
                 .WithUsings
@@ -184,19 +187,19 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                             (
                                 List
                                 (
-                                    groupClass(group)
+                                    groupClass(groupTemplate)
                                 )
                             )
                     )
                 );
         }
 
-        private static MemberDeclarationSyntax[] groupClass(AppApiGroupTemplate group)
+        private static MemberDeclarationSyntax[] groupClass(AppApiGroupTemplate groupTemplate)
         {
             var groupClass = new List<MemberDeclarationSyntax>();
             groupClass.Add
             (
-                ClassDeclaration(getGroupClassName(group))
+                ClassDeclaration(getGroupClassName(groupTemplate))
                     .WithModifiers
                     (
                         TokenList
@@ -214,7 +217,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                         (
                             SeparatedList
                             (
-                                groupBaseList(group)
+                                groupBaseList(groupTemplate)
                             )
                         )
                     )
@@ -222,18 +225,18 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     (
                         List
                         (
-                            groupMembers(group)
+                            groupMembers(groupTemplate)
                         )
                     )
             );
             return groupClass.ToArray();
         }
 
-        private static MemberDeclarationSyntax[] groupMembers(AppApiGroupTemplate group)
+        private static MemberDeclarationSyntax[] groupMembers(AppApiGroupTemplate groupTemplate)
         {
             var members = new List<MemberDeclarationSyntax>();
-            members.Add(groupCtor(group));
-            foreach (var action in group.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView()))
+            members.Add(groupCtor(groupTemplate));
+            foreach (var action in groupTemplate.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView()))
             {
                 members.Add
                 (
@@ -307,7 +310,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return members.ToArray();
         }
 
-        private static SyntaxNodeOrToken[] postArgs(AppApiActionTemplate action)
+        private static SyntaxNodeOrToken[] postArgs(AppApiActionTemplate actionTemplate)
         {
             var args = new List<SyntaxNodeOrToken>();
             args.AddRange
@@ -319,13 +322,13 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                         LiteralExpression
                         (
                             SyntaxKind.StringLiteralExpression,
-                            Literal(action.Name)
+                            Literal(actionTemplate.Name)
                         )
                     ),
                     Token(SyntaxKind.CommaToken)
                 }
             );
-            if (action.HasEmptyModel())
+            if (actionTemplate.HasEmptyModel())
             {
                 args.Add
                 (
@@ -343,26 +346,26 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return args.ToArray();
         }
 
-        private static ParameterSyntax[] actionArgs(AppApiActionTemplate action)
+        private static ParameterSyntax[] actionArgs(AppApiActionTemplate actionTemplate)
         {
             var parameters = new List<ParameterSyntax>();
-            if (!action.HasEmptyModel())
+            if (!actionTemplate.HasEmptyModel())
             {
                 parameters.Add
                 (
                     Parameter(Identifier("model"))
                         .WithType
                         (
-                            new TypeSyntaxFromValueTemplate(action.ModelTemplate).Value()
+                            new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
                         )
                 );
             }
             return parameters.ToArray();
         }
 
-        private static MemberDeclarationSyntax groupCtor(AppApiGroupTemplate group)
+        private static MemberDeclarationSyntax groupCtor(AppApiGroupTemplate groupTemplate)
         {
-            return ConstructorDeclaration(Identifier(getGroupClassName(group)))
+            return ConstructorDeclaration(Identifier(getGroupClassName(groupTemplate)))
                 .WithModifiers
                 (
                     TokenList(Token(SyntaxKind.PublicKeyword))
@@ -409,7 +412,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                                         LiteralExpression
                                         (
                                             SyntaxKind.StringLiteralExpression,
-                                            Literal(group.Name)
+                                            Literal(groupTemplate.Name)
                                         )
                                     )
                                 }
@@ -510,9 +513,9 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             );
         }
 
-        private string getAppClassName(AppApiTemplate app) => $"{app.Name}AppClient";
+        private string getAppClassName(AppApiTemplate appTemplate) => $"{appTemplate.Name}AppClient";
 
-        private CompilationUnitSyntax createAppClient(AppApiTemplate app)
+        private async Task<CompilationUnitSyntax> createAppClient(AppApiTemplate appTemplate)
         {
             return CompilationUnit()
                 .WithUsings
@@ -528,7 +531,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                             (
                                 SingletonList
                                 (
-                                    (MemberDeclarationSyntax)ClassDeclaration(getAppClassName(app))
+                                    (MemberDeclarationSyntax)ClassDeclaration(getAppClassName(appTemplate))
                                         .WithModifiers
                                         (
                                             TokenList
@@ -546,7 +549,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                                             (
                                                 SeparatedList
                                                 (
-                                                    appBaseList(app)
+                                                    appBaseList(appTemplate)
                                                 )
                                             )
                                         )
@@ -554,7 +557,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                                         (
                                             List
                                             (
-                                                appMembers(app)
+                                                await appMembers(appTemplate)
                                             )
                                         )
                                     )
@@ -563,11 +566,11 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     );
         }
 
-        private MemberDeclarationSyntax[] appMembers(AppApiTemplate app)
+        private async Task<MemberDeclarationSyntax[]> appMembers(AppApiTemplate appTemplate)
         {
             var members = new List<MemberDeclarationSyntax>();
-            members.Add(appCtor(app));
-            foreach (var group in app.GroupTemplates)
+            members.Add(await appCtor(appTemplate));
+            foreach (var group in appTemplate.GroupTemplates)
             {
                 members.Add
                 (
@@ -601,9 +604,9 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return members.ToArray();
         }
 
-        private ConstructorDeclarationSyntax appCtor(AppApiTemplate app)
+        private async Task<ConstructorDeclarationSyntax> appCtor(AppApiTemplate appTemplate)
         {
-            return ConstructorDeclaration(Identifier(getAppClassName(app)))
+            return ConstructorDeclaration(Identifier(getAppClassName(appTemplate)))
                 .WithModifiers
                 (
                     TokenList(Token(SyntaxKind.PublicKeyword))
@@ -614,7 +617,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     (
                         SeparatedList<ParameterSyntax>
                         (
-                            appCtorArgs(app)
+                            await appCtorArgs(appTemplate)
                         )
                     )
                 )
@@ -627,7 +630,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                         (
                             SeparatedList<ArgumentSyntax>
                             (
-                                appBaseCtorArgs(app)
+                                appBaseCtorArgs(appTemplate)
                             )
                         )
                     )
@@ -638,16 +641,16 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     (
                         List
                         (
-                            appCtorBodyStatements(app)
+                            appCtorBodyStatements(appTemplate)
                         )
                     )
                 );
         }
 
-        private static StatementSyntax[] appCtorBodyStatements(AppApiTemplate app)
+        private static StatementSyntax[] appCtorBodyStatements(AppApiTemplate appTemplate)
         {
             var statements = new List<StatementSyntax>();
-            if (app.IsHub())
+            if (appTemplate.IsHub())
             {
                 statements.Add
                 (
@@ -697,7 +700,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     )
                 );
             }
-            foreach (var group in app.GroupTemplates)
+            foreach (var group in appTemplate.GroupTemplates)
             {
                 statements.Add
                 (
@@ -732,19 +735,21 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return statements.ToArray();
         }
 
-        private static BaseTypeSyntax[] appBaseList(AppApiTemplate app)
+        private static BaseTypeSyntax[] appBaseList(AppApiTemplate appTemplate)
         {
             var baseTypes = new List<BaseTypeSyntax>();
             baseTypes.Add(SimpleBaseType(IdentifierName("AppClient")));
-            if (app.IsHub())
+            if (appTemplate.IsHub())
             {
                 baseTypes.Add(SimpleBaseType(IdentifierName("IAuthClient")));
             }
             return baseTypes.ToArray();
         }
 
-        private static SyntaxNodeOrToken[] appCtorArgs(AppApiTemplate app)
+        private async Task<SyntaxNodeOrToken[]> appCtorArgs(AppApiTemplate appTemplate)
         {
+            var app = await appFactory.AppRepository().App(new AppKey(appTemplate.Name));
+            var currentVersion = await app.CurrentVersion();
             var args = new List<SyntaxNodeOrToken>();
             args.AddRange
             (
@@ -755,7 +760,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     Token(SyntaxKind.CommaToken),
                 }
             );
-            if (app.IsHub())
+            if (appTemplate.IsHub())
             {
                 args.AddRange
                 (
@@ -784,7 +789,21 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                 new SyntaxNodeOrToken[]
                 {
                     Parameter(Identifier("baseUrl"))
+                        .WithType(PredefinedType(Token(SyntaxKind.StringKeyword))),
+                    Token(SyntaxKind.CommaToken),
+                    Parameter(Identifier("version"))
                         .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
+                        .WithDefault
+                        (
+                            EqualsValueClause
+                            (
+                                LiteralExpression
+                                (
+                                    SyntaxKind.StringLiteralExpression,
+                                    Literal($"V{currentVersion.ID}")
+                                )
+                            )
+                        )
                 }
             );
             return args.ToArray();
@@ -808,7 +827,9 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                             SyntaxKind.StringLiteralExpression,
                             Literal(app.Name)
                         )
-                    )
+                    ),
+                    Token(SyntaxKind.CommaToken),
+                    Argument(IdentifierName("version"))
                 }
             );
             return args.ToArray();
