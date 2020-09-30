@@ -7,7 +7,7 @@
   <Import Project="..\\..\\Version.Targets" />
   
   <ItemGroup>
-    <PackageReference Include="XTI_WebApp.Api" Version="1.0.4" />
+    <PackageReference Include="XTI_WebApp.Api" Version="1.0.7" />
   </ItemGroup>
 
 </Project>

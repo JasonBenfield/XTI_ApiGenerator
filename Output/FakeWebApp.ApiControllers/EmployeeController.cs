@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using XTI_WebApp.Api;
-using XTI_WebApp.Fakes;
+using FakeWebApp.Api;
 
 namespace FakeWebApp.ApiControllers
 {
@@ -23,13 +23,13 @@ namespace FakeWebApp.ApiControllers
         }
 
         [HttpPost]
-        public Task<ResultContainer<int>> AddEmployee(AddEmployeeModel model)
+        public Task<ResultContainer<int>> AddEmployee([FromBody] AddEmployeeModel model)
         {
             return api.Group("Employee").Action<AddEmployeeModel, int>("AddEmployee").Execute(model);
         }
 
         [HttpPost]
-        public Task<ResultContainer<Employee>> Employee(int model)
+        public Task<ResultContainer<Employee>> Employee([FromBody] int model)
         {
             return api.Group("Employee").Action<int, Employee>("Employee").Execute(model);
         }

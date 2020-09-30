@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using FakeWebApp.Api;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using XTI_ApiGeneratorApp.Extensions;
-using XTI_WebApp.Fakes;
 
 namespace FakeApiGeneratorApp
 {

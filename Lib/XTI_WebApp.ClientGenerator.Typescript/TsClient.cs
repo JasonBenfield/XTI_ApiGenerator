@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using XTI_App;
 using XTI_WebApp.Api;
 using XTI_WebApp.CodeGeneration;
 
@@ -9,11 +10,13 @@ namespace XTI_WebApp.ClientGenerator.Typescript
 {
     public sealed class TsClient : CodeGenerator
     {
-        public TsClient(Func<string, Stream> createStream)
+        public TsClient(AppFactory appFactory, Func<string, Stream> createStream)
         {
+            this.appFactory = appFactory;
             this.createStream = createStream;
         }
 
+        private readonly AppFactory appFactory;
         private readonly Func<string, Stream> createStream;
 
         public async Task Output(AppApiTemplate appTemplate)
@@ -26,18 +29,20 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 str.Append("\r\n");
                 str.Append("\r\nimport { AppApi } from \"../../Hub/AppApi\";");
                 str.Append("\r\nimport { AppApiEvents } from \"../../Hub/AppApiEvents\";");
-                foreach (var group in appTemplate.GroupTemplates)
+                foreach (var groupTemplate in appTemplate.GroupTemplates)
                 {
-                    var groupClassName = getGroupClassName(group);
+                    var groupClassName = getGroupClassName(groupTemplate);
                     str.Append($"\r\nimport {{ {groupClassName} }} from \"./{groupClassName}\";");
                 }
                 str.Append("\r\n");
                 str.Append($"\r\nexport class {appClassName} extends AppApi {{");
-                str.Append("\r\n\tconstructor(events: AppApiEvents, baseUrl: string) {");
-                str.Append($"\r\n\t\tsuper(events, baseUrl, '{appTemplate.Name}');");
-                foreach (var group in appTemplate.GroupTemplates)
+                var app = await appFactory.AppRepository().App(new AppKey(appTemplate.Name));
+                var currentVersion = await app.CurrentVersion();
+                str.Append($"\r\n\tconstructor(events: AppApiEvents, baseUrl: string, version: string = 'V{currentVersion.ID}') {{");
+                str.Append($"\r\n\t\tsuper(events, baseUrl, '{appTemplate.Name}', version);");
+                foreach (var groupTemplate in appTemplate.GroupTemplates)
                 {
-                    str.Append($"\r\n\t\tthis.{group.Name} = this.addGroup((evts, resourceUrl) => new {group.Name}Group(evts, resourceUrl));");
+                    str.Append($"\r\n\t\tthis.{groupTemplate.Name} = this.addGroup((evts, resourceUrl) => new {groupTemplate.Name}Group(evts, resourceUrl));");
                 }
                 str.Append("\r\n\t}");
                 str.Append("\r\n");
