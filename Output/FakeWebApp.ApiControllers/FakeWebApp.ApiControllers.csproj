@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="XTI_WebApp.Fakes" Version="1.0.7" />
+    <PackageReference Include="XTI_App.Fakes" Version="1.0.8" />
   </ItemGroup>
 
 </Project>

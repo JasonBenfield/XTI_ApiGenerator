@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using XTI_WebApp.Api;
+using XTI_App.Api;
 using XTI_WebApp.CodeGeneration;
 
 namespace XTI_ApiGeneratorApp.Extensions
