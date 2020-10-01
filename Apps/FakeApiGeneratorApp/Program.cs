@@ -11,7 +11,7 @@ namespace FakeApiGeneratorApp
     {
         static Task Main(string[] args)
         {
-            return new HostBuilder()
+            return Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config.UseXtiConfiguration(hostingContext.HostingEnvironment.EnvironmentName, args);
@@ -22,8 +22,9 @@ namespace FakeApiGeneratorApp
                     services.ConfigureForApiGenerator(hostContext.Configuration);
                     services.AddHostedService(sp =>
                     {
-                        var lifetime = sp.GetService<IHostApplicationLifetime>();
-                        var apiGenerator = sp.GetService<ApiGenerator>();
+                        var scope = sp.CreateScope();
+                        var lifetime = scope.ServiceProvider.GetService<IHostApplicationLifetime>();
+                        var apiGenerator = scope.ServiceProvider.GetService<ApiGenerator>();
                         return new FakeApiGenerator(lifetime, apiGenerator);
                     });
                 })

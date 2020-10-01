@@ -39,7 +39,7 @@ namespace XTI_WebApp.ControllerGenerator
 
         private CompilationUnitSyntax createController(AppApiTemplate app, AppApiGroupTemplate group)
         {
-            var nsToken = NamespaceDeclaration(SyntaxFactory.ParseName(ns));
+            var nsToken = NamespaceDeclaration(ParseName(ns));
             var apiClassName = $"{app.Name}AppApi";
             var controllerClassName = getControllerClassName(group);
             var classToken = ClassDeclaration(controllerClassName)
@@ -662,7 +662,7 @@ namespace XTI_WebApp.ControllerGenerator
             var namespaces = group.ObjectTemplates()
                 .Select(ot => ot.DataType.Namespace)
                 .Union(additionalNamespaces ?? new string[] { })
-                .Union(new[] { "XTI_WebApp.Api" })
+                .Union(new[] { "XTI_App.Api" })
                 .Distinct();
             foreach (var ns in namespaces)
             {

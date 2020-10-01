@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FakeWebAppClient", "Output\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FakeWebApp", "Output\FakeWebApp\FakeWebApp.csproj", "{DE328467-1178-47A2-8AD0-48CFF40CED74}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeWebApp.Api", "Apps\FakeWebApp.Api\FakeWebApp.Api.csproj", "{8F1D556C-E301-44DD-89E4-48F58B66FE4E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{DE328467-1178-47A2-8AD0-48CFF40CED74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE328467-1178-47A2-8AD0-48CFF40CED74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE328467-1178-47A2-8AD0-48CFF40CED74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F1D556C-E301-44DD-89E4-48F58B66FE4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F1D556C-E301-44DD-89E4-48F58B66FE4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F1D556C-E301-44DD-89E4-48F58B66FE4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F1D556C-E301-44DD-89E4-48F58B66FE4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,6 +102,7 @@ Global
 		{D7AE4E5D-C129-4FDB-B812-DC9E88478FCA} = {1CF1715A-E1A9-42F1-A34A-06E8AA218C93}
 		{961F7264-0239-4BA6-8F10-DD73F166FF0B} = {1CF1715A-E1A9-42F1-A34A-06E8AA218C93}
 		{DE328467-1178-47A2-8AD0-48CFF40CED74} = {1CF1715A-E1A9-42F1-A34A-06E8AA218C93}
+		{8F1D556C-E301-44DD-89E4-48F58B66FE4E} = {1AE83B73-D536-4E07-A35B-18BB28E1EF98}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CA64E1B0-1A2B-4276-B5E4-AD92D1566FF1}

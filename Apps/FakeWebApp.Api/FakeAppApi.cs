@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using XTI_App;
 using XTI_App.Api;
 
-namespace FakeApiGeneratorApp
+namespace FakeWebApp.Api
 {
     public sealed class FakeAppApi : AppApi
     {

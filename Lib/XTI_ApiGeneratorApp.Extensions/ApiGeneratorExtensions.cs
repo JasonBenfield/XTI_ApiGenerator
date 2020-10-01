@@ -8,7 +8,7 @@ namespace XTI_ApiGeneratorApp.Extensions
         public static void ConfigureForApiGenerator(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<OutputOptions>(configuration.GetSection(OutputOptions.Output));
-            services.AddSingleton<ApiGenerator>();
+            services.AddScoped<ApiGenerator>();
         }
     }
 }
