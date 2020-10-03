@@ -10,7 +10,7 @@ namespace FakeWebApp.Api
         private static readonly string AppKeyValue = "Fake";
         public static readonly AppKey AppKey = new AppKey(AppKeyValue);
 
-        public FakeAppApi(AppApiUser user, ResourceAccess access = null)
+        public FakeAppApi(IAppApiUser user, ResourceAccess access = null)
             : base(AppKeyValue, user, access)
         {
             Employee = AddGroup(u => new EmployeeGroup(this, u));
@@ -22,11 +22,12 @@ namespace FakeWebApp.Api
 
     public sealed class EmployeeGroup : AppApiGroup
     {
-        public EmployeeGroup(AppApi api, AppApiUser user)
+        public EmployeeGroup(AppApi api, IAppApiUser user)
             : base
             (
                   api,
                   new NameFromGroupClassName(nameof(EmployeeGroup)).Value,
+                  true,
                   api.Access,
                   user
             )
@@ -93,11 +94,12 @@ namespace FakeWebApp.Api
 
     public sealed class ProductGroup : AppApiGroup
     {
-        public ProductGroup(AppApi api, AppApiUser user)
+        public ProductGroup(AppApi api, IAppApiUser user)
             : base
             (
                 api,
                 new NameFromGroupClassName(nameof(ProductGroup)).Value,
+                false,
                 api.Access,
                 user
             )

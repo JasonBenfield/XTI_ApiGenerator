@@ -67,7 +67,8 @@ namespace XTI_WebApp.ControllerGenerator
                                     new MemberDeclarationSyntax[]
                                     {
                                         constructorDeclaration(apiClassName, getControllerClassName(group)),
-                                        apiFieldDeclaration(apiClassName)
+                                        apiFieldDeclaration(apiClassName),
+                                        xtiPathFieldDeclaration()
                                     }
                                     .Union(actionDeclarations)
                                 )
@@ -471,14 +472,26 @@ namespace XTI_WebApp.ControllerGenerator
             (
                 ArgumentList
                 (
-                    SingletonSeparatedList
+                    SeparatedList
                     (
-                        Argument
-                        (
-                            action.HasEmptyModel()
-                                ? (ExpressionSyntax)newEmptyRequest()
-                                : IdentifierName("model")
-                        )
+                        new ArgumentSyntax[]
+                        {
+                            Argument
+                            (
+                                MemberAccessExpression
+                                (
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("xtiPath"),
+                                    IdentifierName("Modifier")
+                                )
+                            ),
+                            Argument
+                            (
+                                action.HasEmptyModel()
+                                    ? (ExpressionSyntax)newEmptyRequest()
+                                    : IdentifierName("model")
+                            )
+                        }
                     )
                 )
             );
@@ -514,6 +527,30 @@ namespace XTI_WebApp.ControllerGenerator
                 );
         }
 
+        private static FieldDeclarationSyntax xtiPathFieldDeclaration()
+        {
+            return
+                FieldDeclaration
+                (
+                    VariableDeclaration(IdentifierName("XtiPath"))
+                        .WithVariables
+                        (
+                            SingletonSeparatedList
+                            (
+                                VariableDeclarator(Identifier("xtiPath"))
+                            )
+                        )
+                )
+                .WithModifiers
+                (
+                    TokenList
+                    (
+                        Token(SyntaxKind.PrivateKeyword),
+                        Token(SyntaxKind.ReadOnlyKeyword)
+                    )
+                );
+        }
+
         private static ConstructorDeclarationSyntax constructorDeclaration(string apiClassName, string groupClassName)
         {
             return
@@ -526,10 +563,15 @@ namespace XTI_WebApp.ControllerGenerator
                 (
                     ParameterList
                     (
-                        SingletonSeparatedList
+                        SeparatedList
                         (
-                            Parameter(Identifier("api"))
-                                .WithType(IdentifierName(apiClassName))
+                            new ParameterSyntax[]
+                            {
+                                Parameter(Identifier("api"))
+                                    .WithType(IdentifierName(apiClassName)),
+                                Parameter(Identifier("xtiPath"))
+                                    .WithType(IdentifierName("XtiPath"))
+                            }
                         )
                     )
                 )
@@ -537,22 +579,39 @@ namespace XTI_WebApp.ControllerGenerator
                 (
                     Block
                     (
-                        SingletonList<StatementSyntax>
+                        SeparatedList
                         (
-                            ExpressionStatement
-                            (
-                                AssignmentExpression
+                            new StatementSyntax[]
+                            {
+                                ExpressionStatement
                                 (
-                                    SyntaxKind.SimpleAssignmentExpression,
-                                    MemberAccessExpression
+                                    AssignmentExpression
                                     (
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        ThisExpression(),
+                                        SyntaxKind.SimpleAssignmentExpression,
+                                        MemberAccessExpression
+                                        (
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            ThisExpression(),
+                                            IdentifierName("api")
+                                        ),
                                         IdentifierName("api")
-                                    ),
-                                    IdentifierName("api")
+                                    )
+                                ),
+                                ExpressionStatement
+                                (
+                                    AssignmentExpression
+                                    (
+                                        SyntaxKind.SimpleAssignmentExpression,
+                                        MemberAccessExpression
+                                        (
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            ThisExpression(),
+                                            IdentifierName("xtiPath")
+                                        ),
+                                        IdentifierName("xtiPath")
+                                    )
                                 )
-                            )
+                            }
                         )
                     )
                 );
@@ -662,7 +721,7 @@ namespace XTI_WebApp.ControllerGenerator
             var namespaces = group.ObjectTemplates()
                 .Select(ot => ot.DataType.Namespace)
                 .Union(additionalNamespaces ?? new string[] { })
-                .Union(new[] { "XTI_App.Api" })
+                .Union(new[] { "XTI_App", "XTI_App.Api" })
                 .Distinct();
             foreach (var ns in namespaces)
             {
