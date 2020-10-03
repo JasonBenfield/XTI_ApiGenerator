@@ -207,7 +207,8 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                             new[]
                             {
                                 Token(SyntaxKind.PublicKeyword),
-                                Token(SyntaxKind.SealedKeyword)
+                                Token(SyntaxKind.SealedKeyword),
+                                Token(SyntaxKind.PartialKeyword)
                             }
                         )
                     )
@@ -238,96 +239,133 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             members.Add(groupCtor(groupTemplate));
             foreach (var action in groupTemplate.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView()))
             {
-                members.Add
+                members.AddRange
                 (
-                    MethodDeclaration
-                    (
-                        GenericName(Identifier("Task"))
-                            .WithTypeArgumentList
-                            (
-                                TypeArgumentList
-                                (
-                                    SingletonSeparatedList
-                                    (
-                                        new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value()
-                                    )
-                                )
-                            ),
-                            Identifier(action.Name)
-                    )
-                    .WithModifiers
-                    (
-                        TokenList(Token(SyntaxKind.PublicKeyword))
-                    )
-                    .WithParameterList
-                    (
-                        ParameterList
-                        (
-                            SeparatedList
-                            (
-                                actionArgs(action)
-                            )
-                        )
-                    )
-                    .WithExpressionBody
-                    (
-                        ArrowExpressionClause
-                        (
-                            InvocationExpression
-                            (
-                                GenericName(Identifier("Post"))
-                                .WithTypeArgumentList
-                                (
-                                    TypeArgumentList
-                                    (
-                                        SeparatedList<TypeSyntax>
-                                        (
-                                            new SyntaxNodeOrToken[]
-                                            {
-                                                new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value(),
-                                                Token(SyntaxKind.CommaToken),
-                                                new TypeSyntaxFromValueTemplate(action.ModelTemplate).Value()
-                                            }
-                                        )
-                                    )
-                                )
-                            )
-                            .WithArgumentList
-                            (
-                                ArgumentList
-                                (
-                                    SeparatedList<ArgumentSyntax>
-                                    (
-                                        postArgs(action)
-                                    )
-                                )
-                            )
-                        )
-                    )
-                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                    new[]
+                    {
+                        actionDeclaration(groupTemplate, action)
+                    }
                 );
             }
             return members.ToArray();
         }
 
-        private static SyntaxNodeOrToken[] postArgs(AppApiActionTemplate actionTemplate)
+        private static MethodDeclarationSyntax actionDeclaration(AppApiGroupTemplate groupTemplate, AppApiActionTemplate action)
+        {
+            return MethodDeclaration
+            (
+                GenericName(Identifier("Task"))
+                    .WithTypeArgumentList
+                    (
+                        TypeArgumentList
+                        (
+                            SingletonSeparatedList
+                            (
+                                new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value()
+                            )
+                        )
+                    ),
+                    Identifier(action.Name)
+            )
+            .WithModifiers
+            (
+                TokenList(Token(SyntaxKind.PublicKeyword))
+            )
+            .WithParameterList
+            (
+                ParameterList
+                (
+                    SeparatedList
+                    (
+                        actionArgs(action, groupTemplate.HasModifier)
+                    )
+                )
+            )
+            .WithExpressionBody
+            (
+                ArrowExpressionClause
+                (
+                    InvocationExpression
+                    (
+                        GenericName(Identifier("Post"))
+                        .WithTypeArgumentList
+                        (
+                            TypeArgumentList
+                            (
+                                SeparatedList<TypeSyntax>
+                                (
+                                    new SyntaxNodeOrToken[]
+                                    {
+                                        new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value(),
+                                        Token(SyntaxKind.CommaToken),
+                                        new TypeSyntaxFromValueTemplate(action.ModelTemplate).Value()
+                                    }
+                                )
+                            )
+                        )
+                    )
+                    .WithArgumentList
+                    (
+                        ArgumentList
+                        (
+                            SeparatedList<ArgumentSyntax>
+                            (
+                                postArgs(action, groupTemplate.HasModifier)
+                            )
+                        )
+                    )
+                )
+            )
+            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+        }
+
+        private static SyntaxNodeOrToken[] postArgs(AppApiActionTemplate actionTemplate, bool includeModifier)
         {
             var args = new List<SyntaxNodeOrToken>();
             args.AddRange
             (
                 new SyntaxNodeOrToken[]
                 {
-                    Argument
-                    (
-                        LiteralExpression
+                        Argument
                         (
-                            SyntaxKind.StringLiteralExpression,
-                            Literal(actionTemplate.Name)
-                        )
-                    ),
-                    Token(SyntaxKind.CommaToken)
+                            LiteralExpression
+                            (
+                                SyntaxKind.StringLiteralExpression,
+                                Literal(actionTemplate.Name)
+                            )
+                        ),
+                        Token(SyntaxKind.CommaToken)
                 }
             );
+            if (includeModifier)
+            {
+                args.AddRange
+                (
+                    new SyntaxNodeOrToken[]
+                    {
+                        Argument(IdentifierName("modifier")),
+                        Token(SyntaxKind.CommaToken)
+                    }
+                );
+            }
+            else
+            {
+                args.AddRange
+                (
+                    new SyntaxNodeOrToken[]
+                    {
+                        Argument
+                        (
+                            LiteralExpression
+                            (
+                                SyntaxKind.StringLiteralExpression,
+                                Literal("")
+                            )
+                        ),
+                        Token(SyntaxKind.CommaToken)
+                    }
+                );
+            }
             if (actionTemplate.HasEmptyModel())
             {
                 args.Add
@@ -346,9 +384,17 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return args.ToArray();
         }
 
-        private static ParameterSyntax[] actionArgs(AppApiActionTemplate actionTemplate)
+        private static ParameterSyntax[] actionArgs(AppApiActionTemplate actionTemplate, bool includeModifier)
         {
             var parameters = new List<ParameterSyntax>();
+            if (includeModifier)
+            {
+                parameters.Add
+                (
+                    Parameter(Identifier("modifier"))
+                        .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
+                );
+            }
             if (!actionTemplate.HasEmptyModel())
             {
                 parameters.Add
@@ -539,7 +585,8 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                                                 new[]
                                                 {
                                                     Token(SyntaxKind.PublicKeyword),
-                                                    Token(SyntaxKind.SealedKeyword)
+                                                    Token(SyntaxKind.SealedKeyword),
+                                                    Token(SyntaxKind.PartialKeyword)
                                                 }
                                             )
                                         )

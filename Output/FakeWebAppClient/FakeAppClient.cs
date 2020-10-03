@@ -4,7 +4,7 @@ using System.Net.Http;
 
 namespace FakeWebAppClient
 {
-    public sealed class FakeAppClient : AppClient
+    public sealed partial class FakeAppClient : AppClient
     {
         public FakeAppClient(IHttpClientFactory httpClientFactory, XtiToken xtiToken, string baseUrl, string version = "V1"): base(httpClientFactory, baseUrl, "Fake", version)
         {

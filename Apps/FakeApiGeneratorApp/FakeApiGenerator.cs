@@ -32,6 +32,7 @@ namespace FakeApiGeneratorApp
                 Environment.ExitCode = 999;
                 Console.ReadLine();
             }
+            Console.Out.Flush();
             Console.WriteLine("Done");
             lifetime.StopApplication();
         }
