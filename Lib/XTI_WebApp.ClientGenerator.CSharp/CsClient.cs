@@ -476,9 +476,9 @@ namespace XTI_WebApp.ClientGenerator.CSharp
         {
             var baseTypes = new List<BaseTypeSyntax>();
             baseTypes.Add(SimpleBaseType(IdentifierName("AppClientGroup")));
-            if (group.Name.Equals("Auth", StringComparison.OrdinalIgnoreCase))
+            if (group.Name.Equals("AuthApi", StringComparison.OrdinalIgnoreCase))
             {
-                baseTypes.Add(SimpleBaseType(IdentifierName("IAuthClientGroup")));
+                baseTypes.Add(SimpleBaseType(IdentifierName("IAuthApiClientGroup")));
             }
             return baseTypes.ToArray();
         }
@@ -625,8 +625,8 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     (
                         IdentifierName
                         (
-                            group.Name.Equals("Auth", StringComparison.OrdinalIgnoreCase)
-                                ? $"IAuthClientGroup"
+                            group.Name.Equals("AuthApi", StringComparison.OrdinalIgnoreCase)
+                                ? $"IAuthApiClientGroup"
                                 : $"{group.Name}Group"
                         ),
                         Identifier(group.Name)
