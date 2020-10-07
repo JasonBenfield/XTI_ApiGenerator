@@ -10,8 +10,8 @@ export class ProductGroup extends AppApiGroup {
 	constructor(events: AppApiEvents, resourceUrl: AppResourceUrl) {
 		super(events, resourceUrl, 'Product');
 		this.Index = this.createView<IEmptyRequest>('Index');
-		this.GetInfoAction = this.createAction<IEmptyRequest,string>('GetInfo', 'GetInfo');
-		this.AddProductAction = this.createAction<IAddProductModel,number>('AddProduct', 'AddProduct');
+		this.GetInfoAction = this.createAction<IEmptyRequest,string>('GetInfo', '');
+		this.AddProductAction = this.createAction<IAddProductModel,number>('AddProduct', '');
 		this.ProductAction = this.createAction<number,IProduct>('Product', 'Get Product Information');
 	}
 

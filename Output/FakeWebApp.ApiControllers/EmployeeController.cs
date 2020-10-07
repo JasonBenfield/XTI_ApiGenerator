@@ -8,7 +8,7 @@ using XTI_App;
 
 namespace FakeWebApp.ApiControllers
 {
-    [AllowAnonymous]
+    [Authorize]
     public class EmployeeController : Controller
     {
         public EmployeeController(FakeAppApi api, XtiPath xtiPath)

@@ -10,7 +10,7 @@ export class EmployeeGroup extends AppApiGroup {
 	constructor(events: AppApiEvents, resourceUrl: AppResourceUrl) {
 		super(events, resourceUrl, 'Employee');
 		this.Index = this.createView<IEmptyRequest>('Index');
-		this.AddEmployeeAction = this.createAction<IAddEmployeeModel,number>('AddEmployee', 'AddEmployee');
+		this.AddEmployeeAction = this.createAction<IAddEmployeeModel,number>('AddEmployee', '');
 		this.EmployeeAction = this.createAction<number,IEmployee>('Employee', 'Get Employee Information');
 	}
 
