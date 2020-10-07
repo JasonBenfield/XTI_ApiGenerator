@@ -6,7 +6,7 @@ namespace FakeWebApp.Api
     {
         public AppApiTemplate Create()
         {
-            var api = new FakeAppApi(new AppApiSuperUser());
+            var api = new FakeAppApi(new AppApiSuperUser(), "Current");
             return api.Template();
         }
     }

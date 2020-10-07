@@ -10,8 +10,8 @@ namespace FakeWebApp.Api
         private static readonly string AppKeyValue = "Fake";
         public static readonly AppKey AppKey = new AppKey(AppKeyValue);
 
-        public FakeAppApi(IAppApiUser user, ResourceAccess access = null)
-            : base(AppKeyValue, user, access)
+        public FakeAppApi(IAppApiUser user, string version, ResourceAccess access = null)
+            : base(AppKeyValue, version, user, access)
         {
             Employee = AddGroup(u => new EmployeeGroup(this, u));
             Product = AddGroup(u => new ProductGroup(this, u));
@@ -36,13 +36,13 @@ namespace FakeWebApp.Api
             AddEmployee = AddAction
             (
                 "AddEmployee",
-                u => new AddEmployeeValidation(),
-                u => new AddEmployeeAction()
+                () => new AddEmployeeValidation(),
+                () => new AddEmployeeAction()
             );
             Employee = AddAction
             (
                 "Employee",
-                u => new EmployeeAction(),
+                () => new EmployeeAction(),
                 "Get Employee Information"
             );
         }
@@ -108,18 +108,18 @@ namespace FakeWebApp.Api
             GetInfo = AddAction
             (
                 "GetInfo",
-                u => new GetInfoAction()
+                () => new GetInfoAction()
             );
             AddProduct = AddAction
             (
                 "AddProduct",
-                u => new AddProductValidation(),
-                u => new AddProductAction()
+                () => new AddProductValidation(),
+                () => new AddProductAction()
             );
             Product = AddAction
             (
                 "Product",
-                u => new ProductAction(),
+                () => new ProductAction(),
                 "Get Product Information"
             );
         }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using XTI_App;
 using XTI_App.Api;
@@ -25,6 +26,18 @@ namespace XTI_ApiGeneratorApp.Extensions
             if (string.IsNullOrWhiteSpace(options.TsOutputFolder)) { throw new ArgumentException("TsOutputFolder is required"); }
             if (string.IsNullOrWhiteSpace(options.CsClient?.OutputFolder)) { throw new ArgumentException("CsClient OutputFolder is required"); }
             if (string.IsNullOrWhiteSpace(options.CsController?.OutputFolder)) { throw new ArgumentException("CsController OutputFolder is required"); }
+            if (!Directory.Exists(options.TsOutputFolder))
+            {
+                throw new ArgumentException($"TS Output Folder {options.TsOutputFolder} does not exist");
+            }
+            if (!Directory.Exists(options.CsClient.OutputFolder))
+            {
+                throw new ArgumentException($"CS Client Output Folder {options.CsClient.OutputFolder} does not exist");
+            }
+            if (!Directory.Exists(options.CsController.OutputFolder))
+            {
+                throw new ArgumentException($"CS Controller Output Folder {options.CsController.OutputFolder} does not exist");
+            }
             var tsClientToDisk = new CodeToDisk(createStream => new TsClient(appFactory, createStream), options.TsOutputFolder);
             await tsClientToDisk.Output(api);
             var controllerGenerator = new CodeToDisk
