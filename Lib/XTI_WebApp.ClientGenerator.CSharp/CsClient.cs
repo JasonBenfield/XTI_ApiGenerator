@@ -795,7 +795,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
 
         private async Task<SyntaxNodeOrToken[]> appCtorArgs(AppApiTemplate appTemplate)
         {
-            var app = await appFactory.Apps().App(new AppKey(appTemplate.Name));
+            var app = await appFactory.Apps().WebApp(new AppKey(appTemplate.Name));
             var currentVersion = await app.CurrentVersion();
             var args = new List<SyntaxNodeOrToken>();
             args.AddRange
@@ -814,7 +814,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     new SyntaxNodeOrToken[]
                     {
                         Parameter(Identifier("credentials"))
-                            .WithType(IdentifierName("XtiCredentials")),
+                            .WithType(IdentifierName("ICredentials")),
                         Token(SyntaxKind.CommaToken)
                     }
                 );
