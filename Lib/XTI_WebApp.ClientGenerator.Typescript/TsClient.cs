@@ -36,7 +36,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 }
                 str.Append("\r\n");
                 str.Append($"\r\nexport class {appClassName} extends AppApi {{");
-                var app = await appFactory.Apps().App(new AppKey(appTemplate.Name));
+                var app = await appFactory.Apps().WebApp(new AppKey(appTemplate.Name));
                 var currentVersion = await app.CurrentVersion();
                 str.Append($"\r\n\tconstructor(events: AppApiEvents, baseUrl: string, version: string = 'V{currentVersion.ID}') {{");
                 str.Append($"\r\n\t\tsuper(events, baseUrl, '{appTemplate.Name}', version);");
