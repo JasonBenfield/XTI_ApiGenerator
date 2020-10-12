@@ -527,9 +527,10 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             );
         }
 
-        private static SyntaxList<UsingDirectiveSyntax> appUsings()
+        private static SyntaxList<UsingDirectiveSyntax> appUsings(AppApiTemplate appTemplate)
         {
-            return List
+            var usings = new List<UsingDirectiveSyntax>();
+            usings.AddRange
             (
                 new UsingDirectiveSyntax[]
                 {
@@ -557,6 +558,17 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     )
                 }
             );
+            if (appTemplate.IsHub())
+            {
+                usings.Add
+                (
+                    UsingDirective
+                    (
+                        IdentifierName("XTI_Credentials")
+                    )
+                );
+            }
+            return List(usings);
         }
 
         private string getAppClassName(AppApiTemplate appTemplate) => $"{appTemplate.Name}AppClient";
@@ -566,7 +578,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return CompilationUnit()
                 .WithUsings
                 (
-                    appUsings()
+                    appUsings(appTemplate)
                 )
                 .WithMembers
                 (

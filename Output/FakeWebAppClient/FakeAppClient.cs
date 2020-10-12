@@ -1,12 +1,13 @@
 // Generated Code
 using XTI_WebAppClient;
 using System.Net.Http;
+using XTI_Credentials;
 
 namespace FakeWebAppClient
 {
     public sealed partial class FakeAppClient : AppClient
     {
-        public FakeAppClient(IHttpClientFactory httpClientFactory, XtiToken xtiToken, string baseUrl, string version = "V0"): base(httpClientFactory, baseUrl, "Fake", version)
+        public FakeAppClient(IHttpClientFactory httpClientFactory, XtiToken xtiToken, string baseUrl, string version = "V1006"): base(httpClientFactory, baseUrl, "Fake", version)
         {
             this.xtiToken = xtiToken;
             Employee = new EmployeeGroup(httpClientFactory, xtiToken, url);
