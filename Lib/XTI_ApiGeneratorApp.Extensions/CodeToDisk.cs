@@ -21,7 +21,7 @@ namespace XTI_ApiGeneratorApp.Extensions
         {
             if (!Directory.Exists(folderPath))
             {
-                Directory.CreateDirectory(folderPath);
+                throw new ArgumentException($"Output folder '{folderPath}' does not exist");
             }
             var codeGenerator = createCodeGenerator(createStream);
             return codeGenerator.Output(appTemplate);
