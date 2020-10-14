@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XTI_App;
@@ -36,7 +37,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 }
                 str.Append("\r\n");
                 str.Append($"\r\nexport class {appClassName} extends AppApi {{");
-                var app = await appFactory.Apps().App(new AppKey(appTemplate.Name));
+                var app = await appFactory.Apps().WebApp(new AppKey(appTemplate.Name));
                 var currentVersion = await app.CurrentVersion();
                 str.Append($"\r\n\tconstructor(events: AppApiEvents, baseUrl: string, version: string = 'V{currentVersion.ID}') {{");
                 str.Append($"\r\n\t\tsuper(events, baseUrl, '{appTemplate.Name}', version);");
@@ -68,7 +69,10 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                     str.Append("\r\nimport { AppApiEvents } from \"../../Hub/AppApiEvents\";");
                     str.Append("\r\nimport { AppResourceUrl } from \"../../Hub/AppResourceUrl\";");
                     str.Append("\r\n");
-                    str.Append($"\r\nexport class {groupClassName} extends AppApiGroup {{");
+                    var implementsClause = group.IsUser()
+                        ? "implements IUserGroup "
+                        : "";
+                    str.Append($"\r\nexport class {groupClassName} extends AppApiGroup {implementsClause}{{");
                     str.Append("\r\n\tconstructor(events: AppApiEvents, resourceUrl: AppResourceUrl) {");
                     str.Append($"\r\n\t\tsuper(events, resourceUrl, '{group.Name}');");
                     foreach (var action in group.ActionTemplates)

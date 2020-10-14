@@ -9,4 +9,8 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FakeWebApp.ApiControllers\FakeWebApp.ApiControllers.csproj" />
+  </ItemGroup>
+
 </Project>

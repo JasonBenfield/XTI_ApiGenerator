@@ -5,10 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FakeWebApp.Api" Version="1.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-    <PackageReference Include="XTI_App.Api" Version="1.1.5" />
+    <PackageReference Include="XTI_WebApp.Api" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>

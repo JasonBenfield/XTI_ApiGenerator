@@ -29,6 +29,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
 
         private static readonly string[] ModelsToOmit = new[]
         {
+            "LoginCredentials",
             "LoginModel",
             "LoginResult",
             "EmptyRequest"
@@ -527,9 +528,10 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             );
         }
 
-        private static SyntaxList<UsingDirectiveSyntax> appUsings()
+        private static SyntaxList<UsingDirectiveSyntax> appUsings(AppApiTemplate appTemplate)
         {
-            return List
+            var usings = new List<UsingDirectiveSyntax>();
+            usings.AddRange
             (
                 new UsingDirectiveSyntax[]
                 {
@@ -557,6 +559,17 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     )
                 }
             );
+            if (appTemplate.IsHub())
+            {
+                usings.Add
+                (
+                    UsingDirective
+                    (
+                        IdentifierName("XTI_Credentials")
+                    )
+                );
+            }
+            return List(usings);
         }
 
         private string getAppClassName(AppApiTemplate appTemplate) => $"{appTemplate.Name}AppClient";
@@ -566,7 +579,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return CompilationUnit()
                 .WithUsings
                 (
-                    appUsings()
+                    appUsings(appTemplate)
                 )
                 .WithMembers
                 (
@@ -795,7 +808,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
 
         private async Task<SyntaxNodeOrToken[]> appCtorArgs(AppApiTemplate appTemplate)
         {
-            var app = await appFactory.Apps().App(new AppKey(appTemplate.Name));
+            var app = await appFactory.Apps().WebApp(new AppKey(appTemplate.Name));
             var currentVersion = await app.CurrentVersion();
             var args = new List<SyntaxNodeOrToken>();
             args.AddRange
@@ -814,7 +827,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     new SyntaxNodeOrToken[]
                     {
                         Parameter(Identifier("credentials"))
-                            .WithType(IdentifierName("XtiCredentials")),
+                            .WithType(IdentifierName("ICredentials")),
                         Token(SyntaxKind.CommaToken)
                     }
                 );

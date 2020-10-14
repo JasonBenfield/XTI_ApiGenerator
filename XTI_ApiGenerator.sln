@@ -20,7 +20,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{66761BA2-DC7D-4867-960D-BFAC4D73AF66}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-		Version.Targets = Version.Targets
+		XTI_ApiGenerator.ps1 = XTI_ApiGenerator.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{1AE83B73-D536-4E07-A35B-18BB28E1EF98}"
@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FakeWebAppClient", "Output\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FakeWebApp", "Output\FakeWebApp\FakeWebApp.csproj", "{DE328467-1178-47A2-8AD0-48CFF40CED74}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeWebApp.Api", "Apps\FakeWebApp.Api\FakeWebApp.Api.csproj", "{8F1D556C-E301-44DD-89E4-48F58B66FE4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FakeWebApp.Api", "Apps\FakeWebApp.Api\FakeWebApp.Api.csproj", "{8F1D556C-E301-44DD-89E4-48F58B66FE4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
