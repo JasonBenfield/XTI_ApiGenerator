@@ -43,7 +43,11 @@ namespace XTI_WebApp.ControllerGenerator
             var apiClassName = $"{app.Name}AppApi";
             var controllerClassName = getControllerClassName(group);
             var classToken = ClassDeclaration(controllerClassName)
-                .AddModifiers(Token(SyntaxKind.PublicKeyword));
+                .AddModifiers
+                (
+                    Token(SyntaxKind.PublicKeyword),
+                    Token(SyntaxKind.PartialKeyword)
+                );
             var actionDeclarations = group.ActionTemplates.Select(a => actionDeclaration(group, a));
             var code = withUsings
             (
@@ -721,7 +725,7 @@ namespace XTI_WebApp.ControllerGenerator
             var namespaces = group.ObjectTemplates()
                 .Select(ot => ot.DataType.Namespace)
                 .Union(additionalNamespaces ?? new string[] { })
-                .Union(new[] { "XTI_App", "XTI_App.Api" })
+                .Union(new[] { "XTI_App", "XTI_App.Api", "XTI_WebApp.Api" })
                 .Distinct();
             foreach (var ns in namespaces)
             {

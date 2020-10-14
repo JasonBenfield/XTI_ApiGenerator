@@ -1,6 +1,6 @@
 Import-Module PowershellForXti -Force
 
-$script:webAppConfig = [PSCustomObject]@{
+$script:apiConfig = [PSCustomObject]@{
     RepoOwner = "JasonBenfield"
     RepoName = "XTI_ApiGenerator"
     AppKey = "XTI_ApiGenerator"
@@ -15,7 +15,7 @@ function Api-New-XtiIssue {
         $Label = @(),
         [string] $Body = ""
     )
-    $script:webAppConfig | New-XtiIssue @PsBoundParameters
+    $script:apiConfig | New-XtiIssue @PsBoundParameters
 }
 
 function Api-Xti-StartIssue {
@@ -25,7 +25,7 @@ function Api-Xti-StartIssue {
         $IssueBranchTitle = "",
         $AssignTo = ""
     )
-    $script:webAppConfig | Xti-StartIssue @PsBoundParameters
+    $script:apiConfig | Xti-StartIssue @PsBoundParameters
 }
 
 function Api-New-XtiVersion {
@@ -36,7 +36,7 @@ function Api-New-XtiVersion {
         [ValidateSet("Development", "Production", "Staging", "Test")]
         $EnvName = "Production"
     )
-    $script:webAppConfig | New-XtiVersion @PsBoundParameters
+    $script:apiConfig | New-XtiVersion @PsBoundParameters
 }
 
 function Api-New-XtiPullRequest {
@@ -44,18 +44,26 @@ function Api-New-XtiPullRequest {
         [Parameter(Position=0)]
         [string] $CommitMessage
     )
-    $script:webAppConfig | New-XtiPullRequest @PsBoundParameters
+    $script:apiConfig | New-XtiPullRequest @PsBoundParameters
 }
 
 function Api-Xti-PostMerge {
     param(
     )
-    $script:webAppConfig | Xti-PostMerge @PsBoundParameters
+    $script:apiConfig | Xti-PostMerge @PsBoundParameters
+}
+
+function Api-CopyHub {
+    $source = "..\HubWebApp\Apps\HubWebApp"
+    $target = ".\Output\FakeWebApp"
+    robocopy "$source\Scripts\Hub\" "$target\Scripts\Hub\" *.ts /e /purge /njh /njs /np /ns /nc /nfl /ndl /a+:R
+    robocopy "$source\Scripts\Hub\" "$target\Scripts\Hub\" /xf *.ts /e /purge /njh /njs /np /ns /nc /nfl /ndl /a-:R
+    robocopy "$source\Views\Exports\Hub\" "$target\Views\Exports\Hub\" /e /purge /njh /njs /np /ns /nc /nfl /ndl /a+:R
 }
 
 function Api-Publish {
     param(
         [switch] $Prod
     )
-    Xti-PublishPackage @PsBoundParameters
+    $script:apiConfig | Xti-PublishPackage @PsBoundParameters
 }

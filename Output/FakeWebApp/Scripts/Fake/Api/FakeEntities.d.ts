@@ -1,9 +1,12 @@
 // Generated code
 
-interface IEmptyRequest {
+interface IUserStartRequest {
+	ReturnUrl: string;
 }
 interface IAppActionViewResult {
 	ViewName: string;
+}
+interface IEmptyRequest {
 }
 interface IAddEmployeeModel {
 	Name: string;
