@@ -29,6 +29,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
 
         private static readonly string[] ModelsToOmit = new[]
         {
+            "LoginCredentials",
             "LoginModel",
             "LoginResult",
             "EmptyRequest"

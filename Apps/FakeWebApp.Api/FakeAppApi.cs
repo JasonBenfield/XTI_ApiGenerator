@@ -2,10 +2,11 @@
 using System.Threading.Tasks;
 using XTI_App;
 using XTI_App.Api;
+using XTI_WebApp.Api;
 
 namespace FakeWebApp.Api
 {
-    public sealed class FakeAppApi : AppApi
+    public sealed class FakeAppApi : WebAppApi
     {
         private static readonly string AppKeyValue = "Fake";
         public static readonly AppKey AppKey = new AppKey(AppKeyValue);
@@ -29,17 +30,19 @@ namespace FakeWebApp.Api
                   new NameFromGroupClassName(nameof(EmployeeGroup)).Value,
                   true,
                   api.Access,
-                  user
+                  user,
+                  (n, a, u) => new WebAppApiActionCollection(n, a, u)
             )
         {
-            Index = AddDefaultView();
-            AddEmployee = AddAction
+            var actions = Actions<WebAppApiActionCollection>();
+            Index = actions.AddDefaultView();
+            AddEmployee = actions.AddAction
             (
                 "AddEmployee",
                 () => new AddEmployeeValidation(),
                 () => new AddEmployeeAction()
             );
-            Employee = AddAction
+            Employee = actions.AddAction
             (
                 "Employee",
                 () => new EmployeeAction(),
@@ -101,22 +104,24 @@ namespace FakeWebApp.Api
                 new NameFromGroupClassName(nameof(ProductGroup)).Value,
                 false,
                 api.Access,
-                user
+                user,
+                (n, a, u) => new WebAppApiActionCollection(n, a, u)
             )
         {
-            Index = AddDefaultView();
-            GetInfo = AddAction
+            var actions = Actions<WebAppApiActionCollection>();
+            Index = actions.AddDefaultView();
+            GetInfo = actions.AddAction
             (
                 "GetInfo",
                 () => new GetInfoAction()
             );
-            AddProduct = AddAction
+            AddProduct = actions.AddAction
             (
                 "AddProduct",
                 () => new AddProductValidation(),
                 () => new AddProductAction()
             );
-            Product = AddAction
+            Product = actions.AddAction
             (
                 "Product",
                 () => new ProductAction(),
