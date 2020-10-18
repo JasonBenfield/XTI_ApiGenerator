@@ -120,7 +120,8 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                                                 new[]
                                                 {
                                                     Token(SyntaxKind.PublicKeyword),
-                                                    Token(SyntaxKind.SealedKeyword)
+                                                    Token(SyntaxKind.SealedKeyword),
+                                                    Token(SyntaxKind.PartialKeyword)
                                                 }
                                             )
                                         )
@@ -477,10 +478,6 @@ namespace XTI_WebApp.ClientGenerator.CSharp
         {
             var baseTypes = new List<BaseTypeSyntax>();
             baseTypes.Add(SimpleBaseType(IdentifierName("AppClientGroup")));
-            if (group.Name.Equals("AuthApi", StringComparison.OrdinalIgnoreCase))
-            {
-                baseTypes.Add(SimpleBaseType(IdentifierName("IAuthApiClientGroup")));
-            }
             return baseTypes.ToArray();
         }
 
@@ -638,9 +635,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     (
                         IdentifierName
                         (
-                            group.Name.Equals("AuthApi", StringComparison.OrdinalIgnoreCase)
-                                ? $"IAuthApiClientGroup"
-                                : $"{group.Name}Group"
+                            $"{group.Name}Group"
                         ),
                         Identifier(group.Name)
                     )
@@ -799,10 +794,6 @@ namespace XTI_WebApp.ClientGenerator.CSharp
         {
             var baseTypes = new List<BaseTypeSyntax>();
             baseTypes.Add(SimpleBaseType(IdentifierName("AppClient")));
-            if (appTemplate.IsHub())
-            {
-                baseTypes.Add(SimpleBaseType(IdentifierName("IAuthClient")));
-            }
             return baseTypes.ToArray();
         }
 

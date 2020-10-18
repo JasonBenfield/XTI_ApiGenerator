@@ -3,7 +3,7 @@ using System;
 
 namespace FakeWebAppClient
 {
-    public sealed class AddProductModel
+    public sealed partial class AddProductModel
     {
         public string Name
         {

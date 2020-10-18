@@ -3,7 +3,7 @@ using System;
 
 namespace FakeWebAppClient
 {
-    public sealed class AppActionViewResult
+    public sealed partial class AppActionViewResult
     {
         public string ViewName
         {
