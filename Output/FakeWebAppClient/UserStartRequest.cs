@@ -3,7 +3,7 @@ using System;
 
 namespace FakeWebAppClient
 {
-    public sealed class UserStartRequest
+    public sealed partial class UserStartRequest
     {
         public string ReturnUrl
         {
