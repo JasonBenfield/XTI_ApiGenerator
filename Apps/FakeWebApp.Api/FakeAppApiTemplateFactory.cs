@@ -2,7 +2,7 @@
 
 namespace FakeWebApp.Api
 {
-    public sealed class FakeAppApiTemplateFactory
+    public sealed class FakeAppApiTemplateFactory : IAppApiTemplateFactory
     {
         public AppApiTemplate Create()
         {

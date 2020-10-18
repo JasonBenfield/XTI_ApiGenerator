@@ -13,7 +13,8 @@ function Api-New-XtiIssue {
         [Parameter(Mandatory, Position=0)]
         [string] $IssueTitle,
         $Label = @(),
-        [string] $Body = ""
+        [string] $Body = "",
+        [switch] $Start
     )
     $script:apiConfig | New-XtiIssue @PsBoundParameters
 }
