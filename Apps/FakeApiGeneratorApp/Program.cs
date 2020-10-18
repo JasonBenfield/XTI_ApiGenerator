@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FakeWebApp.Api;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
-using XTI_Configuration.Extensions;
 using XTI_ApiGeneratorApp.Extensions;
-using XTI_ConsoleApp.Extensions;
+using XTI_App.Api;
+using XTI_Configuration.Extensions;
 
 namespace FakeApiGeneratorApp
 {
@@ -18,15 +19,9 @@ namespace FakeApiGeneratorApp
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddConsoleAppServices(hostContext.Configuration);
-                    services.ConfigureForApiGenerator(hostContext.Configuration);
-                    services.AddHostedService(sp =>
-                    {
-                        var scope = sp.CreateScope();
-                        var lifetime = scope.ServiceProvider.GetService<IHostApplicationLifetime>();
-                        var apiGenerator = scope.ServiceProvider.GetService<ApiGenerator>();
-                        return new FakeApiGenerator(lifetime, apiGenerator);
-                    });
+                    services.AddApiGenerator(hostContext.Configuration);
+                    services.AddScoped<IAppApiTemplateFactory, FakeAppApiTemplateFactory>();
+                    services.AddHostedService<ApiGeneratorHostedService>();
                 })
                 .RunConsoleAsync();
         }

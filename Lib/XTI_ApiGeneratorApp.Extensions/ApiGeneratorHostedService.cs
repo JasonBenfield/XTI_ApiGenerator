@@ -1,28 +1,31 @@
-﻿using FakeWebApp.Api;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using XTI_ApiGeneratorApp.Extensions;
+using XTI_App.Api;
 
-namespace FakeApiGeneratorApp
+namespace XTI_ApiGeneratorApp.Extensions
 {
-    public sealed class FakeApiGenerator : IHostedService
+    public sealed class ApiGeneratorHostedService : IHostedService
     {
-        public FakeApiGenerator(IHostApplicationLifetime lifetime, ApiGenerator apiGenerator)
-        {
-            this.lifetime = lifetime;
-            this.apiGenerator = apiGenerator;
-        }
-
+        private readonly IServiceScope scope;
         private readonly IHostApplicationLifetime lifetime;
         private readonly ApiGenerator apiGenerator;
+        private readonly IAppApiTemplateFactory apiTemplateFactory;
+
+        public ApiGeneratorHostedService(IServiceProvider sp)
+        {
+            scope = sp.CreateScope();
+            lifetime = scope.ServiceProvider.GetService<IHostApplicationLifetime>();
+            apiGenerator = scope.ServiceProvider.GetService<ApiGenerator>();
+            apiTemplateFactory = scope.ServiceProvider.GetService<IAppApiTemplateFactory>();
+        }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var apiTemplateFactory = new FakeAppApiTemplateFactory();
                 var apiTemplate = apiTemplateFactory.Create();
                 await apiGenerator.Execute(apiTemplate);
             }
