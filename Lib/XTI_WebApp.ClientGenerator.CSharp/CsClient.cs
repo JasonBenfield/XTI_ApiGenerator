@@ -556,7 +556,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     )
                 }
             );
-            if (appTemplate.IsHub())
+            if (appTemplate.IsAuthenticator())
             {
                 usings.Add
                 (
@@ -705,7 +705,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
         private static StatementSyntax[] appCtorBodyStatements(AppApiTemplate appTemplate)
         {
             var statements = new List<StatementSyntax>();
-            if (appTemplate.IsHub())
+            if (appTemplate.IsAuthenticator())
             {
                 statements.Add
                 (
@@ -811,7 +811,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     Token(SyntaxKind.CommaToken),
                 }
             );
-            if (appTemplate.IsHub())
+            if (appTemplate.IsAuthenticator())
             {
                 args.AddRange
                 (
