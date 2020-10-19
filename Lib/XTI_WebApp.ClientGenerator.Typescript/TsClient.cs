@@ -28,8 +28,8 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 var str = new StringBuilder();
                 str.Append("// Generated code");
                 str.Append("\r\n");
-                str.Append("\r\nimport { AppApi } from \"../../Hub/AppApi\";");
-                str.Append("\r\nimport { AppApiEvents } from \"../../Hub/AppApiEvents\";");
+                str.Append("\r\nimport { AppApi } from \"../../Shared/AppApi\";");
+                str.Append("\r\nimport { AppApiEvents } from \"../../Shared/AppApiEvents\";");
                 foreach (var groupTemplate in appTemplate.GroupTemplates)
                 {
                     var groupClassName = getGroupClassName(groupTemplate);
@@ -63,11 +63,11 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                     var str = new StringBuilder();
                     str.Append("// Generated code");
                     str.Append("\r\n");
-                    str.Append("\r\nimport { AppApiGroup } from \"../../Hub/AppApiGroup\";");
-                    str.Append("\r\nimport { AppApiAction } from \"../../Hub/AppApiAction\";");
-                    str.Append("\r\nimport { AppApiView } from \"../../Hub/AppApiView\";");
-                    str.Append("\r\nimport { AppApiEvents } from \"../../Hub/AppApiEvents\";");
-                    str.Append("\r\nimport { AppResourceUrl } from \"../../Hub/AppResourceUrl\";");
+                    str.Append("\r\nimport { AppApiGroup } from \"../../Shared/AppApiGroup\";");
+                    str.Append("\r\nimport { AppApiAction } from \"../../Shared/AppApiAction\";");
+                    str.Append("\r\nimport { AppApiView } from \"../../Shared/AppApiView\";");
+                    str.Append("\r\nimport { AppApiEvents } from \"../../Shared/AppApiEvents\";");
+                    str.Append("\r\nimport { AppResourceUrl } from \"../../Shared/AppResourceUrl\";");
                     str.Append("\r\n");
                     var implementsClause = group.IsUser()
                         ? "implements IUserGroup "
