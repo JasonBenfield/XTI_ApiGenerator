@@ -1,7 +1,7 @@
 // Generated code
 
-import { AppApi } from "../../Hub/AppApi";
-import { AppApiEvents } from "../../Hub/AppApiEvents";
+import { AppApi } from "../../Shared/AppApi";
+import { AppApiEvents } from "../../Shared/AppApiEvents";
 import { UserGroup } from "./UserGroup";
 import { EmployeeGroup } from "./EmployeeGroup";
 import { ProductGroup } from "./ProductGroup";
