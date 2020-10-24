@@ -7,8 +7,10 @@ import { EmployeeGroup } from "./EmployeeGroup";
 import { ProductGroup } from "./ProductGroup";
 
 export class FakeAppApi extends AppApi {
-	constructor(events: AppApiEvents, baseUrl: string, version: string = 'V1006') {
-		super(events, baseUrl, 'Fake', version);
+	public static readonly DefaultVersion = 'V1006';
+
+	constructor(events: AppApiEvents, baseUrl: string, version: string = '') {
+		super(events, baseUrl, 'Fake', version || FakeAppApi.DefaultVersion);
 		this.User = this.addGroup((evts, resourceUrl) => new UserGroup(evts, resourceUrl));
 		this.Employee = this.addGroup((evts, resourceUrl) => new EmployeeGroup(evts, resourceUrl));
 		this.Product = this.addGroup((evts, resourceUrl) => new ProductGroup(evts, resourceUrl));

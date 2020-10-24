@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XTI_App;
@@ -39,8 +38,10 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 str.Append($"\r\nexport class {appClassName} extends AppApi {{");
                 var app = await appFactory.Apps().WebApp(new AppKey(appTemplate.Name));
                 var currentVersion = await app.CurrentVersion();
-                str.Append($"\r\n\tconstructor(events: AppApiEvents, baseUrl: string, version: string = 'V{currentVersion.ID}') {{");
-                str.Append($"\r\n\t\tsuper(events, baseUrl, '{appTemplate.Name}', version);");
+                str.Append($"\r\n\tpublic static readonly DefaultVersion = '{currentVersion.Key().Value}';");
+                str.Append("\r\n");
+                str.Append($"\r\n\tconstructor(events: AppApiEvents, baseUrl: string, version: string = '') {{");
+                str.Append($"\r\n\t\tsuper(events, baseUrl, '{appTemplate.Name}', version || {appClassName}.DefaultVersion);");
                 foreach (var groupTemplate in appTemplate.GroupTemplates)
                 {
                     str.Append($"\r\n\t\tthis.{groupTemplate.Name} = this.addGroup((evts, resourceUrl) => new {groupTemplate.Name}Group(evts, resourceUrl));");
