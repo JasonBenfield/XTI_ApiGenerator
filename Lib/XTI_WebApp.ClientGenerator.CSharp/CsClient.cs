@@ -606,7 +606,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                                             (
                                                 SeparatedList
                                                 (
-                                                    appBaseList(appTemplate)
+                                                    appBaseList()
                                                 )
                                             )
                                         )
@@ -627,6 +627,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
         {
             var members = new List<MemberDeclarationSyntax>();
             members.Add(await appCtor(appTemplate));
+            members.Add(await defaultVersion(appTemplate));
             foreach (var group in appTemplate.GroupTemplates)
             {
                 members.Add
@@ -657,6 +658,48 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                 );
             }
             return members.ToArray();
+        }
+
+        private async Task<MemberDeclarationSyntax> defaultVersion(AppApiTemplate appTemplate)
+        {
+            var app = await appFactory.Apps().WebApp(new AppKey(appTemplate.Name));
+            var currentVersion = await app.CurrentVersion();
+            return FieldDeclaration
+            (
+                VariableDeclaration
+                (
+                    PredefinedType(Token(SyntaxKind.StringKeyword))
+                )
+                .WithVariables
+                (
+                    SingletonSeparatedList
+                    (
+                        VariableDeclarator(Identifier("DefaultVersion"))
+                            .WithInitializer
+                            (
+                                EqualsValueClause
+                                (
+                                    LiteralExpression
+                                    (
+                                        SyntaxKind.StringLiteralExpression,
+                                        Literal(currentVersion.Key().Value)
+                                    )
+                                )
+                            )
+                    )
+                )
+            )
+            .WithModifiers
+            (
+                TokenList
+                (
+                    new[]
+                    {
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.ConstKeyword)
+                    }
+                )
+            );
         }
 
         private async Task<ConstructorDeclarationSyntax> appCtor(AppApiTemplate appTemplate)
@@ -790,7 +833,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return statements.ToArray();
         }
 
-        private static BaseTypeSyntax[] appBaseList(AppApiTemplate appTemplate)
+        private static BaseTypeSyntax[] appBaseList()
         {
             var baseTypes = new List<BaseTypeSyntax>();
             baseTypes.Add(SimpleBaseType(IdentifierName("AppClient")));
@@ -848,11 +891,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                         (
                             EqualsValueClause
                             (
-                                LiteralExpression
-                                (
-                                    SyntaxKind.StringLiteralExpression,
-                                    Literal($"V{currentVersion.ID}")
-                                )
+                                IdentifierName("DefaultVersion")
                             )
                         )
                 }
@@ -880,7 +919,33 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                         )
                     ),
                     Token(SyntaxKind.CommaToken),
-                    Argument(IdentifierName("version"))
+                    Argument
+                    (
+                        ConditionalExpression
+                        (
+                            InvocationExpression
+                            (
+                                MemberAccessExpression
+                                (
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    PredefinedType(Token(SyntaxKind.StringKeyword)),
+                                    IdentifierName("IsNullOrWhiteSpace")
+                                )
+                            )
+                            .WithArgumentList
+                            (
+                                ArgumentList
+                                (
+                                    SingletonSeparatedList
+                                    (
+                                        Argument(IdentifierName("version"))
+                                    )
+                                )
+                            ),
+                            IdentifierName("DefaultVersion"),
+                            IdentifierName("version")
+                        )
+                    )
                 }
             );
             return args.ToArray();
