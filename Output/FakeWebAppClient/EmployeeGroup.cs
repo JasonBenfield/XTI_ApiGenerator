@@ -11,7 +11,7 @@ namespace FakeWebAppClient
         {
         }
 
-        public Task<int> AddEmployee(string modifier, AddEmployeeModel model) => Post<int, AddEmployeeModel>("AddEmployee", modifier, model);
-        public Task<Employee> Employee(string modifier, int model) => Post<Employee, int>("Employee", modifier, model);
+        public Task<int> AddEmployee(AddEmployeeModel model) => Post<int, AddEmployeeModel>("AddEmployee", "", model);
+        public Task<Employee> Employee(int model) => Post<Employee, int>("Employee", "", model);
     }
 }
