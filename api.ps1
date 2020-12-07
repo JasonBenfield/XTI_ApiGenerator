@@ -54,12 +54,12 @@ function Api-Xti-PostMerge {
     $script:apiConfig | Xti-PostMerge @PsBoundParameters
 }
 
-function Api-CopyHub {
-    $source = "..\HubWebApp\Apps\HubWebApp"
+function Api-CopyShared {
+    $source = "..\SharedWebApp\Apps\SharedWebApp"
     $target = ".\Output\FakeWebApp"
-    robocopy "$source\Scripts\Hub\" "$target\Scripts\Hub\" *.ts /e /purge /njh /njs /np /ns /nc /nfl /ndl /a+:R
-    robocopy "$source\Scripts\Hub\" "$target\Scripts\Hub\" /xf *.ts /e /purge /njh /njs /np /ns /nc /nfl /ndl /a-:R
-    robocopy "$source\Views\Exports\Hub\" "$target\Views\Exports\Hub\" /e /purge /njh /njs /np /ns /nc /nfl /ndl /a+:R
+    robocopy "$source\Scripts\Shared\" "$target\Scripts\Shared\" *.ts /e /purge /njh /njs /np /ns /nc /nfl /ndl /a+:R
+    robocopy "$source\Scripts\Shared\" "$target\Scripts\Shared\" /xf *.ts /e /purge /njh /njs /np /ns /nc /nfl /ndl /a-:R
+    robocopy "$source\Views\Exports\Shared\" "$target\Views\Exports\Shared\" /e /purge /njh /njs /np /ns /nc /nfl /ndl /a+:R
 }
 
 function Api-Publish {

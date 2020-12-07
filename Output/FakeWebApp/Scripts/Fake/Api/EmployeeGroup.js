@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmployeeGroup = void 0;
 var tslib_1 = require("tslib");
-var AppApiGroup_1 = require("../../Hub/AppApiGroup");
+var AppApiGroup_1 = require("../../Shared/AppApiGroup");
 var EmployeeGroup = /** @class */ (function (_super) {
     tslib_1.__extends(EmployeeGroup, _super);
     function EmployeeGroup(events, resourceUrl) {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,52 +13,72 @@ namespace XTI_ApiGeneratorApp.Extensions
 {
     public sealed class ApiGenerator
     {
-        public ApiGenerator(AppFactory appFactory, IOptions<OutputOptions> options)
+        public ApiGenerator(IHostEnvironment hostEnv, AppFactory appFactory, IOptions<OutputOptions> options)
         {
+            this.hostEnv = hostEnv;
             this.appFactory = appFactory;
             this.options = options.Value;
         }
 
+        private readonly IHostEnvironment hostEnv;
         private readonly AppFactory appFactory;
         private readonly OutputOptions options;
 
         public async Task Execute(AppApiTemplate api)
         {
-            if (string.IsNullOrWhiteSpace(options.TsOutputFolder)) { throw new ArgumentException("TsOutputFolder is required"); }
-            if (string.IsNullOrWhiteSpace(options.CsClient?.OutputFolder)) { throw new ArgumentException("CsClient OutputFolder is required"); }
-            if (string.IsNullOrWhiteSpace(options.CsController?.OutputFolder)) { throw new ArgumentException("CsController OutputFolder is required"); }
-            if (!Directory.Exists(options.TsOutputFolder))
+            if (options.TsClient?.Disable == false)
             {
-                throw new ArgumentException($"TS Output Folder {options.TsOutputFolder} does not exist");
+                if (string.IsNullOrWhiteSpace(options.TsClient?.OutputFolder))
+                {
+                    throw new ArgumentException("TsOutputFolder is required");
+                }
+                if (!Directory.Exists(options.TsClient.OutputFolder))
+                {
+                    throw new ArgumentException($"TS Output Folder {options.TsClient.OutputFolder} does not exist");
+                }
+                var tsClientToDisk = new CodeToDisk(createStream => new TsClient(hostEnv, appFactory, createStream), options.TsClient.OutputFolder);
+                await tsClientToDisk.Output(api);
             }
-            if (!Directory.Exists(options.CsClient.OutputFolder))
+            if (options.CsController?.Disable == false)
             {
-                throw new ArgumentException($"CS Client Output Folder {options.CsClient.OutputFolder} does not exist");
+                if (string.IsNullOrWhiteSpace(options.CsController?.OutputFolder))
+                {
+                    throw new ArgumentException("CsController OutputFolder is required");
+                }
+                if (!Directory.Exists(options.CsController.OutputFolder))
+                {
+                    throw new ArgumentException($"CS Controller Output Folder {options.CsController.OutputFolder} does not exist");
+                }
+                var controllerGenerator = new CodeToDisk
+                (
+                    createStream =>
+                        new CsControllers
+                        (
+                            options.CsController.Namespace,
+                            options.CsController.AdditionalNamespaces,
+                            createStream
+                        ),
+                    options.CsController.OutputFolder
+                );
+                await controllerGenerator.Output(api);
             }
-            if (!Directory.Exists(options.CsController.OutputFolder))
+            if (options.CsClient?.Disable == false)
             {
-                throw new ArgumentException($"CS Controller Output Folder {options.CsController.OutputFolder} does not exist");
+                if (string.IsNullOrWhiteSpace(options.CsClient?.OutputFolder))
+                {
+                    throw new ArgumentException("CsClient OutputFolder is required");
+                }
+                if (!Directory.Exists(options.CsClient.OutputFolder))
+                {
+                    throw new ArgumentException($"CS Client Output Folder {options.CsClient.OutputFolder} does not exist");
+                }
+                var csClientToDisk = new CodeToDisk
+                (
+                    createStream => new CsClient(hostEnv, appFactory, options.CsClient.Namespace, createStream),
+                    options.CsClient.OutputFolder
+                );
+                await csClientToDisk.Output(api);
             }
-            var tsClientToDisk = new CodeToDisk(createStream => new TsClient(appFactory, createStream), options.TsOutputFolder);
-            await tsClientToDisk.Output(api);
-            var controllerGenerator = new CodeToDisk
-            (
-                createStream =>
-                    new CsControllers
-                    (
-                        options.CsController.Namespace,
-                        options.CsController.AdditionalNamespaces,
-                        createStream
-                    ),
-                options.CsController.OutputFolder
-            );
-            await controllerGenerator.Output(api);
-            var csClientToDisk = new CodeToDisk
-            (
-                createStream => new CsClient(appFactory, options.CsClient.Namespace, createStream),
-                options.CsClient.OutputFolder
-            );
-            await csClientToDisk.Output(api);
         }
     }
 }

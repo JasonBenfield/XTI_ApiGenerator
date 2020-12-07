@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Hosting;
+using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XTI_App;
@@ -11,14 +11,16 @@ namespace XTI_WebApp.ClientGenerator.Typescript
 {
     public sealed class TsClient : CodeGenerator
     {
-        public TsClient(AppFactory appFactory, Func<string, Stream> createStream)
+        private readonly IHostEnvironment hostEnv;
+        private readonly AppFactory appFactory;
+        private readonly Func<string, Stream> createStream;
+
+        public TsClient(IHostEnvironment hostEnv, AppFactory appFactory, Func<string, Stream> createStream)
         {
+            this.hostEnv = hostEnv;
             this.appFactory = appFactory;
             this.createStream = createStream;
         }
-
-        private readonly AppFactory appFactory;
-        private readonly Func<string, Stream> createStream;
 
         public async Task Output(AppApiTemplate appTemplate)
         {
@@ -37,10 +39,21 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 }
                 str.Append("\r\n");
                 str.Append($"\r\nexport class {appClassName} extends AppApi {{");
-                var app = await appFactory.Apps().WebApp(new AppKey(appTemplate.Name));
-                var currentVersion = await app.CurrentVersion();
-                str.Append($"\r\n\tconstructor(events: AppApiEvents, baseUrl: string, version: string = 'V{currentVersion.ID}') {{");
-                str.Append($"\r\n\t\tsuper(events, baseUrl, '{appTemplate.Name}', version);");
+                AppVersionKey versionKey;
+                if (hostEnv.IsProduction())
+                {
+                    var app = await appFactory.Apps().App(appTemplate.AppKey);
+                    var currentVersion = await app.CurrentVersion();
+                    versionKey = currentVersion.Key();
+                }
+                else
+                {
+                    versionKey = AppVersionKey.Current;
+                }
+                str.Append($"\r\n\tpublic static readonly DefaultVersion = '{versionKey.Value}';");
+                str.Append("\r\n");
+                str.Append($"\r\n\tconstructor(events: AppApiEvents, baseUrl: string, version: string = '') {{");
+                str.Append($"\r\n\t\tsuper(events, baseUrl, '{appTemplate.Name}', version || {appClassName}.DefaultVersion);");
                 foreach (var groupTemplate in appTemplate.GroupTemplates)
                 {
                     str.Append($"\r\n\t\tthis.{groupTemplate.Name} = this.addGroup((evts, resourceUrl) => new {groupTemplate.Name}Group(evts, resourceUrl));");

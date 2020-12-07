@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using XTI_App;
 using XTI_App.EF;
-using XTI_App.Extensions;
+using MainDB.Extensions;
 
 namespace XTI_ApiGeneratorApp.Extensions
 {

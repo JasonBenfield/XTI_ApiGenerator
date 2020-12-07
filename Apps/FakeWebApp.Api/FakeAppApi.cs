@@ -6,13 +6,15 @@ using XTI_WebApp.Api;
 
 namespace FakeWebApp.Api
 {
+    public static class FakeAppKey
+    {
+        public static readonly AppKey AppKey = new AppKey("Fake", AppType.Values.WebApp);
+    }
     public sealed class FakeAppApi : WebAppApi
     {
-        private static readonly string AppKeyValue = "Fake";
-        public static readonly AppKey AppKey = new AppKey(AppKeyValue);
 
-        public FakeAppApi(IAppApiUser user, string version, ResourceAccess access = null)
-            : base(AppKeyValue, version, user, access)
+        public FakeAppApi(IAppApiUser user, AppVersionKey version, ResourceAccess access = null)
+            : base(FakeAppKey.AppKey, version, user, access)
         {
             Employee = AddGroup(u => new EmployeeGroup(this, u));
             Product = AddGroup(u => new ProductGroup(this, u));
@@ -28,7 +30,7 @@ namespace FakeWebApp.Api
             (
                   api,
                   new NameFromGroupClassName(nameof(EmployeeGroup)).Value,
-                  true,
+                  ModifierCategoryName.Default,
                   api.Access,
                   user,
                   (n, a, u) => new WebAppApiActionCollection(n, a, u)
@@ -102,7 +104,7 @@ namespace FakeWebApp.Api
             (
                 api,
                 new NameFromGroupClassName(nameof(ProductGroup)).Value,
-                false,
+                ModifierCategoryName.Default,
                 api.Access,
                 user,
                 (n, a, u) => new WebAppApiActionCollection(n, a, u)
