@@ -92,18 +92,22 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return CompilationUnit()
                 .WithUsings
                 (
-                    SingletonList
+                    List
                     (
-                        UsingDirective(IdentifierName("System"))
-                            .WithUsingKeyword
-                            (
-                                Token
+                        new[]
+                        {
+                            UsingDirective(IdentifierName("System"))
+                                .WithUsingKeyword
                                 (
-                                    TriviaList(Comment("// Generated Code")),
-                                    SyntaxKind.UsingKeyword,
-                                    TriviaList()
-                                )
-                            )
+                                    Token
+                                    (
+                                        TriviaList(Comment("// Generated Code")),
+                                        SyntaxKind.UsingKeyword,
+                                        TriviaList()
+                                    )
+                                ),
+                            UsingDirective(IdentifierName("System.Collections.Generic"))
+                        }
                     )
                 )
                 .WithMembers
