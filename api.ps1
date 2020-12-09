@@ -3,7 +3,7 @@ Import-Module PowershellForXti -Force
 $script:apiConfig = [PSCustomObject]@{
     RepoOwner = "JasonBenfield"
     RepoName = "XTI_ApiGenerator"
-    AppKey = "XTI_ApiGenerator"
+    AppName = "XTI_ApiGenerator"
     AppType = "Package"
     ProjectDir = ""
 }
