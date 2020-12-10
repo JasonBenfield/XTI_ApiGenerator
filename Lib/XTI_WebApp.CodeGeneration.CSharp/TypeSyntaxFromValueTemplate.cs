@@ -72,18 +72,23 @@ namespace XTI_WebApp.CodeGeneration.CSharp
             }
             if (valueTemplate is ArrayValueTemplate arr)
             {
-                return
-                    GenericName(Identifier("IEnumerable"))
-                        .WithTypeArgumentList
+                return ArrayType
+                    (
+                        new TypeSyntaxFromValueTemplate(arr.ElementTemplate).Value()
+                    )
+                    .WithRankSpecifiers
+                    (
+                        SingletonList
                         (
-                            TypeArgumentList
+                            ArrayRankSpecifier
                             (
-                                SingletonSeparatedList
+                                SingletonSeparatedList<ExpressionSyntax>
                                 (
-                                    new TypeSyntaxFromValueTemplate(arr.ElementTemplate).Value()
+                                    OmittedArraySizeExpression()
                                 )
                             )
-                        );
+                        )
+                    );
             }
             return IdentifierName(valueTemplate.DataType.Name);
         }
