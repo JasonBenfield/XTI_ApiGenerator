@@ -17,5 +17,11 @@ namespace FakeWebAppClient
             get;
             set;
         }
+
+        public int[] Departments
+        {
+            get;
+            set;
+        }
     }
 }

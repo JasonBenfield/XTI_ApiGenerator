@@ -60,6 +60,7 @@ namespace FakeWebApp.Api
     {
         public string Name { get; set; }
         public DateTime BirthDate { get; set; }
+        public int[] Departments { get; set; }
     }
 
     public sealed class AddEmployeeAction : AppAction<AddEmployeeModel, int>
