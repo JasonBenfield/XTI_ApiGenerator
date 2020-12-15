@@ -1,13 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using XTI_App;
 using XTI_App.Api;
 using XTI_WebApp.CodeGeneration;
 using XTI_WebApp.CodeGeneration.CSharp;
@@ -17,15 +15,18 @@ namespace XTI_WebApp.ClientGenerator.CSharp
 {
     public sealed class CsClient : CodeGenerator
     {
-        private readonly IHostEnvironment hostEnv;
-        private readonly AppFactory appFactory;
+        private readonly DefaultVersion defaultVersion;
         private readonly string ns;
         private readonly Func<string, Stream> createStream;
 
-        public CsClient(IHostEnvironment hostEnv, AppFactory appFactory, string ns, Func<string, Stream> createStream)
+        public CsClient
+        (
+            DefaultVersion defaultVersion,
+            string ns,
+            Func<string, Stream> createStream
+        )
         {
-            this.hostEnv = hostEnv;
-            this.appFactory = appFactory;
+            this.defaultVersion = defaultVersion;
             this.ns = ns;
             this.createStream = createStream;
         }
@@ -634,7 +635,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
         {
             var members = new List<MemberDeclarationSyntax>();
             members.Add(appCtor(appTemplate));
-            members.Add(await defaultVersion(appTemplate));
+            members.Add(await defaultVersionDeclaration(appTemplate));
             foreach (var group in appTemplate.GroupTemplates)
             {
                 members.Add
@@ -667,19 +668,9 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             return members.ToArray();
         }
 
-        private async Task<MemberDeclarationSyntax> defaultVersion(AppApiTemplate appTemplate)
+        private async Task<MemberDeclarationSyntax> defaultVersionDeclaration(AppApiTemplate appTemplate)
         {
-            AppVersionKey versionKey;
-            if (hostEnv.IsProduction())
-            {
-                var app = await appFactory.Apps().App(appTemplate.AppKey);
-                var currentVersion = await app.CurrentVersion();
-                versionKey = currentVersion.Key();
-            }
-            else
-            {
-                versionKey = AppVersionKey.Current;
-            }
+            var versionKey = await defaultVersion.Value(appTemplate.AppKey);
             return FieldDeclaration
             (
                 VariableDeclaration

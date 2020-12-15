@@ -14,7 +14,7 @@ namespace FakeWebAppClient
             Product = new ProductGroup(httpClientFactory, xtiToken, url);
         }
 
-        public const string DefaultVersion = "Current";
+        public const string DefaultVersion = "V2";
         public UserGroup User
         {
             get;
