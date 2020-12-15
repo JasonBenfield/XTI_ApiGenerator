@@ -4,6 +4,7 @@
     {
         public static readonly string Output = "Output";
 
+        public string DefaultVersion { get; set; }
         public TsClientOptions TsClient { get; set; }
         public CsClientOptions CsClient { get; set; }
         public CsControllerOptions CsController { get; set; }

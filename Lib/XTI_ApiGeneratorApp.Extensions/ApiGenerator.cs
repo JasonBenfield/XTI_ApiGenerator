@@ -7,21 +7,20 @@ using XTI_App;
 using XTI_App.Api;
 using XTI_WebApp.ClientGenerator.CSharp;
 using XTI_WebApp.ClientGenerator.Typescript;
+using XTI_WebApp.CodeGeneration;
 using XTI_WebApp.ControllerGenerator;
 
 namespace XTI_ApiGeneratorApp.Extensions
 {
     public sealed class ApiGenerator
     {
-        public ApiGenerator(IHostEnvironment hostEnv, AppFactory appFactory, IOptions<OutputOptions> options)
+        public ApiGenerator(DefaultVersion defaultVersion, IOptions<OutputOptions> options)
         {
-            this.hostEnv = hostEnv;
-            this.appFactory = appFactory;
+            this.defaultVersion = defaultVersion;
             this.options = options.Value;
         }
 
-        private readonly IHostEnvironment hostEnv;
-        private readonly AppFactory appFactory;
+        private readonly DefaultVersion defaultVersion;
         private readonly OutputOptions options;
 
         public async Task Execute(AppApiTemplate api)
@@ -36,7 +35,7 @@ namespace XTI_ApiGeneratorApp.Extensions
                 {
                     throw new ArgumentException($"TS Output Folder {options.TsClient.OutputFolder} does not exist");
                 }
-                var tsClientToDisk = new CodeToDisk(createStream => new TsClient(hostEnv, appFactory, createStream), options.TsClient.OutputFolder);
+                var tsClientToDisk = new CodeToDisk(createStream => new TsClient(defaultVersion, createStream), options.TsClient.OutputFolder);
                 await tsClientToDisk.Output(api);
             }
             if (options.CsController?.Disable == false)
@@ -74,7 +73,7 @@ namespace XTI_ApiGeneratorApp.Extensions
                 }
                 var csClientToDisk = new CodeToDisk
                 (
-                    createStream => new CsClient(hostEnv, appFactory, options.CsClient.Namespace, createStream),
+                    createStream => new CsClient(defaultVersion, options.CsClient.Namespace, createStream),
                     options.CsClient.OutputFolder
                 );
                 await csClientToDisk.Output(api);
