@@ -40,6 +40,14 @@ function Api-New-XtiVersion {
     $script:apiConfig | New-XtiVersion @PsBoundParameters
 }
 
+function Api-Xti-Merge {
+    param(
+        [Parameter(Position=0)]
+        [string] $CommitMessage
+    )
+    $script:apiConfig | Xti-Merge @PsBoundParameters
+}
+
 function Api-New-XtiPullRequest {
     param(
         [Parameter(Position=0)]

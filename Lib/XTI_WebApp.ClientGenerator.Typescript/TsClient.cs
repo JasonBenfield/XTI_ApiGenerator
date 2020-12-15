@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Hosting;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using XTI_App;
 using XTI_App.Api;
 using XTI_WebApp.CodeGeneration;
 
@@ -11,14 +9,12 @@ namespace XTI_WebApp.ClientGenerator.Typescript
 {
     public sealed class TsClient : CodeGenerator
     {
-        private readonly IHostEnvironment hostEnv;
-        private readonly AppFactory appFactory;
+        private readonly DefaultVersion defaultVersion;
         private readonly Func<string, Stream> createStream;
 
-        public TsClient(IHostEnvironment hostEnv, AppFactory appFactory, Func<string, Stream> createStream)
+        public TsClient(DefaultVersion defaultVersion, Func<string, Stream> createStream)
         {
-            this.hostEnv = hostEnv;
-            this.appFactory = appFactory;
+            this.defaultVersion = defaultVersion;
             this.createStream = createStream;
         }
 
@@ -39,17 +35,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 }
                 str.Append("\r\n");
                 str.Append($"\r\nexport class {appClassName} extends AppApi {{");
-                AppVersionKey versionKey;
-                if (hostEnv.IsProduction())
-                {
-                    var app = await appFactory.Apps().App(appTemplate.AppKey);
-                    var currentVersion = await app.CurrentVersion();
-                    versionKey = currentVersion.Key();
-                }
-                else
-                {
-                    versionKey = AppVersionKey.Current;
-                }
+                var versionKey = await defaultVersion.Value(appTemplate.AppKey);
                 str.Append($"\r\n\tpublic static readonly DefaultVersion = '{versionKey.Value}';");
                 str.Append("\r\n");
                 str.Append($"\r\n\tconstructor(events: AppApiEvents, baseUrl: string, version: string = '') {{");
