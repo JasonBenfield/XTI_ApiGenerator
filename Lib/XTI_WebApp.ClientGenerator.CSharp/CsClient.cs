@@ -438,7 +438,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                                     .WithType(IdentifierName("IHttpClientFactory")),
                                 Token(SyntaxKind.CommaToken),
                                 Parameter(Identifier("xtiToken"))
-                                    .WithType(IdentifierName("XtiToken")),
+                                    .WithType(IdentifierName("IXtiToken")),
                                 Token(SyntaxKind.CommaToken),
                                 Parameter(Identifier("baseUrl"))
                                     .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
@@ -765,7 +765,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                         (
                             SyntaxKind.SimpleAssignmentExpression,
                             IdentifierName("xtiToken"),
-                            ObjectCreationExpression(IdentifierName("XtiToken"))
+                            ObjectCreationExpression(IdentifierName("IXtiToken"))
                                 .WithArgumentList
                                 (
                                     ArgumentList
@@ -878,7 +878,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     new SyntaxNodeOrToken[]
                     {
                         Parameter(Identifier("xtiToken"))
-                            .WithType(IdentifierName("XtiToken")),
+                            .WithType(IdentifierName("IXtiToken")),
                         Token(SyntaxKind.CommaToken)
                     }
                 );

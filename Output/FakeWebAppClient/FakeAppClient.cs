@@ -6,7 +6,7 @@ namespace FakeWebAppClient
 {
     public sealed partial class FakeAppClient : AppClient
     {
-        public FakeAppClient(IHttpClientFactory httpClientFactory, XtiToken xtiToken, string baseUrl, string version = DefaultVersion): base(httpClientFactory, baseUrl, "Fake", string.IsNullOrWhiteSpace(version) ? DefaultVersion : version)
+        public FakeAppClient(IHttpClientFactory httpClientFactory, IXtiToken xtiToken, string baseUrl, string version = DefaultVersion): base(httpClientFactory, baseUrl, "Fake", string.IsNullOrWhiteSpace(version) ? DefaultVersion : version)
         {
             this.xtiToken = xtiToken;
             User = new UserGroup(httpClientFactory, xtiToken, url);
