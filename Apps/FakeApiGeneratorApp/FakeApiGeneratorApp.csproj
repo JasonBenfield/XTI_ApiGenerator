@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="XTI_Configuration.Extensions" Version="1.8.2" />
-    <PackageReference Include="XTI_WebApp.Fakes" Version="1.6.2" />
+    <PackageReference Include="XTI_WebApp.Fakes" Version="1.6.3-dev201216072030169" />
   </ItemGroup>
 
   <ItemGroup>
