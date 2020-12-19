@@ -75,4 +75,7 @@ function Api-Publish {
         [switch] $Prod
     )
     $script:apiConfig | Xti-PublishPackage @PsBoundParameters
+    if($Prod) {
+        $script:apiConfig | Xti-Merge
+    }
 }

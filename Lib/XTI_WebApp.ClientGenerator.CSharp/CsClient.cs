@@ -564,16 +564,6 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                     )
                 }
             );
-            if (appTemplate.IsAuthenticator())
-            {
-                usings.Add
-                (
-                    UsingDirective
-                    (
-                        IdentifierName("XTI_Credentials")
-                    )
-                );
-            }
             return List(usings);
         }
 
@@ -765,22 +755,25 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                         (
                             SyntaxKind.SimpleAssignmentExpression,
                             IdentifierName("xtiToken"),
-                            ObjectCreationExpression(IdentifierName("IXtiToken"))
-                                .WithArgumentList
+                            InvocationExpression
+                            (
+                                MemberAccessExpression
                                 (
-                                    ArgumentList
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("tokenFactory"),
+                                    IdentifierName("Create")
+                                )
+                            )
+                            .WithArgumentList
+                            (
+                                ArgumentList
+                                (
+                                    SingletonSeparatedList
                                     (
-                                        SeparatedList<ArgumentSyntax>
-                                        (
-                                            new SyntaxNodeOrToken[]
-                                            {
-                                                Argument(ThisExpression()),
-                                                Token(SyntaxKind.CommaToken),
-                                                Argument(IdentifierName("credentials"))
-                                            }
-                                        )
+                                        Argument(ThisExpression())
                                     )
                                 )
+                            )
                         )
                     )
                 );
@@ -865,8 +858,8 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                 (
                     new SyntaxNodeOrToken[]
                     {
-                        Parameter(Identifier("credentials"))
-                            .WithType(IdentifierName("ICredentials")),
+                        Parameter(Identifier("tokenFactory"))
+                            .WithType(IdentifierName("IXtiTokenFactory")),
                         Token(SyntaxKind.CommaToken)
                     }
                 );

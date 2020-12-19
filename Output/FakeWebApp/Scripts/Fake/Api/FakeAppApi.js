@@ -17,7 +17,7 @@ var FakeAppApi = /** @class */ (function (_super) {
         _this.Product = _this.addGroup(function (evts, resourceUrl) { return new ProductGroup_1.ProductGroup(evts, resourceUrl); });
         return _this;
     }
-    FakeAppApi.DefaultVersion = 'Current';
+    FakeAppApi.DefaultVersion = 'V2';
     return FakeAppApi;
 }(AppApi_1.AppApi));
 exports.FakeAppApi = FakeAppApi;
