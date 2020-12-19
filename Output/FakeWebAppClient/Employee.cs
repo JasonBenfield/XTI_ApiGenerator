@@ -23,5 +23,11 @@ namespace FakeWebAppClient
             get;
             set;
         }
+
+        public EmployeeType EmployeeType
+        {
+            get;
+            set;
+        }
     }
 }
