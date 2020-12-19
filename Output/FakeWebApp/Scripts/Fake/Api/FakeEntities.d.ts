@@ -17,6 +17,7 @@ interface IEmployee {
 	ID: number;
 	Name: string;
 	BirthDate: Date;
+	EmployeeType: IEmployeeType;
 }
 interface IAddProductModel {
 	Name: string;
@@ -27,4 +28,8 @@ interface IProduct {
 	ID: number;
 	Quantity: number;
 	Price: number;
+}
+interface IEmployeeType {
+	Value: number;
+	DisplayText: string;
 }
