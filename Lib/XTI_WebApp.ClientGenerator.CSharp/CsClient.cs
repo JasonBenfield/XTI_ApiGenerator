@@ -58,6 +58,10 @@ namespace XTI_WebApp.ClientGenerator.CSharp
             {
                 await outputGroup(groupTemplate);
             }
+            foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
+            {
+                await new NumericValueClass(ns, createStream, numericValueTemplate).Output();
+            }
             await outputApp(appTemplate);
         }
 
