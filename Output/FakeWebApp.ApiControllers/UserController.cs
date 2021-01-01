@@ -12,17 +12,15 @@ namespace FakeWebApp.ApiControllers
     [Authorize]
     public class UserController : Controller
     {
-        public UserController(FakeAppApi api, XtiPath xtiPath)
+        public UserController(FakeAppApi api)
         {
             this.api = api;
-            this.xtiPath = xtiPath;
         }
 
         private readonly FakeAppApi api;
-        private readonly XtiPath xtiPath;
         public async Task<IActionResult> Index(UserStartRequest model)
         {
-            var result = await api.Group("User").Action<UserStartRequest, AppActionViewResult>("Index").Execute(xtiPath.Modifier, model);
+            var result = await api.Group("User").Action<UserStartRequest, AppActionViewResult>("Index").Execute(model);
             return View(result.Data.ViewName);
         }
     }

@@ -24,7 +24,7 @@ namespace XTI_WebApp.CodeGeneration.CSharp
             if (valueTemplate is SimpleValueTemplate simple)
             {
                 TypeSyntax typeSyntax;
-                if (valueTemplate.DataType == typeof(DateTime))
+                if (valueTemplate.DataType == typeof(DateTime) || valueTemplate.DataType == typeof(DateTimeOffset))
                 {
                     typeSyntax = IdentifierName(valueTemplate.DataType.Name);
                 }

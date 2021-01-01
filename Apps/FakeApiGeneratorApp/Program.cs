@@ -20,7 +20,7 @@ namespace FakeApiGeneratorApp
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddApiGenerator(hostContext.Configuration);
-                    services.AddScoped<IAppApiTemplateFactory, FakeAppApiTemplateFactory>();
+                    services.AddScoped<AppApiFactory, FakeAppApiFactory>();
                     services.AddHostedService<ApiGeneratorHostedService>();
                 })
                 .RunConsoleAsync();
