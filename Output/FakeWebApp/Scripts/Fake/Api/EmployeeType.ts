@@ -1,5 +1,5 @@
-import { NumericValue } from '../../Shared/NumericValue';
-import { NumericValues } from '../../Shared/NumericValues';
+import { NumericValue } from 'XtiShared/NumericValue';
+import { NumericValues } from 'XtiShared/NumericValues';
 
 export class EmployeeTypes extends NumericValues<EmployeeType> {
 	constructor(

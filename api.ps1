@@ -5,7 +5,7 @@ $script:apiConfig = [PSCustomObject]@{
     RepoName = "XTI_ApiGenerator"
     AppName = "XTI_ApiGenerator"
     AppType = "Package"
-    ProjectDir = ""
+    ProjectDir = "Output/FakeWebApp"
 }
 
 function Api-New-XtiIssue {
@@ -62,14 +62,6 @@ function Api-Xti-PostMerge {
     $script:apiConfig | Xti-PostMerge @PsBoundParameters
 }
 
-function Api-CopyShared {
-    $source = "..\SharedWebApp\Apps\SharedWebApp"
-    $target = ".\Output\FakeWebApp"
-    robocopy "$source\Scripts\Shared\" "$target\Scripts\Shared\" *.ts /e /purge /njh /njs /np /ns /nc /nfl /ndl /a+:R
-    robocopy "$source\Scripts\Shared\" "$target\Scripts\Shared\" /xf *.ts /e /purge /njh /njs /np /ns /nc /nfl /ndl /a-:R
-    robocopy "$source\Views\Exports\Shared\" "$target\Views\Exports\Shared\" /e /purge /njh /njs /np /ns /nc /nfl /ndl /a+:R
-}
-
 function Api-Publish {
     param(
         [switch] $Prod
@@ -78,4 +70,11 @@ function Api-Publish {
     if($Prod) {
         $script:apiConfig | Xti-Merge
     }
+}
+
+function Api-ImportWeb {
+    param(
+        [switch] $Prod
+    )
+    $script:apiConfig | Xti-ImportWeb -Prod:$Prod -AppToImport Shared
 }

@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmployeeType = exports.EmployeeTypes = void 0;
 var tslib_1 = require("tslib");
-var NumericValue_1 = require("../../Shared/NumericValue");
-var NumericValues_1 = require("../../Shared/NumericValues");
+var NumericValue_1 = require("XtiShared/NumericValue");
+var NumericValues_1 = require("XtiShared/NumericValues");
 var EmployeeTypes = /** @class */ (function (_super) {
     tslib_1.__extends(EmployeeTypes, _super);
     function EmployeeTypes(None, Temp, Permanent) {
