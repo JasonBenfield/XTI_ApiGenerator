@@ -42,8 +42,8 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             var str = new StringBuilder();
             str.Append("// Generated code");
             str.Append("\r\n");
-            str.Append("\r\nimport { AppApi } from \"../../Shared/AppApi\";");
-            str.Append("\r\nimport { AppApiEvents } from \"../../Shared/AppApiEvents\";");
+            str.Append("\r\nimport { AppApi } from \"XtiShared/AppApi\";");
+            str.Append("\r\nimport { AppApiEvents } from \"XtiShared/AppApiEvents\";");
             foreach (var groupTemplate in appTemplate.GroupTemplates)
             {
                 var groupClassName = getGroupClassName(groupTemplate);
@@ -101,11 +101,11 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             var str = new StringBuilder();
             str.Append("// Generated code");
             str.Append("\r\n");
-            str.Append("\r\nimport { AppApiGroup } from \"../../Shared/AppApiGroup\";");
-            str.Append("\r\nimport { AppApiAction } from \"../../Shared/AppApiAction\";");
-            str.Append("\r\nimport { AppApiView } from \"../../Shared/AppApiView\";");
-            str.Append("\r\nimport { AppApiEvents } from \"../../Shared/AppApiEvents\";");
-            str.Append("\r\nimport { AppResourceUrl } from \"../../Shared/AppResourceUrl\";");
+            str.Append("\r\nimport { AppApiGroup } from \"XtiShared/AppApiGroup\";");
+            str.Append("\r\nimport { AppApiAction } from \"XtiShared/AppApiAction\";");
+            str.Append("\r\nimport { AppApiView } from \"XtiShared/AppApiView\";");
+            str.Append("\r\nimport { AppApiEvents } from \"XtiShared/AppApiEvents\";");
+            str.Append("\r\nimport { AppResourceUrl } from \"XtiShared/AppResourceUrl\";");
             str.Append("\r\n");
             var implementsClause = group.IsUser()
                 ? "implements IUserGroup "
@@ -164,8 +164,8 @@ namespace XTI_WebApp.ClientGenerator.Typescript
         {
             var str = new StringBuilder();
             var className = numericValueTemplate.DataType.Name;
-            str.Append("import { NumericValue } from '../../Shared/NumericValue';");
-            str.Append("\r\nimport { NumericValues } from '../../Shared/NumericValues';");
+            str.Append("import { NumericValue } from 'XtiShared/NumericValue';");
+            str.Append("\r\nimport { NumericValues } from 'XtiShared/NumericValues';");
             str.Append("\r\n");
             str.Append($"\r\nexport class {className}s extends NumericValues<{className}> {{");
             str.Append("\r\n\tconstructor(");

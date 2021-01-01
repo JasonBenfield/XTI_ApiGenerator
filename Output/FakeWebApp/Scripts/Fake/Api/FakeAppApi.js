@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FakeAppApi = void 0;
 var tslib_1 = require("tslib");
-var AppApi_1 = require("../../Shared/AppApi");
+var AppApi_1 = require("XtiShared/AppApi");
 var UserGroup_1 = require("./UserGroup");
 var EmployeeGroup_1 = require("./EmployeeGroup");
 var ProductGroup_1 = require("./ProductGroup");
