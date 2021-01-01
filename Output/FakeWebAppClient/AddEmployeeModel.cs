@@ -12,7 +12,7 @@ namespace FakeWebAppClient
             set;
         }
 
-        public DateTime BirthDate
+        public DateTimeOffset BirthDate
         {
             get;
             set;

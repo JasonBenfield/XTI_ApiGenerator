@@ -12,30 +12,28 @@ namespace FakeWebApp.ApiControllers
     [Authorize]
     public class EmployeeController : Controller
     {
-        public EmployeeController(FakeAppApi api, XtiPath xtiPath)
+        public EmployeeController(FakeAppApi api)
         {
             this.api = api;
-            this.xtiPath = xtiPath;
         }
 
         private readonly FakeAppApi api;
-        private readonly XtiPath xtiPath;
         public async Task<IActionResult> Index()
         {
-            var result = await api.Group("Employee").Action<EmptyRequest, AppActionViewResult>("Index").Execute(xtiPath.Modifier, new EmptyRequest());
+            var result = await api.Group("Employee").Action<EmptyRequest, AppActionViewResult>("Index").Execute(new EmptyRequest());
             return View(result.Data.ViewName);
         }
 
         [HttpPost]
         public Task<ResultContainer<int>> AddEmployee([FromBody] AddEmployeeModel model)
         {
-            return api.Group("Employee").Action<AddEmployeeModel, int>("AddEmployee").Execute(xtiPath.Modifier, model);
+            return api.Group("Employee").Action<AddEmployeeModel, int>("AddEmployee").Execute(model);
         }
 
         [HttpPost]
         public Task<ResultContainer<Employee>> Employee([FromBody] int model)
         {
-            return api.Group("Employee").Action<int, Employee>("Employee").Execute(xtiPath.Modifier, model);
+            return api.Group("Employee").Action<int, Employee>("Employee").Execute(model);
         }
     }
 }

@@ -237,7 +237,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             {
                 tsType = "number";
             }
-            else if (type == typeof(DateTime))
+            else if (type == typeof(DateTime) || type == typeof(DateTimeOffset))
             {
                 tsType = "Date";
             }

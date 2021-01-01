@@ -13,8 +13,8 @@ namespace FakeWebApp.Api
     public sealed class FakeAppApi : WebAppApi
     {
 
-        public FakeAppApi(IAppApiUser user, AppVersionKey version, ResourceAccess access = null)
-            : base(FakeAppKey.AppKey, version, user, access)
+        public FakeAppApi(IAppApiUser user, ResourceAccess access = null)
+            : base(FakeAppKey.AppKey, user, access)
         {
             Employee = AddGroup(u => new EmployeeGroup(this, u));
             Product = AddGroup(u => new ProductGroup(this, u));
@@ -59,7 +59,7 @@ namespace FakeWebApp.Api
     public sealed class AddEmployeeModel
     {
         public string Name { get; set; }
-        public DateTime BirthDate { get; set; }
+        public DateTimeOffset BirthDate { get; set; }
         public int[] Departments { get; set; }
     }
 
