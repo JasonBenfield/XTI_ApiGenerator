@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using XTI_App.Api;
 using XTI_WebApp.Api;
 using FakeWebApp.Api;
@@ -25,9 +26,15 @@ namespace FakeWebApp.ApiControllers
         }
 
         [HttpPost]
-        public Task<ResultContainer<int>> AddEmployee([FromBody] AddEmployeeModel model)
+        public Task<ResultContainer<int>> AddEmployee([FromBody] AddEmployeeForm model)
         {
-            return api.Group("Employee").Action<AddEmployeeModel, int>("AddEmployee").Execute(model);
+            return api.Group("Employee").Action<AddEmployeeForm, int>("AddEmployee").Execute(model);
+        }
+
+        [HttpPost]
+        public Task<ResultContainer<IDictionary<string, object?>>> AddEmployeeForm()
+        {
+            return api.Group("Employee").Action<EmptyRequest, IDictionary<string, object?>>("AddEmployeeForm").Execute(new EmptyRequest());
         }
 
         [HttpPost]

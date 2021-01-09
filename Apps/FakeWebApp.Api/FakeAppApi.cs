@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using XTI_App;
 using XTI_App.Api;
+using XTI_Core;
 using XTI_WebApp.Api;
 
 namespace FakeWebApp.Api
@@ -44,6 +46,11 @@ namespace FakeWebApp.Api
                 () => new AddEmployeeValidation(),
                 () => new AddEmployeeAction()
             );
+            AddEmployeeForm = actions.AddAction
+            (
+                nameof(AddEmployeeForm),
+                () => new AddEmployeeFormAction()
+            );
             Employee = actions.AddAction
             (
                 "Employee",
@@ -52,30 +59,33 @@ namespace FakeWebApp.Api
             );
         }
         public AppApiAction<EmptyRequest, AppActionViewResult> Index { get; }
-        public AppApiAction<AddEmployeeModel, int> AddEmployee { get; }
+        public AppApiAction<AddEmployeeForm, int> AddEmployee { get; }
+        public AppApiAction<EmptyRequest, IDictionary<string, object>> AddEmployeeForm { get; }
         public AppApiAction<int, Employee> Employee { get; }
     }
 
-    public sealed class AddEmployeeModel
+    public sealed class AddEmployeeAction : AppAction<AddEmployeeForm, int>
     {
-        public string Name { get; set; }
-        public DateTimeOffset BirthDate { get; set; }
-        public int[] Departments { get; set; }
-    }
-
-    public sealed class AddEmployeeAction : AppAction<AddEmployeeModel, int>
-    {
-        public Task<int> Execute(AddEmployeeModel model)
+        public Task<int> Execute(AddEmployeeForm model)
         {
             return Task.FromResult(1);
         }
     }
 
-    public sealed class AddEmployeeValidation : AppActionValidation<AddEmployeeModel>
+    public sealed class AddEmployeeFormAction : AppAction<EmptyRequest, IDictionary<string, object>>
     {
-        public Task Validate(ErrorList errors, AddEmployeeModel model)
+        public Task<IDictionary<string, object>> Execute(EmptyRequest model)
         {
-            if (string.IsNullOrWhiteSpace(model.Name))
+            var form = new AddEmployeeForm();
+            return Task.FromResult(form.Export());
+        }
+    }
+
+    public sealed class AddEmployeeValidation : AppActionValidation<AddEmployeeForm>
+    {
+        public Task Validate(ErrorList errors, AddEmployeeForm model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Name.Value()))
             {
                 errors.Add("Name is required");
             }

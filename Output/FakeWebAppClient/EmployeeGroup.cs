@@ -2,6 +2,7 @@
 using XTI_WebAppClient;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace FakeWebAppClient
 {
@@ -11,7 +12,8 @@ namespace FakeWebAppClient
         {
         }
 
-        public Task<int> AddEmployee(AddEmployeeModel model) => Post<int, AddEmployeeModel>("AddEmployee", "", model);
+        public Task<int> AddEmployee(AddEmployeeForm model) => Post<int, AddEmployeeForm>("AddEmployee", "", model);
+        public Task<IDictionary<string, object?>> AddEmployeeForm() => Post<IDictionary<string, object?>, EmptyRequest>("AddEmployeeForm", "", new EmptyRequest());
         public Task<Employee> Employee(int model) => Post<Employee, int>("Employee", "", model);
     }
 }
