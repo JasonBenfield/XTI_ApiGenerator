@@ -1,3 +1,4 @@
+// Generated code
 import { AddressInputViewModel } from "./AddressInputViewModel";
 import { ComplexField } from 'XtiShared/Forms/ComplexField';
 

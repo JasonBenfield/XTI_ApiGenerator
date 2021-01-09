@@ -26,9 +26,11 @@ var AddEmployeeForm = /** @class */ (function (_super) {
         _this.Department.setItems(new DropDownFieldItem_1.DropDownFieldItem(1, 'HR'), new DropDownFieldItem_1.DropDownFieldItem(2, 'IT'));
         _this.Address.caption.setCaption('Address');
         _this.SSN.caption.setCaption('SSN');
+        _this.SSN.constraints.mustBeAbove(0, 'Must be greater than 0');
+        _this.SSN.constraints.mustBeBelow(1000000000, 'Must be less than 1000000000');
         _this.SSN.protect();
         _this.HireDate.caption.setCaption('Hire Date');
-        _this.HireDate.setItems(new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 7, 5, 0, 0, 0)), 'Yesterday'), new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 8, 5, 0, 0, 0)), 'Today'), new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 9, 5, 0, 0, 0)), 'Tomorrow'));
+        _this.HireDate.setItems(new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 8, 5, 0, 0, 0)), 'Yesterday'), new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 9, 5, 0, 0, 0)), 'Today'), new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 10, 5, 0, 0, 0)), 'Tomorrow'));
         _this.IsTemp.caption.setCaption('Is Temp');
         _this.IsTemp.setItems(new DropDownFieldItem_1.DropDownFieldItem(true, 'Yes'), new DropDownFieldItem_1.DropDownFieldItem(false, 'No'));
         return _this;

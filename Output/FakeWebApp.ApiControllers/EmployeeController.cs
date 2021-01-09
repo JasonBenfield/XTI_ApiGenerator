@@ -32,9 +32,9 @@ namespace FakeWebApp.ApiControllers
         }
 
         [HttpPost]
-        public Task<ResultContainer<IDictionary<string, object?>>> AddEmployeeForm()
+        public Task<ResultContainer<IDictionary<string, object>>> AddEmployeeForm()
         {
-            return api.Group("Employee").Action<EmptyRequest, IDictionary<string, object?>>("AddEmployeeForm").Execute(new EmptyRequest());
+            return api.Group("Employee").Action<EmptyRequest, IDictionary<string, object>>("AddEmployeeForm").Execute(new EmptyRequest());
         }
 
         [HttpPost]
