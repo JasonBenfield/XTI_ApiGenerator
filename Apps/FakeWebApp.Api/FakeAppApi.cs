@@ -46,6 +46,11 @@ namespace FakeWebApp.Api
                 () => new AddEmployeeValidation(),
                 () => new AddEmployeeAction()
             );
+            AddEmployeeFormView = actions.AddPartialView
+            (
+                nameof(AddEmployeeFormView),
+                () => new AddEmployeeFormViewAction()
+            );
             AddEmployeeForm = actions.AddAction
             (
                 nameof(AddEmployeeForm),
@@ -58,9 +63,10 @@ namespace FakeWebApp.Api
                 "Get Employee Information"
             );
         }
-        public AppApiAction<EmptyRequest, AppActionViewResult> Index { get; }
+        public AppApiAction<EmptyRequest, WebViewResult> Index { get; }
         public AppApiAction<AddEmployeeForm, int> AddEmployee { get; }
         public AppApiAction<EmptyRequest, IDictionary<string, object>> AddEmployeeForm { get; }
+        public AppApiAction<EmptyRequest, WebPartialViewResult> AddEmployeeFormView { get; }
         public AppApiAction<int, Employee> Employee { get; }
     }
 
@@ -81,11 +87,19 @@ namespace FakeWebApp.Api
         }
     }
 
+    public sealed class AddEmployeeFormViewAction : AppAction<EmptyRequest, WebPartialViewResult>
+    {
+        public Task<WebPartialViewResult> Execute(EmptyRequest model)
+        {
+            return Task.FromResult(new WebPartialViewResult("AddEmployeeForm"));
+        }
+    }
+
     public sealed class AddEmployeeValidation : AppActionValidation<AddEmployeeForm>
     {
         public Task Validate(ErrorList errors, AddEmployeeForm model)
         {
-            if (string.IsNullOrWhiteSpace(model.Name.Value()))
+            if (string.IsNullOrWhiteSpace(model.EmployeeName.Value()))
             {
                 errors.Add("Name is required");
             }
@@ -142,7 +156,7 @@ namespace FakeWebApp.Api
                 "Get Product Information"
             );
         }
-        public AppApiAction<EmptyRequest, AppActionViewResult> Index { get; }
+        public AppApiAction<EmptyRequest, WebViewResult> Index { get; }
         public AppApiAction<EmptyRequest, string> GetInfo { get; }
         public AppApiAction<AddProductModel, int> AddProduct { get; }
         public AppApiAction<int, Product> Product { get; }

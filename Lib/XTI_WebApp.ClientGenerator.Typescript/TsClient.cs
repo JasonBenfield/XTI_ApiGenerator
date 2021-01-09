@@ -385,6 +385,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             {
                 tsFile.AddLine($"readonly {group.Name}: {group.Name}Group;");
             }
+            tsFile.Outdent();
             tsFile.AddLine("}");
             await tsFile.Output();
         }
@@ -442,7 +443,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             tsFile.AddLine($"super(events, resourceUrl, '{group.Name}');");
             foreach (var action in group.ActionTemplates)
             {
-                if (action.IsView() || action.IsRedirect())
+                if (action.IsView() || action.IsPartialView() || action.IsRedirect())
                 {
                     var modelType = getTsType(action.ModelTemplate);
                     tsFile.AddLine($"this.{action.Name} = this.createView<{modelType}>('{action.Name}');");
@@ -456,10 +457,9 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             tsFile.Outdent();
             tsFile.AddLine("}");
             tsFile.AddLine();
-            tsFile.Indent();
             foreach (var action in group.ActionTemplates)
             {
-                if (action.IsView() || action.IsRedirect())
+                if (action.IsView() || action.IsPartialView() || action.IsRedirect())
                 {
                     var modelType = getTsType(action.ModelTemplate);
                     tsFile.AddLine($"readonly {action.Name}: AppApiView<{modelType}>;");
@@ -473,7 +473,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             tsFile.AddLine();
             foreach (var action in group.ActionTemplates)
             {
-                if (!action.IsView() && !action.IsRedirect())
+                if (!action.IsView() && !action.IsPartialView() && !action.IsRedirect())
                 {
                     var modelType = getTsType(action.ModelTemplate.DataType);
                     var modelDecl = action.HasEmptyModel() ? "" : $"model: {modelType}, ";
@@ -513,6 +513,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                     tsFile.Append(",");
                 }
             }
+            tsFile.Outdent();
             tsFile.AddLine(") {");
             tsFile.Indent();
             var joinedValueNames = string.Join(",", valueNames);
@@ -538,7 +539,6 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             tsFile.Outdent();
             tsFile.AddLine(");");
             tsFile.AddLine();
-            tsFile.Indent();
             tsFile.AddLine("private constructor(Value: number, DisplayText: string) {");
             tsFile.Indent();
             tsFile.AddLine("super(Value, DisplayText);");

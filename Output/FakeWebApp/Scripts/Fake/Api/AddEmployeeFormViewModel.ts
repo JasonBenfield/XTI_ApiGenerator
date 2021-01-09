@@ -4,7 +4,7 @@ import { DropDownFieldViewModel } from "XtiShared/Forms/DropDownFieldViewModel";
 import { AddressInputViewModel } from './AddressInputViewModel';
 
 export class AddEmployeeFormViewModel {
-	readonly Name = new InputFieldViewModel();
+	readonly EmployeeName = new InputFieldViewModel();
 	readonly BirthDate = new InputFieldViewModel();
 	readonly Department = new DropDownFieldViewModel();
 	readonly Address = new AddressInputViewModel();

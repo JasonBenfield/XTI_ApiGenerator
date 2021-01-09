@@ -94,7 +94,7 @@ namespace XTI_WebApp.ControllerGenerator
             {
                 return actionDeclarationForRedirect(group, action);
             }
-            if (action.IsView())
+            if (action.IsView() || action.IsPartialView())
             {
                 return actionDeclarationForView(group, action);
             }
@@ -260,7 +260,7 @@ namespace XTI_WebApp.ControllerGenerator
                     ),
                     ReturnStatement
                     (
-                        InvocationExpression(IdentifierName("View"))
+                        InvocationExpression(IdentifierName(action.IsView() ? "View" : "PartialView"))
                             .WithArgumentList
                             (
                                 ArgumentList

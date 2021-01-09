@@ -15,18 +15,18 @@ export class ProductGroup extends AppApiGroup {
 		this.ProductAction = this.createAction<number,IProduct>('Product', 'Get Product Information');
 	}
 	
-		readonly Index: AppApiView<IEmptyRequest>;
-		private readonly GetInfoAction: AppApiAction<IEmptyRequest,string>;
-		private readonly AddProductAction: AppApiAction<IAddProductModel,number>;
-		private readonly ProductAction: AppApiAction<number,IProduct>;
-		
-		GetInfo(errorOptions?: IActionErrorOptions) {
-			return this.GetInfoAction.execute({}, errorOptions || {});
-		}
-		AddProduct(model: IAddProductModel, errorOptions?: IActionErrorOptions) {
-			return this.AddProductAction.execute(model, errorOptions || {});
-		}
-		Product(model: number, errorOptions?: IActionErrorOptions) {
-			return this.ProductAction.execute(model, errorOptions || {});
-		}
+	readonly Index: AppApiView<IEmptyRequest>;
+	private readonly GetInfoAction: AppApiAction<IEmptyRequest,string>;
+	private readonly AddProductAction: AppApiAction<IAddProductModel,number>;
+	private readonly ProductAction: AppApiAction<number,IProduct>;
+	
+	GetInfo(errorOptions?: IActionErrorOptions) {
+		return this.GetInfoAction.execute({}, errorOptions || {});
 	}
+	AddProduct(model: IAddProductModel, errorOptions?: IActionErrorOptions) {
+		return this.AddProductAction.execute(model, errorOptions || {});
+	}
+	Product(model: number, errorOptions?: IActionErrorOptions) {
+		return this.ProductAction.execute(model, errorOptions || {});
+	}
+}

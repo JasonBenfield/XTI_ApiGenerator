@@ -7,19 +7,19 @@ export class EmployeeTypes extends NumericValues<EmployeeType> {
 		public readonly None: EmployeeType,
 		public readonly Temp: EmployeeType,
 		public readonly Permanent: EmployeeType
-		) {
-			super([None,Temp,Permanent]);
-		}
+	) {
+		super([None,Temp,Permanent]);
 	}
+}
+
+export class EmployeeType extends NumericValue implements IEmployeeType {
+	public static readonly values = new EmployeeTypes(
+		new EmployeeType(0, 'None'),
+		new EmployeeType(10, 'Temp'),
+		new EmployeeType(15, 'Permanent')
+	);
 	
-	export class EmployeeType extends NumericValue implements IEmployeeType {
-		public static readonly values = new EmployeeTypes(
-			new EmployeeType(0, 'None'),
-			new EmployeeType(10, 'Temp'),
-			new EmployeeType(15, 'Permanent')
-		);
-		
-			private constructor(Value: number, DisplayText: string) {
-				super(Value, DisplayText);
-			}
-		}
+	private constructor(Value: number, DisplayText: string) {
+		super(Value, DisplayText);
+	}
+}

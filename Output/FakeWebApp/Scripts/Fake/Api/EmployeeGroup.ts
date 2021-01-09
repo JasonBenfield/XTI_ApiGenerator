@@ -12,22 +12,24 @@ export class EmployeeGroup extends AppApiGroup {
 		super(events, resourceUrl, 'Employee');
 		this.Index = this.createView<IEmptyRequest>('Index');
 		this.AddEmployeeAction = this.createAction<AddEmployeeForm,number>('AddEmployee', 'AddEmployee');
+		this.AddEmployeeFormView = this.createView<IEmptyRequest>('AddEmployeeFormView');
 		this.AddEmployeeFormAction = this.createAction<IEmptyRequest,Record<string,object>>('AddEmployeeForm', 'AddEmployeeForm');
 		this.EmployeeAction = this.createAction<number,IEmployee>('Employee', 'Get Employee Information');
 	}
 	
-		readonly Index: AppApiView<IEmptyRequest>;
-		private readonly AddEmployeeAction: AppApiAction<AddEmployeeForm,number>;
-		private readonly AddEmployeeFormAction: AppApiAction<IEmptyRequest,Record<string,object>>;
-		private readonly EmployeeAction: AppApiAction<number,IEmployee>;
-		
-		AddEmployee(model: AddEmployeeForm, errorOptions?: IActionErrorOptions) {
-			return this.AddEmployeeAction.execute(model, errorOptions || {});
-		}
-		AddEmployeeForm(errorOptions?: IActionErrorOptions) {
-			return this.AddEmployeeFormAction.execute({}, errorOptions || {});
-		}
-		Employee(model: number, errorOptions?: IActionErrorOptions) {
-			return this.EmployeeAction.execute(model, errorOptions || {});
-		}
+	readonly Index: AppApiView<IEmptyRequest>;
+	private readonly AddEmployeeAction: AppApiAction<AddEmployeeForm,number>;
+	readonly AddEmployeeFormView: AppApiView<IEmptyRequest>;
+	private readonly AddEmployeeFormAction: AppApiAction<IEmptyRequest,Record<string,object>>;
+	private readonly EmployeeAction: AppApiAction<number,IEmployee>;
+	
+	AddEmployee(model: AddEmployeeForm, errorOptions?: IActionErrorOptions) {
+		return this.AddEmployeeAction.execute(model, errorOptions || {});
 	}
+	AddEmployeeForm(errorOptions?: IActionErrorOptions) {
+		return this.AddEmployeeFormAction.execute({}, errorOptions || {});
+	}
+	Employee(model: number, errorOptions?: IActionErrorOptions) {
+		return this.EmployeeAction.execute(model, errorOptions || {});
+	}
+}

@@ -4,8 +4,8 @@ namespace FakeWebApp.Api
 {
     public sealed class AddressInput : ComplexField
     {
-        public AddressInput(string prefix, string name, string caption = null)
-            : base(prefix, name, caption)
+        public AddressInput(string prefix, string name)
+            : base(prefix, name)
         {
             ID1 = AddTextHidden(nameof(ID1), "ID_1");
             ID2 = AddInt32Hidden(nameof(ID2), 2);

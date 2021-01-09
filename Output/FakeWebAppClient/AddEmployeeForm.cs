@@ -8,7 +8,7 @@ namespace FakeWebAppClient
     {
         public AddEmployeeForm(string name): base(name)
         {
-            Name = AddField(new InputField<string>(FieldName, nameof(Name)));
+            EmployeeName = AddField(new InputField<string>(FieldName, nameof(EmployeeName)));
             BirthDate = AddField(new InputField<DateTimeOffset?>(FieldName, nameof(BirthDate)));
             Department = AddField(new DropDownField<int>(FieldName, nameof(Department)));
             Address = AddField(new AddressInput(FieldName, nameof(Address)));
@@ -17,7 +17,7 @@ namespace FakeWebAppClient
             IsTemp = AddField(new DropDownField<bool>(FieldName, nameof(IsTemp)));
         }
 
-        public InputField<string> Name
+        public InputField<string> EmployeeName
         {
             get;
         }

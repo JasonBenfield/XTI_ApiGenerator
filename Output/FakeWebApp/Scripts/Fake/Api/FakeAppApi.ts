@@ -20,4 +20,4 @@ export class FakeAppApi extends AppApi {
 	readonly User: UserGroup;
 	readonly Employee: EmployeeGroup;
 	readonly Product: ProductGroup;
-	}
+}

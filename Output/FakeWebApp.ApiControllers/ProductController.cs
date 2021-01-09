@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using XTI_App.Api;
-using XTI_WebApp.Api;
 using FakeWebApp.Api;
 using XTI_App;
+using XTI_WebApp.Api;
 
 namespace FakeWebApp.ApiControllers
 {
@@ -21,7 +21,7 @@ namespace FakeWebApp.ApiControllers
         private readonly FakeAppApi api;
         public async Task<IActionResult> Index()
         {
-            var result = await api.Group("Product").Action<EmptyRequest, AppActionViewResult>("Index").Execute(new EmptyRequest());
+            var result = await api.Group("Product").Action<EmptyRequest, WebViewResult>("Index").Execute(new EmptyRequest());
             return View(result.Data.ViewName);
         }
 
