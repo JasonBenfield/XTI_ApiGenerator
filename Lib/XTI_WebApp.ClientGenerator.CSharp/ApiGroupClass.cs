@@ -98,7 +98,7 @@ namespace XTI_WebApp.ClientGenerator.CSharp
         {
             var members = new List<MemberDeclarationSyntax>();
             members.Add(groupCtor());
-            foreach (var action in template.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView()))
+            foreach (var action in template.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView() && !a.IsPartialView()))
             {
                 members.AddRange
                 (

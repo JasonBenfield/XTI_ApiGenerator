@@ -10,15 +10,15 @@ var AddEmployeeForm = /** @class */ (function (_super) {
     function AddEmployeeForm(vm) {
         var _this = _super.call(this, 'AddEmployeeForm') || this;
         _this.vm = vm;
-        _this.Name = _this.addTextInputField('Name', _this.vm.Name);
+        _this.EmployeeName = _this.addTextInputField('EmployeeName', _this.vm.EmployeeName);
         _this.BirthDate = _this.addDateInputField('BirthDate', _this.vm.BirthDate);
         _this.Department = _this.addDropDownField('Department', _this.vm.Department);
         _this.Address = _this.addField(new AddressInput_1.AddressInput(_this.getName(), 'Address', _this.vm.Address));
         _this.SSN = _this.addNumberInputField('SSN', _this.vm.SSN);
         _this.HireDate = _this.addDropDownField('HireDate', _this.vm.HireDate);
         _this.IsTemp = _this.addDropDownField('IsTemp', _this.vm.IsTemp);
-        _this.Name.caption.setCaption('Name');
-        _this.Name.setMaxLength(100);
+        _this.EmployeeName.caption.setCaption('Employee Name');
+        _this.EmployeeName.setMaxLength(100);
         _this.BirthDate.caption.setCaption('Birth Date');
         _this.Department.caption.setCaption('Department');
         _this.Department.constraints.mustNotBeNull();

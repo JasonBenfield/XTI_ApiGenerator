@@ -7,7 +7,7 @@ var DropDownFieldViewModel_1 = require("XtiShared/Forms/DropDownFieldViewModel")
 var AddressInputViewModel_1 = require("./AddressInputViewModel");
 var AddEmployeeFormViewModel = /** @class */ (function () {
     function AddEmployeeFormViewModel() {
-        this.Name = new InputFieldViewModel_1.InputFieldViewModel();
+        this.EmployeeName = new InputFieldViewModel_1.InputFieldViewModel();
         this.BirthDate = new InputFieldViewModel_1.InputFieldViewModel();
         this.Department = new DropDownFieldViewModel_1.DropDownFieldViewModel();
         this.Address = new AddressInputViewModel_1.AddressInputViewModel();

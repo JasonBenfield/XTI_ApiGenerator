@@ -12,6 +12,6 @@ export class UserGroup extends AppApiGroup implements IUserGroup {
 		this.Index = this.createView<IUserStartRequest>('Index');
 	}
 	
-		readonly Index: AppApiView<IUserStartRequest>;
-		
-	}
+	readonly Index: AppApiView<IUserStartRequest>;
+	
+}

@@ -7,8 +7,8 @@ import { AddressInput } from './AddressInput';
 export class AddEmployeeForm extends Form {
 	constructor(private readonly vm: AddEmployeeFormViewModel) {
 		super('AddEmployeeForm');
-		this.Name.caption.setCaption('Name');
-		this.Name.setMaxLength(100);
+		this.EmployeeName.caption.setCaption('Employee Name');
+		this.EmployeeName.setMaxLength(100);
 		this.BirthDate.caption.setCaption('Birth Date');
 		this.Department.caption.setCaption('Department');
 		this.Department.constraints.mustNotBeNull();
@@ -34,7 +34,7 @@ export class AddEmployeeForm extends Form {
 			new DropDownFieldItem(false, 'No')
 		);
 	}
-	readonly Name = this.addTextInputField('Name', this.vm.Name);
+	readonly EmployeeName = this.addTextInputField('EmployeeName', this.vm.EmployeeName);
 	readonly BirthDate = this.addDateInputField('BirthDate', this.vm.BirthDate);
 	readonly Department = this.addDropDownField<number>('Department', this.vm.Department);
 	readonly Address = this.addField(new AddressInput(this.getName(), 'Address', this.vm.Address));

@@ -7,9 +7,9 @@ namespace FakeWebApp.Api
     {
         public AddEmployeeForm() : base("AddEmployeeForm")
         {
-            Name = AddTextInput(nameof(Name));
-            Name.MaxLength = 100;
-            Name.SetValue("");
+            EmployeeName = AddTextInput(nameof(EmployeeName));
+            EmployeeName.MaxLength = 100;
+            EmployeeName.SetValue("");
             BirthDate = AddDateInput(nameof(BirthDate));
             Department = AddInt32DropDown
             (
@@ -19,11 +19,12 @@ namespace FakeWebApp.Api
             );
             Department.ItemCaption = "Select...";
             Department.MustNotBeNull();
-            Address = AddComplex(nameof(Address), (p, n) => new AddressInput(p, n, null));
+            Address = AddComplex(nameof(Address), (p, n) => new AddressInput(p, n));
             SSN = AddInt32Input(nameof(SSN));
             SSN.IsProtected = true;
             SSN.AddConstraints(Int32RangeConstraint.FromAbove(0).ToBelow(1000000000));
-            HireDate = AddDateDropDown(
+            HireDate = AddDateDropDown
+            (
                 nameof(HireDate),
                 new DropDownItem<DateTimeOffset?>(DateTimeOffset.Now.Date.AddDays(-1), "Yesterday"),
                 new DropDownItem<DateTimeOffset?>(DateTimeOffset.Now.Date, "Today"),
@@ -32,7 +33,7 @@ namespace FakeWebApp.Api
             IsTemp = AddBooleanDropDown(nameof(IsTemp));
         }
 
-        public InputField<string> Name { get; }
+        public InputField<string> EmployeeName { get; }
         public InputField<DateTimeOffset?> BirthDate { get; }
         public DropDownField<int?> Department { get; }
         public AddressInput Address { get; }

@@ -21,7 +21,7 @@ namespace FakeWebApp.ApiControllers
         private readonly FakeAppApi api;
         public async Task<IActionResult> Index(UserStartRequest model)
         {
-            var result = await api.Group("User").Action<UserStartRequest, AppActionViewResult>("Index").Execute(model);
+            var result = await api.Group("User").Action<UserStartRequest, WebViewResult>("Index").Execute(model);
             return View(result.Data.ViewName);
         }
     }
