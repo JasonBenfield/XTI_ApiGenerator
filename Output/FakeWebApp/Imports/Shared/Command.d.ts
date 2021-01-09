@@ -37,6 +37,12 @@ export declare class AsyncCommand {
     setTextFor(name: string, text: string): void;
     makePrimary(): void;
     makePrimaryFor(name: string): void;
+    makeSecondary(): void;
+    makeSecondaryFor(name: string): void;
+    makeLight(): void;
+    makeLightFor(name: string): void;
+    makeDark(): void;
+    makeDarkFor(name: string): void;
     makeDanger(): void;
     makeDangerFor(name: string): void;
     setActive(): void;

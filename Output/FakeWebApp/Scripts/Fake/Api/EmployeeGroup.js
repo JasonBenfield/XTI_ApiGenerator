@@ -10,11 +10,15 @@ var EmployeeGroup = /** @class */ (function (_super) {
         var _this = _super.call(this, events, resourceUrl, 'Employee') || this;
         _this.Index = _this.createView('Index');
         _this.AddEmployeeAction = _this.createAction('AddEmployee', 'AddEmployee');
+        _this.AddEmployeeFormAction = _this.createAction('AddEmployeeForm', 'AddEmployeeForm');
         _this.EmployeeAction = _this.createAction('Employee', 'Get Employee Information');
         return _this;
     }
     EmployeeGroup.prototype.AddEmployee = function (model, errorOptions) {
         return this.AddEmployeeAction.execute(model, errorOptions || {});
+    };
+    EmployeeGroup.prototype.AddEmployeeForm = function (errorOptions) {
+        return this.AddEmployeeFormAction.execute({}, errorOptions || {});
     };
     EmployeeGroup.prototype.Employee = function (model, errorOptions) {
         return this.EmployeeAction.execute(model, errorOptions || {});

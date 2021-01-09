@@ -668,6 +668,18 @@ namespace XTI_WebApp.ControllerGenerator
                                     ),
                                     IdentifierName("Tasks")
                                 )
+                            ),
+                            UsingDirective
+                            (
+                                QualifiedName
+                                (
+                                    QualifiedName
+                                    (
+                                        IdentifierName("System"),
+                                        IdentifierName("Collections")
+                                    ),
+                                    IdentifierName("Generic")
+                                )
                             )
                         }
                     )

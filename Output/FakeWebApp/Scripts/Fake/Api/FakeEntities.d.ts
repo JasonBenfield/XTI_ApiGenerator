@@ -8,11 +8,6 @@ interface IAppActionViewResult {
 }
 interface IEmptyRequest {
 }
-interface IAddEmployeeModel {
-	Name: string;
-	BirthDate: Date;
-	Departments: number[];
-}
 interface IEmployee {
 	ID: number;
 	Name: string;

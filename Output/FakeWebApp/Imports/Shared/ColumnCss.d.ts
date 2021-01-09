@@ -7,7 +7,7 @@ export interface ColumnCssOptions {
     autosize?: boolean;
 }
 export declare class ColumnCss {
-    constructor(options: ColumnCssOptions | number);
+    constructor(options?: ColumnCssOptions | number);
     private getCssClass;
     private readonly cssClass;
     toString(): string;

@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="5.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-    <PackageReference Include="XTI_WebApp.Api" Version="1.6.4-dev201229075207634" />
+    <PackageReference Include="XTI_WebApp.Api" Version="1.6.4-dev210108162337155" />
   </ItemGroup>
 
   <ItemGroup>
