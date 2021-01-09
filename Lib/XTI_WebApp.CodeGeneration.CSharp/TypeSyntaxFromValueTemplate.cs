@@ -79,7 +79,7 @@ namespace XTI_WebApp.CodeGeneration.CSharp
                     }
                     else if (valueTemplate.DataType == typeof(object))
                     {
-                        syntaxKind = SyntaxKind.ObjectKeyword;
+                        return PredefinedType(Token(SyntaxKind.ObjectKeyword));
                     }
                     typeSyntax = PredefinedType(Token(syntaxKind));
                 }

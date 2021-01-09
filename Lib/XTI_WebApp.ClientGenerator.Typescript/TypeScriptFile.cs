@@ -20,6 +20,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             {
                 this.fileName += ".ts";
             }
+            AddLine("// Generated code");
             this.createStream = createStream;
         }
 

@@ -1,3 +1,4 @@
+// Generated code
 import { AddEmployeeFormViewModel } from "./AddEmployeeFormViewModel";
 import { Form } from 'XtiShared/Forms/Form';
 import { DropDownFieldItem } from "XtiShared/Forms/DropDownFieldItem";
@@ -23,9 +24,9 @@ export class AddEmployeeForm extends Form {
 		this.SSN.protect();
 		this.HireDate.caption.setCaption('Hire Date');
 		this.HireDate.setItems(
-			new DropDownFieldItem(new Date(Date.UTC(2021, 0, 7, 5, 0, 0, 0)), 'Yesterday'),
-			new DropDownFieldItem(new Date(Date.UTC(2021, 0, 8, 5, 0, 0, 0)), 'Today'),
-			new DropDownFieldItem(new Date(Date.UTC(2021, 0, 9, 5, 0, 0, 0)), 'Tomorrow')
+			new DropDownFieldItem(new Date(Date.UTC(2021, 0, 8, 5, 0, 0, 0)), 'Yesterday'),
+			new DropDownFieldItem(new Date(Date.UTC(2021, 0, 9, 5, 0, 0, 0)), 'Today'),
+			new DropDownFieldItem(new Date(Date.UTC(2021, 0, 10, 5, 0, 0, 0)), 'Tomorrow')
 		);
 		this.IsTemp.caption.setCaption('Is Temp');
 		this.IsTemp.setItems(

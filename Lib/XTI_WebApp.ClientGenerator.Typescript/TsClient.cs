@@ -280,7 +280,6 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             var vmClassName = $"{complexField.TypeName}ViewModel";
             var vmValueClassName = $"{complexField.TypeName}ValueViewModel";
             var tsFile = new TypeScriptFile(vmClassName, createStream);
-            tsFile.AddLine("// Generated code");
             if (!isForm)
             {
                 tsFile.AddLine("import { ComplexFieldViewModel } from \"XtiShared/Forms/ComplexFieldViewModel\";");
@@ -358,7 +357,6 @@ namespace XTI_WebApp.ClientGenerator.Typescript
         {
             var appClassName = $"{appTemplate.Name}AppApi";
             var tsFile = new TypeScriptFile(appClassName, createStream);
-            tsFile.AddLine("// Generated code");
             tsFile.AddLine();
             tsFile.AddLine("import { AppApi } from \"XtiShared/AppApi\";");
             tsFile.AddLine("import { AppApiEvents } from \"XtiShared/AppApiEvents\";");
@@ -394,7 +392,6 @@ namespace XTI_WebApp.ClientGenerator.Typescript
         private Task generateEntities(AppApiTemplate appTemplate)
         {
             var tsFile = new TypeScriptFile($"{appTemplate.Name}Entities.d.ts", createStream);
-            tsFile.AddLine("// Generated code");
             tsFile.AddLine();
             foreach (var objectTemplate in appTemplate.ObjectTemplates())
             {
@@ -424,7 +421,6 @@ namespace XTI_WebApp.ClientGenerator.Typescript
         {
             var groupClassName = getGroupClassName(group);
             var tsFile = new TypeScriptFile(groupClassName, createStream);
-            tsFile.AddLine("// Generated code");
             tsFile.AddLine();
             tsFile.AddLine("import { AppApiGroup } from \"XtiShared/AppApiGroup\";");
             tsFile.AddLine("import { AppApiAction } from \"XtiShared/AppApiAction\";");
@@ -500,7 +496,6 @@ namespace XTI_WebApp.ClientGenerator.Typescript
         {
             var tsFile = new TypeScriptFile($"{numericValueTemplate.DataType.Name}.ts", createStream);
             var className = numericValueTemplate.DataType.Name;
-            tsFile.AddLine("// Generated code");
             tsFile.AddLine("import { NumericValue } from 'XtiShared/NumericValue';");
             tsFile.AddLine("import { NumericValues } from 'XtiShared/NumericValues';");
             tsFile.AddLine();
