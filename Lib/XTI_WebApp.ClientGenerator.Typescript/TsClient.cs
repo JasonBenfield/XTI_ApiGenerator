@@ -280,6 +280,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             var vmClassName = $"{complexField.TypeName}ViewModel";
             var vmValueClassName = $"{complexField.TypeName}ValueViewModel";
             var tsFile = new TypeScriptFile(vmClassName, createStream);
+            tsFile.AddLine("import * as ko from 'knockout';");
             if (!isForm)
             {
                 tsFile.AddLine("import { ComplexFieldViewModel } from \"XtiShared/Forms/ComplexFieldViewModel\";");
@@ -308,6 +309,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 tsFile.AddLine($"export class {vmValueClassName} extends ComplexFieldValueViewModel {{");
             }
             tsFile.Indent();
+            tsFile.AddLine($"readonly componentName = ko.observable('{complexField.TypeName}');");
             foreach (var field in fields)
             {
                 string typeName;
@@ -467,7 +469,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 else
                 {
                     var genericArgs = getGenericArguments(action);
-                    tsFile.AddLine($"private readonly {action.Name}Action: AppApiAction{genericArgs};");
+                    tsFile.AddLine($"readonly {action.Name}Action: AppApiAction{genericArgs};");
                 }
             }
             tsFile.AddLine();

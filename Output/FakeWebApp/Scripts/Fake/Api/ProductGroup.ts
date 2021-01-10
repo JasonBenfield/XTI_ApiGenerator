@@ -16,9 +16,9 @@ export class ProductGroup extends AppApiGroup {
 	}
 	
 	readonly Index: AppApiView<IEmptyRequest>;
-	private readonly GetInfoAction: AppApiAction<IEmptyRequest,string>;
-	private readonly AddProductAction: AppApiAction<IAddProductModel,number>;
-	private readonly ProductAction: AppApiAction<number,IProduct>;
+	readonly GetInfoAction: AppApiAction<IEmptyRequest,string>;
+	readonly AddProductAction: AppApiAction<IAddProductModel,number>;
+	readonly ProductAction: AppApiAction<number,IProduct>;
 	
 	GetInfo(errorOptions?: IActionErrorOptions) {
 		return this.GetInfoAction.execute({}, errorOptions || {});

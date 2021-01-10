@@ -18,10 +18,10 @@ export class EmployeeGroup extends AppApiGroup {
 	}
 	
 	readonly Index: AppApiView<IEmptyRequest>;
-	private readonly AddEmployeeAction: AppApiAction<AddEmployeeForm,number>;
+	readonly AddEmployeeAction: AppApiAction<AddEmployeeForm,number>;
 	readonly AddEmployeeFormView: AppApiView<IEmptyRequest>;
-	private readonly AddEmployeeFormAction: AppApiAction<IEmptyRequest,Record<string,object>>;
-	private readonly EmployeeAction: AppApiAction<number,IEmployee>;
+	readonly AddEmployeeFormAction: AppApiAction<IEmptyRequest,Record<string,object>>;
+	readonly EmployeeAction: AppApiAction<number,IEmployee>;
 	
 	AddEmployee(model: AddEmployeeForm, errorOptions?: IActionErrorOptions) {
 		return this.AddEmployeeAction.execute(model, errorOptions || {});
