@@ -12,21 +12,21 @@ namespace XTI_ApiGeneratorApp.Extensions
         private readonly IServiceScope scope;
         private readonly IHostApplicationLifetime lifetime;
         private readonly ApiGenerator apiGenerator;
-        private readonly IAppApiTemplateFactory apiTemplateFactory;
+        private readonly AppApiFactory appApiFactory;
 
         public ApiGeneratorHostedService(IServiceProvider sp)
         {
             scope = sp.CreateScope();
             lifetime = scope.ServiceProvider.GetService<IHostApplicationLifetime>();
             apiGenerator = scope.ServiceProvider.GetService<ApiGenerator>();
-            apiTemplateFactory = scope.ServiceProvider.GetService<IAppApiTemplateFactory>();
+            appApiFactory = scope.ServiceProvider.GetService<AppApiFactory>();
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var apiTemplate = apiTemplateFactory.Create();
+                var apiTemplate = appApiFactory.CreateTemplate();
                 await apiGenerator.Execute(apiTemplate);
             }
             catch (Exception ex)

@@ -17,6 +17,24 @@ namespace XTI_WebApp.CodeGeneration.CSharp
 
         public TypeSyntax Value()
         {
+            if (valueTemplate is DictionaryValueTemplate dict)
+            {
+                return GenericName(Identifier("IDictionary"))
+                    .WithTypeArgumentList
+                    (
+                        TypeArgumentList
+                        (
+                            SeparatedList
+                            (
+                                new[]
+                                {
+                                    new TypeSyntaxFromValueTemplate(dict.KeyTemplate).Value(),
+                                    new TypeSyntaxFromValueTemplate(dict.ValueTemplate).Value()
+                                }
+                            )
+                        )
+                    );
+            }
             if (valueTemplate.DataType == typeof(string))
             {
                 return PredefinedType(Token(SyntaxKind.StringKeyword));
@@ -24,7 +42,7 @@ namespace XTI_WebApp.CodeGeneration.CSharp
             if (valueTemplate is SimpleValueTemplate simple)
             {
                 TypeSyntax typeSyntax;
-                if (valueTemplate.DataType == typeof(DateTime))
+                if (valueTemplate.DataType == typeof(DateTime) || valueTemplate.DataType == typeof(DateTimeOffset))
                 {
                     typeSyntax = IdentifierName(valueTemplate.DataType.Name);
                 }
@@ -59,6 +77,10 @@ namespace XTI_WebApp.CodeGeneration.CSharp
                     {
                         syntaxKind = SyntaxKind.StringKeyword;
                     }
+                    else if (valueTemplate.DataType == typeof(object))
+                    {
+                        return PredefinedType(Token(SyntaxKind.ObjectKeyword));
+                    }
                     typeSyntax = PredefinedType(Token(syntaxKind));
                 }
                 if (typeSyntax != null)
@@ -73,22 +95,22 @@ namespace XTI_WebApp.CodeGeneration.CSharp
             if (valueTemplate is ArrayValueTemplate arr)
             {
                 return ArrayType
+                (
+                    new TypeSyntaxFromValueTemplate(arr.ElementTemplate).Value()
+                )
+                .WithRankSpecifiers
+                (
+                    SingletonList
                     (
-                        new TypeSyntaxFromValueTemplate(arr.ElementTemplate).Value()
-                    )
-                    .WithRankSpecifiers
-                    (
-                        SingletonList
+                        ArrayRankSpecifier
                         (
-                            ArrayRankSpecifier
+                            SingletonSeparatedList<ExpressionSyntax>
                             (
-                                SingletonSeparatedList<ExpressionSyntax>
-                                (
-                                    OmittedArraySizeExpression()
-                                )
+                                OmittedArraySizeExpression()
                             )
                         )
-                    );
+                    )
+                );
             }
             return IdentifierName(valueTemplate.DataType.Name);
         }

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FakeAppApi = void 0;
 var tslib_1 = require("tslib");
-var AppApi_1 = require("../../Shared/AppApi");
+var AppApi_1 = require("XtiShared/AppApi");
 var UserGroup_1 = require("./UserGroup");
 var EmployeeGroup_1 = require("./EmployeeGroup");
 var ProductGroup_1 = require("./ProductGroup");
@@ -17,7 +17,7 @@ var FakeAppApi = /** @class */ (function (_super) {
         _this.Product = _this.addGroup(function (evts, resourceUrl) { return new ProductGroup_1.ProductGroup(evts, resourceUrl); });
         return _this;
     }
-    FakeAppApi.DefaultVersion = 'Current';
+    FakeAppApi.DefaultVersion = 'V2';
     return FakeAppApi;
 }(AppApi_1.AppApi));
 exports.FakeAppApi = FakeAppApi;

@@ -71,8 +71,7 @@ namespace XTI_WebApp.ControllerGenerator
                                     new MemberDeclarationSyntax[]
                                     {
                                         constructorDeclaration(apiClassName, getControllerClassName(group)),
-                                        apiFieldDeclaration(apiClassName),
-                                        xtiPathFieldDeclaration()
+                                        apiFieldDeclaration(apiClassName)
                                     }
                                     .Union(actionDeclarations)
                                 )
@@ -95,7 +94,7 @@ namespace XTI_WebApp.ControllerGenerator
             {
                 return actionDeclarationForRedirect(group, action);
             }
-            if (action.IsView())
+            if (action.IsView() || action.IsPartialView())
             {
                 return actionDeclarationForView(group, action);
             }
@@ -261,7 +260,7 @@ namespace XTI_WebApp.ControllerGenerator
                     ),
                     ReturnStatement
                     (
-                        InvocationExpression(IdentifierName("View"))
+                        InvocationExpression(IdentifierName(action.IsView() ? "View" : "PartialView"))
                             .WithArgumentList
                             (
                                 ArgumentList
@@ -482,15 +481,6 @@ namespace XTI_WebApp.ControllerGenerator
                         {
                             Argument
                             (
-                                MemberAccessExpression
-                                (
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("xtiPath"),
-                                    IdentifierName("Modifier")
-                                )
-                            ),
-                            Argument
-                            (
                                 action.HasEmptyModel()
                                     ? (ExpressionSyntax)newEmptyRequest()
                                     : IdentifierName("model")
@@ -531,30 +521,6 @@ namespace XTI_WebApp.ControllerGenerator
                 );
         }
 
-        private static FieldDeclarationSyntax xtiPathFieldDeclaration()
-        {
-            return
-                FieldDeclaration
-                (
-                    VariableDeclaration(IdentifierName("XtiPath"))
-                        .WithVariables
-                        (
-                            SingletonSeparatedList
-                            (
-                                VariableDeclarator(Identifier("xtiPath"))
-                            )
-                        )
-                )
-                .WithModifiers
-                (
-                    TokenList
-                    (
-                        Token(SyntaxKind.PrivateKeyword),
-                        Token(SyntaxKind.ReadOnlyKeyword)
-                    )
-                );
-        }
-
         private static ConstructorDeclarationSyntax constructorDeclaration(string apiClassName, string groupClassName)
         {
             return
@@ -572,9 +538,7 @@ namespace XTI_WebApp.ControllerGenerator
                             new ParameterSyntax[]
                             {
                                 Parameter(Identifier("api"))
-                                    .WithType(IdentifierName(apiClassName)),
-                                Parameter(Identifier("xtiPath"))
-                                    .WithType(IdentifierName("XtiPath"))
+                                    .WithType(IdentifierName(apiClassName))
                             }
                         )
                     )
@@ -599,20 +563,6 @@ namespace XTI_WebApp.ControllerGenerator
                                             IdentifierName("api")
                                         ),
                                         IdentifierName("api")
-                                    )
-                                ),
-                                ExpressionStatement
-                                (
-                                    AssignmentExpression
-                                    (
-                                        SyntaxKind.SimpleAssignmentExpression,
-                                        MemberAccessExpression
-                                        (
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            ThisExpression(),
-                                            IdentifierName("xtiPath")
-                                        ),
-                                        IdentifierName("xtiPath")
                                     )
                                 )
                             }
@@ -717,6 +667,18 @@ namespace XTI_WebApp.ControllerGenerator
                                         IdentifierName("Threading")
                                     ),
                                     IdentifierName("Tasks")
+                                )
+                            ),
+                            UsingDirective
+                            (
+                                QualifiedName
+                                (
+                                    QualifiedName
+                                    (
+                                        IdentifierName("System"),
+                                        IdentifierName("Collections")
+                                    ),
+                                    IdentifierName("Generic")
                                 )
                             )
                         }

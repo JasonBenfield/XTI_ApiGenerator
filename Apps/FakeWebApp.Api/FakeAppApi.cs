@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using XTI_App;
 using XTI_App.Api;
+using XTI_Core;
 using XTI_WebApp.Api;
 
 namespace FakeWebApp.Api
@@ -13,8 +15,8 @@ namespace FakeWebApp.Api
     public sealed class FakeAppApi : WebAppApi
     {
 
-        public FakeAppApi(IAppApiUser user, AppVersionKey version, ResourceAccess access = null)
-            : base(FakeAppKey.AppKey, version, user, access)
+        public FakeAppApi(IAppApiUser user, ResourceAccess access = null)
+            : base(FakeAppKey.AppKey, user, access)
         {
             Employee = AddGroup(u => new EmployeeGroup(this, u));
             Product = AddGroup(u => new ProductGroup(this, u));
@@ -44,6 +46,16 @@ namespace FakeWebApp.Api
                 () => new AddEmployeeValidation(),
                 () => new AddEmployeeAction()
             );
+            AddEmployeeFormView = actions.AddPartialView
+            (
+                nameof(AddEmployeeFormView),
+                () => new AddEmployeeFormViewAction()
+            );
+            AddEmployeeForm = actions.AddAction
+            (
+                nameof(AddEmployeeForm),
+                () => new AddEmployeeFormAction()
+            );
             Employee = actions.AddAction
             (
                 "Employee",
@@ -51,31 +63,43 @@ namespace FakeWebApp.Api
                 "Get Employee Information"
             );
         }
-        public AppApiAction<EmptyRequest, AppActionViewResult> Index { get; }
-        public AppApiAction<AddEmployeeModel, int> AddEmployee { get; }
+        public AppApiAction<EmptyRequest, WebViewResult> Index { get; }
+        public AppApiAction<AddEmployeeForm, int> AddEmployee { get; }
+        public AppApiAction<EmptyRequest, IDictionary<string, object>> AddEmployeeForm { get; }
+        public AppApiAction<EmptyRequest, WebPartialViewResult> AddEmployeeFormView { get; }
         public AppApiAction<int, Employee> Employee { get; }
     }
 
-    public sealed class AddEmployeeModel
+    public sealed class AddEmployeeAction : AppAction<AddEmployeeForm, int>
     {
-        public string Name { get; set; }
-        public DateTime BirthDate { get; set; }
-        public int[] Departments { get; set; }
-    }
-
-    public sealed class AddEmployeeAction : AppAction<AddEmployeeModel, int>
-    {
-        public Task<int> Execute(AddEmployeeModel model)
+        public Task<int> Execute(AddEmployeeForm model)
         {
             return Task.FromResult(1);
         }
     }
 
-    public sealed class AddEmployeeValidation : AppActionValidation<AddEmployeeModel>
+    public sealed class AddEmployeeFormAction : AppAction<EmptyRequest, IDictionary<string, object>>
     {
-        public Task Validate(ErrorList errors, AddEmployeeModel model)
+        public Task<IDictionary<string, object>> Execute(EmptyRequest model)
         {
-            if (string.IsNullOrWhiteSpace(model.Name))
+            var form = new AddEmployeeForm();
+            return Task.FromResult(form.Export());
+        }
+    }
+
+    public sealed class AddEmployeeFormViewAction : AppAction<EmptyRequest, WebPartialViewResult>
+    {
+        public Task<WebPartialViewResult> Execute(EmptyRequest model)
+        {
+            return Task.FromResult(new WebPartialViewResult("AddEmployeeForm"));
+        }
+    }
+
+    public sealed class AddEmployeeValidation : AppActionValidation<AddEmployeeForm>
+    {
+        public Task Validate(ErrorList errors, AddEmployeeForm model)
+        {
+            if (string.IsNullOrWhiteSpace(model.EmployeeName.Value()))
             {
                 errors.Add("Name is required");
             }
@@ -88,6 +112,7 @@ namespace FakeWebApp.Api
         public int ID { get; set; }
         public string Name { get; set; }
         public DateTime BirthDate { get; set; }
+        public EmployeeType EmployeeType { get; set; }
     }
 
     public sealed class EmployeeAction : AppAction<int, Employee>
@@ -131,7 +156,7 @@ namespace FakeWebApp.Api
                 "Get Product Information"
             );
         }
-        public AppApiAction<EmptyRequest, AppActionViewResult> Index { get; }
+        public AppApiAction<EmptyRequest, WebViewResult> Index { get; }
         public AppApiAction<EmptyRequest, string> GetInfo { get; }
         public AppApiAction<AddProductModel, int> AddProduct { get; }
         public AppApiAction<int, Product> Product { get; }
