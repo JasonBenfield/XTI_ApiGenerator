@@ -105,8 +105,7 @@ namespace XTI_WebApp.ControllerGenerator
         {
             var actionDeclaration = MethodDeclaration
             (
-                SyntaxFactory
-                    .GenericName(Identifier("Task"))
+                GenericName(Identifier("Task"))
                     .WithTypeArgumentList
                     (
                         TypeArgumentList
@@ -298,6 +297,44 @@ namespace XTI_WebApp.ControllerGenerator
                             (
                                 Parameter(Identifier("model"))
                                     .WithType(typeSyntax(action.ModelTemplate))
+                            )
+                        )
+                    );
+            }
+            if (action.IsPartialView())
+            {
+                actionDeclaration = actionDeclaration
+                    .WithAttributeLists
+                    (
+                        SingletonList
+                        (
+                            AttributeList
+                            (
+                                SingletonSeparatedList
+                                (
+                                    Attribute(IdentifierName("ResponseCache"))
+                                        .WithArgumentList
+                                        (
+                                            AttributeArgumentList
+                                            (
+                                                SingletonSeparatedList
+                                                (
+                                                    AttributeArgument
+                                                    (
+                                                        LiteralExpression
+                                                        (
+                                                            SyntaxKind.StringLiteralExpression,
+                                                            Literal("Default")
+                                                        )
+                                                    )
+                                                    .WithNameEquals
+                                                    (
+                                                        NameEquals(IdentifierName("CacheProfileName"))
+                                                    )
+                                                )
+                                            )
+                                        )
+                                )
                             )
                         )
                     );
