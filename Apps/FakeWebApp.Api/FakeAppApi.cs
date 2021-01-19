@@ -12,55 +12,59 @@ namespace FakeWebApp.Api
     {
         public static readonly AppKey AppKey = new AppKey("Fake", AppType.Values.WebApp);
     }
-    public sealed class FakeAppApi : WebAppApi
+    public sealed class FakeAppApi : WebAppApiWrapper
     {
 
         public FakeAppApi(IAppApiUser user, ResourceAccess access = null)
-            : base(FakeAppKey.AppKey, user, access)
+            : base(new AppApi(FakeAppKey.AppKey, user, access))
         {
-            Employee = AddGroup(u => new EmployeeGroup(this, u));
-            Product = AddGroup(u => new ProductGroup(this, u));
+            Employee = new EmployeeGroup(source.AddGroup(nameof(Employee)));
+            Product = new ProductGroup(source.AddGroup(nameof(Product)));
         }
         public EmployeeGroup Employee { get; }
         public ProductGroup Product { get; }
     }
 
-    public sealed class EmployeeGroup : AppApiGroup
+    public sealed class EmployeeGroup : AppApiGroupWrapper
     {
-        public EmployeeGroup(AppApi api, IAppApiUser user)
-            : base
-            (
-                  api,
-                  new NameFromGroupClassName(nameof(EmployeeGroup)).Value,
-                  ModifierCategoryName.Default,
-                  api.Access,
-                  user,
-                  (n, a, u) => new WebAppApiActionCollection(n, a, u)
-            )
+        public EmployeeGroup(AppApiGroup source)
+            : base(source)
         {
-            var actions = Actions<WebAppApiActionCollection>();
-            Index = actions.AddDefaultView();
-            AddEmployee = actions.AddAction
+            var actions = new WebAppApiActionFactory(source);
+            Index = source.AddAction(actions.DefaultView());
+            AddEmployee = source.AddAction
             (
-                "AddEmployee",
-                () => new AddEmployeeValidation(),
-                () => new AddEmployeeAction()
+                actions.Action
+                (
+                    nameof(AddEmployee),
+                    () => new AddEmployeeValidation(),
+                    () => new AddEmployeeAction()
+                )
             );
-            AddEmployeeFormView = actions.AddPartialView
+            AddEmployeeFormView = source.AddAction
             (
-                nameof(AddEmployeeFormView),
-                () => new AddEmployeeFormViewAction()
+                actions.PartialView
+                (
+                    nameof(AddEmployeeFormView),
+                    () => new AddEmployeeFormViewAction()
+                )
             );
-            AddEmployeeForm = actions.AddAction
+            AddEmployeeForm = source.AddAction
             (
-                nameof(AddEmployeeForm),
-                () => new AddEmployeeFormAction()
+                actions.Action
+                (
+                    nameof(AddEmployeeForm),
+                    () => new AddEmployeeFormAction()
+                )
             );
-            Employee = actions.AddAction
+            Employee = source.AddAction
             (
-                "Employee",
-                () => new EmployeeAction(),
-                "Get Employee Information"
+                actions.Action
+                (
+                    nameof(Employee),
+                    () => new EmployeeAction(),
+                    "Get Employee Information"
+                )
             );
         }
         public AppApiAction<EmptyRequest, WebViewResult> Index { get; }
@@ -123,37 +127,38 @@ namespace FakeWebApp.Api
         }
     }
 
-    public sealed class ProductGroup : AppApiGroup
+    public sealed class ProductGroup : AppApiGroupWrapper
     {
-        public ProductGroup(AppApi api, IAppApiUser user)
-            : base
-            (
-                api,
-                new NameFromGroupClassName(nameof(ProductGroup)).Value,
-                ModifierCategoryName.Default,
-                api.Access,
-                user,
-                (n, a, u) => new WebAppApiActionCollection(n, a, u)
-            )
+        public ProductGroup(AppApiGroup source)
+            : base(source)
         {
-            var actions = Actions<WebAppApiActionCollection>();
-            Index = actions.AddDefaultView();
-            GetInfo = actions.AddAction
+            var actions = new WebAppApiActionFactory(source);
+            Index = source.AddAction(actions.DefaultView());
+            GetInfo = source.AddAction
             (
-                "GetInfo",
-                () => new GetInfoAction()
+                actions.Action
+                (
+                    nameof(GetInfo),
+                    () => new GetInfoAction()
+                )
             );
-            AddProduct = actions.AddAction
+            AddProduct = source.AddAction
             (
-                "AddProduct",
-                () => new AddProductValidation(),
-                () => new AddProductAction()
+                actions.Action
+                (
+                    nameof(AddProduct),
+                    () => new AddProductValidation(),
+                    () => new AddProductAction()
+                )
             );
-            Product = actions.AddAction
+            Product = source.AddAction
             (
-                "Product",
-                () => new ProductAction(),
-                "Get Product Information"
+                actions.Action
+                (
+                    nameof(Product),
+                    () => new ProductAction(),
+                    "Get Product Information"
+                )
             );
         }
         public AppApiAction<EmptyRequest, WebViewResult> Index { get; }
