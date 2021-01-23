@@ -30,7 +30,7 @@ var AddEmployeeForm = /** @class */ (function (_super) {
         _this.SSN.constraints.mustBeBelow(1000000000, 'Must be less than 1000000000');
         _this.SSN.protect();
         _this.HireDate.caption.setCaption('Hire Date');
-        _this.HireDate.setItems(new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 10, 5, 0, 0, 0)), 'Yesterday'), new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 11, 5, 0, 0, 0)), 'Today'), new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 12, 5, 0, 0, 0)), 'Tomorrow'));
+        _this.HireDate.setItems(new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 22, 5, 0, 0, 0)), 'Yesterday'), new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 23, 5, 0, 0, 0)), 'Today'), new DropDownFieldItem_1.DropDownFieldItem(new Date(Date.UTC(2021, 0, 24, 5, 0, 0, 0)), 'Tomorrow'));
         _this.IsTemp.caption.setCaption('Is Temp');
         _this.IsTemp.setItems(new DropDownFieldItem_1.DropDownFieldItem(true, 'Yes'), new DropDownFieldItem_1.DropDownFieldItem(false, 'No'));
         return _this;

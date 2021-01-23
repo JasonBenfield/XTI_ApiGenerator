@@ -31,6 +31,7 @@ namespace FakeWebApp.ApiControllers
             return api.Group("Employee").Action<AddEmployeeForm, int>("AddEmployee").Execute(model);
         }
 
+        [ResponseCache(CacheProfileName = "Default")]
         public async Task<IActionResult> AddEmployeeFormView()
         {
             var result = await api.Group("Employee").Action<EmptyRequest, WebPartialViewResult>("AddEmployeeFormView").Execute(new EmptyRequest());
