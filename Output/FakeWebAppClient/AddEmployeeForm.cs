@@ -15,6 +15,7 @@ namespace FakeWebAppClient
             SSN = AddField(new InputField<int>(FieldName, nameof(SSN)));
             HireDate = AddField(new DropDownField<DateTimeOffset?>(FieldName, nameof(HireDate)));
             IsTemp = AddField(new DropDownField<bool>(FieldName, nameof(IsTemp)));
+            EmployeeID = AddField(new HiddenField<int>(FieldName, nameof(EmployeeID)));
         }
 
         public InputField<string> EmployeeName
@@ -48,6 +49,11 @@ namespace FakeWebAppClient
         }
 
         public DropDownField<bool> IsTemp
+        {
+            get;
+        }
+
+        public HiddenField<int> EmployeeID
         {
             get;
         }

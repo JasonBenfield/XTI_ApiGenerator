@@ -25,3 +25,13 @@ export declare class First<T> {
     private readonly source;
     value(): T;
 }
+export declare class Any<T> {
+    constructor(source: T[] | IEnumerable<T>);
+    private readonly source;
+    value(): boolean;
+}
+export declare class EnumerableRange implements IEnumerable<number> {
+    constructor(start: number, count: number);
+    private readonly source;
+    value(): number[];
+}

@@ -31,12 +31,10 @@ namespace XTI_WebApp.ClientGenerator.Typescript
             foreach (var complexFieldTemplate in complexFieldTemplates)
             {
                 await generateComplexField(complexFieldTemplate, false);
-                await generateComplexFieldViewModel(complexFieldTemplate, false);
             }
             foreach (var formTemplate in formTemplates)
             {
                 await generateComplexField(formTemplate.Form, true);
-                await generateComplexFieldViewModel(formTemplate.Form, true);
             }
             foreach (var group in appTemplate.GroupTemplates)
             {
@@ -53,14 +51,15 @@ namespace XTI_WebApp.ClientGenerator.Typescript
         {
             var className = complexField.TypeName;
             var tsFile = new TypeScriptFile(className, createStream);
-            tsFile.AddLine($"import {{ {className}ViewModel }} from \"./{className}ViewModel\";");
             if (isForm)
             {
-                tsFile.AddLine("import { Form } from 'XtiShared/Forms/Form';");
+                tsFile.AddLine("import { BaseForm } from 'XtiShared/Forms/BaseForm';");
+                tsFile.AddLine("import { FormComponentViewModel } from 'XtiShared/Html/FormComponentViewModel';");
             }
             else
             {
-                tsFile.AddLine("import { ComplexField } from 'XtiShared/Forms/ComplexField';");
+                tsFile.AddLine("import { ComplexFieldFormGroup } from 'XtiShared/Forms/ComplexFieldFormGroup';");
+                tsFile.AddLine("import { BlockViewModel } from 'XtiShared/Html/BlockViewModel';");
             }
             var fields = complexField.Fields;
             if (fields.OfType<DropDownFieldModel>().Any())
@@ -72,19 +71,20 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 tsFile.AddLine($"import {{ {field} }} from './{field}';");
             }
             tsFile.AddLine();
-            var baseClass = isForm ? "Form" : "ComplexField";
+            var baseClass = isForm ? "BaseForm" : "ComplexFieldFormGroup";
             tsFile.AddLine($"export class {className} extends {baseClass} {{");
             tsFile.Indent();
             var ctorArgs = isForm ? "" : "prefix: string, name: string, ";
-            tsFile.AddLine($"constructor({ctorArgs}private readonly vm: {className}ViewModel) {{");
+            var vmClassName = isForm ? "FormComponentViewModel" : "BlockViewModel";
+            tsFile.AddLine($"constructor({ctorArgs}vm: {vmClassName} = new {vmClassName}()) {{");
             tsFile.Indent();
-            var superArgs = isForm ? $"'{className}'" : "prefix, name, vm.caption, vm.value";
-            tsFile.AddLine($"super({superArgs});");
+            var superArgs = isForm ? $"'{className}'" : "prefix, name";
+            tsFile.AddLine($"super({superArgs}, vm);");
             foreach (var field in fields)
             {
                 if (!string.IsNullOrWhiteSpace(field.Caption))
                 {
-                    tsFile.AddLine($"this.{field.Name}.caption.setCaption('{field.Caption}');");
+                    tsFile.AddLine($"this.{field.Name}.setCaption('{field.Caption}');");
                 }
                 if (field is SimpleFieldModel simpleField)
                 {
@@ -171,25 +171,25 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 var vm = isForm ? "this.vm" : "this.vm.value";
                 if (field is IComplexField complex)
                 {
-                    tsFile.Append($"this.addField(new {complex.TypeName}(this.getName(), '{field.Name}', {vm}.{field.Name}))");
+                    tsFile.Append($"this.addFormGroup(new {complex.TypeName}(this.getName(), '{field.Name}'))");
                 }
                 else
                 {
-                    string addField;
+                    string addFormGroup;
                     if (field is InputFieldModel inputField)
                     {
                         var inputType = inputField.InputDataType;
                         if (inputType == typeof(int?) || inputType == typeof(decimal?))
                         {
-                            addField = "addNumberInputField";
+                            addFormGroup = "addNumberInputFormGroup";
                         }
                         else if (inputType == typeof(DateTimeOffset?))
                         {
-                            addField = "addDateInputField";
+                            addFormGroup = "addDateInputFormGroup";
                         }
                         else if (inputType == typeof(string))
                         {
-                            addField = "addTextInputField";
+                            addFormGroup = "addTextInputFormGroup";
                         }
                         else
                         {
@@ -200,22 +200,41 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                     {
                         var inputType = dropDownField.InputDataType;
                         var tsInputType = getTsType(inputType);
-                        addField = $"addDropDownField<{tsInputType}>";
+                        if (inputType == typeof(int?) || inputType == typeof(decimal?))
+                        {
+                            addFormGroup = "addNumberDropDownFormGroup";
+                        }
+                        else if (inputType == typeof(DateTimeOffset?))
+                        {
+                            addFormGroup = "addDateDropDownFormGroup";
+                        }
+                        else if (inputType == typeof(string))
+                        {
+                            addFormGroup = "addTextDropDownFormGroup";
+                        }
+                        else if (inputType == typeof(bool?))
+                        {
+                            addFormGroup = "addBooleanDropDownFormGroup";
+                        }
+                        else
+                        {
+                            throw new NotSupportedException($"DropDown field with input type {inputType} is not supported");
+                        }
                     }
                     else if (field is SimpleFieldModel hiddenField)
                     {
                         var inputType = hiddenField.InputDataType;
                         if (inputType == typeof(int?) || inputType == typeof(decimal?))
                         {
-                            addField = "addHiddenNumberField";
+                            addFormGroup = "addHiddenNumberFormGroup";
                         }
                         else if (inputType == typeof(DateTimeOffset?))
                         {
-                            addField = "addHiddenDateField";
+                            addFormGroup = "addHiddenDateFormGroup";
                         }
                         else if (inputType == typeof(string))
                         {
-                            addField = "addHiddenTextField";
+                            addFormGroup = "addHiddenTextFormGroup";
                         }
                         else
                         {
@@ -226,7 +245,7 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                     {
                         throw new NotSupportedException($"Simple field of type {field.GetType()} is not supported");
                     }
-                    tsFile.Append($"this.{addField}('{field.Name}', {vm}.{field.Name})");
+                    tsFile.Append($"this.{addFormGroup}('{field.Name}')");
                 }
                 tsFile.Append(";");
             }
@@ -273,86 +292,6 @@ namespace XTI_WebApp.ClientGenerator.Typescript
                 }
             }
             return jsLiteral;
-        }
-
-        private Task generateComplexFieldViewModel(IComplexField complexField, bool isForm)
-        {
-            var vmClassName = $"{complexField.TypeName}ViewModel";
-            var vmValueClassName = $"{complexField.TypeName}ValueViewModel";
-            var tsFile = new TypeScriptFile(vmClassName, createStream);
-            tsFile.AddLine("import * as ko from 'knockout';");
-            if (!isForm)
-            {
-                tsFile.AddLine("import { ComplexFieldViewModel } from \"XtiShared/Forms/ComplexFieldViewModel\";");
-                tsFile.AddLine("import { ComplexFieldValueViewModel } from \"XtiShared/Forms/FieldValueViewModel\";");
-            }
-            var fields = complexField.Fields;
-            if (fields.OfType<InputFieldModel>().Any() || fields.OfType<SimpleFieldModel>().Any())
-            {
-                tsFile.AddLine("import { InputFieldViewModel } from \"XtiShared/Forms/InputFieldViewModel\";");
-            }
-            if (fields.OfType<DropDownFieldModel>().Any())
-            {
-                tsFile.AddLine("import { DropDownFieldViewModel } from \"XtiShared/Forms/DropDownFieldViewModel\";");
-            }
-            foreach (var field in fields.OfType<ComplexFieldModel>().Select(f => f.TypeName).Distinct())
-            {
-                tsFile.AddLine($"import {{ {field}ViewModel }} from './{field}ViewModel';");
-            }
-            tsFile.AddLine();
-            if (isForm)
-            {
-                tsFile.AddLine($"export class {vmClassName} {{");
-            }
-            else
-            {
-                tsFile.AddLine($"export class {vmValueClassName} extends ComplexFieldValueViewModel {{");
-            }
-            tsFile.Indent();
-            tsFile.AddLine($"readonly componentName = ko.observable('{complexField.TypeName}');");
-            foreach (var field in fields)
-            {
-                string typeName;
-                if (field is InputFieldModel || field is HiddenFieldModel)
-                {
-                    typeName = "InputField";
-                }
-                else if (field is DropDownFieldModel)
-                {
-                    typeName = "DropDownField";
-                }
-                else if (field is ComplexFieldModel complex)
-                {
-                    typeName = complex.TypeName;
-                }
-                else
-                {
-                    typeName = field.GetType().Name;
-                }
-                var newVM = $"new {typeName}ViewModel()";
-                if (!isForm)
-                {
-                    newVM = $"this.addValue({newVM})";
-                }
-                tsFile.AddLine($"readonly {field.Name} = {newVM};");
-            }
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            tsFile.AddLine();
-            if (!isForm)
-            {
-                tsFile.AddLine($"export class {vmClassName} extends ComplexFieldViewModel {{");
-                tsFile.Indent();
-                tsFile.AddLine("constructor() {");
-                tsFile.Indent();
-                tsFile.AddLine($"super(new {vmValueClassName}());");
-                tsFile.Outdent();
-                tsFile.AddLine("}");
-                tsFile.AddLine($"readonly value: {vmValueClassName};");
-                tsFile.Outdent();
-                tsFile.AddLine("}");
-            }
-            return tsFile.Output();
         }
 
         private async Task generateApp(AppApiTemplate appTemplate)

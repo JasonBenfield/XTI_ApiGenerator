@@ -11,7 +11,7 @@ namespace XTI_ApiGeneratorApp.Extensions
     {
         public static void AddApiGenerator(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddAppDbContextForSqlServer(configuration);
+            services.AddMainDbContextForSqlServer(configuration);
             services.AddScoped<AppFactory>();
             services.AddScoped(sp =>
             {

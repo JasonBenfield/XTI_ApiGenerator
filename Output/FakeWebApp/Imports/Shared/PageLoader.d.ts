@@ -1,5 +1,5 @@
 import './Styles/default.scss';
-import "../../node_modules/@fortawesome/fontawesome-free/css/all.css";
+import "@fortawesome/fontawesome-free/css/all.css";
 import "@fortawesome/fontawesome-free/webfonts/fa-brands-400.eot";
 import "@fortawesome/fontawesome-free/webfonts/fa-brands-400.svg";
 import "@fortawesome/fontawesome-free/webfonts/fa-brands-400.ttf";
@@ -16,8 +16,10 @@ import "@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf";
 import "@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff";
 import "@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2";
 import 'tslib';
+import { PageViewModel } from './PageViewModel';
 export declare class PageLoader {
     load(): void;
+    loadPage(pageVM: PageViewModel): void;
     private createViewModel;
     private loadFromTemplateUrl;
 }
