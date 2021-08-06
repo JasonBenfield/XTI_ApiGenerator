@@ -6,28 +6,12 @@ namespace FakeWebAppClient
 {
     public sealed partial class Employee
     {
-        public int ID
-        {
-            get;
-            set;
-        }
+        public int ID { get; set; }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
-        public DateTime BirthDate
-        {
-            get;
-            set;
-        }
+        public DateTime BirthDate { get; set; }
 
-        public EmployeeType EmployeeType
-        {
-            get;
-            set;
-        }
+        public EmployeeType EmployeeType { get; set; }
     }
 }

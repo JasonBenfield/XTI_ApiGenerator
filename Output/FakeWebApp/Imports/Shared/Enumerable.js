@@ -47,4 +47,23 @@ var First = /** @class */ (function () {
     return First;
 }());
 exports.First = First;
+var Any = /** @class */ (function () {
+    function Any(source) {
+        this.source = EnumerableArray.create(source);
+    }
+    Any.prototype.value = function () { return this.source.value().length > 0; };
+    return Any;
+}());
+exports.Any = Any;
+var EnumerableRange = /** @class */ (function () {
+    function EnumerableRange(start, count) {
+        this.source = [];
+        for (var i = start; i < start + count; i++) {
+            this.source.push(i);
+        }
+    }
+    EnumerableRange.prototype.value = function () { return this.source; };
+    return EnumerableRange;
+}());
+exports.EnumerableRange = EnumerableRange;
 //# sourceMappingURL=Enumerable.js.map

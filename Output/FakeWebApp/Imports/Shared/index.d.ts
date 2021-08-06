@@ -9,6 +9,8 @@ declare module '*.html' {
     export default content;
 }
 
+declare type LayoutBreakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+
 interface IEmptyRequest {
 }
 
@@ -24,12 +26,25 @@ interface PageContext {
 
 declare let pageContext: PageContext;
 
+interface IPageViewModel {
+}
+
+interface IPage extends IAggregateComponent {
+    load();
+}
+
 declare module 'xtistart' {
-    export function startup(pageVM: any, page: any);
+    export function startup(page: IPage);
 }
 
 interface EventCallback<TArgs> {
     (args: TArgs, source?: any): void;
+}
+
+interface IArrayItemEvent<TArgs> {
+    handlerAccessor: (item: any) => IEventHandler<TArgs>;
+    callback: EventCallback<TArgs>;
+    isEnabled?: () => boolean;
 }
 
 interface IEventHandler<TArgs> {
@@ -46,6 +61,12 @@ interface RegisteredEventCallback {
     callback: EventCallback<any>;
     identifier: string;
     isEnabled: () => boolean;
+}
+
+interface DelegatedEvent {
+    event: string;
+    selector: string;
+    callback: (any, string) => boolean;
 }
 
 interface IActionErrorOptions {
@@ -88,6 +109,7 @@ interface IField {
     getName(): string;
     getCaption(): string;
     getValue(): any;
+    getField(name: string): IField;
     clearErrors();
     validate(errors: IErrorList);
     import(values: Record<string, any>);
@@ -103,25 +125,104 @@ interface IConstraint {
     test(value: any): IConstraintResult;
 }
 
-interface IFieldCaptionViewModel {
-    readonly caption: ko.Observable<string>;
-    readonly css: ko.Observable<string>;
-    readonly isVisible: ko.Observable<boolean>;
+interface IComponentViewModel {
+    readonly componentName: ko.Observable<string>;
 }
 
-interface IFieldValueViewModel {
+interface IComponentTemplate {
+    readonly name: string;
+    register();
+}
+
+interface IHtmlComponentViewModel extends IComponentViewModel {
+    readonly id: ko.Observable<string>;
     readonly name: ko.Observable<string>;
-    readonly value: ko.Observable<any>;
-    readonly changed: IEventHandler<any>;
     readonly css: ko.Observable<string>;
     readonly isVisible: ko.Observable<boolean>;
-    readonly isEnabled: ko.Observable<boolean>;
-    readonly errors: ko.ObservableArray<IErrorModel>;
-    readonly hasError: ko.Observable<boolean>;
+    readonly title: ko.Observable<string>;
 }
 
-interface IFieldViewModel {
-    readonly caption: IFieldCaptionViewModel;
-    readonly value: IFieldValueViewModel;
+interface IHtmlContainerComponentViewModel extends IHtmlComponentViewModel {
+    readonly content: IAggregateComponentViewModel;
+}
+
+interface IAggregateComponent {
+    addContent<TItem extends IComponent>(item: TItem): TItem;
+    insertContent<TItem extends IComponent>(index: number, item: TItem): TItem;
+    addItem<TItemVM extends IComponentViewModel, TItem extends IComponent>(
+        itemVM: TItemVM,
+        item: TItem
+    ): TItem;
+    insertItem<TItemVM extends IComponentViewModel, TItem extends IComponent>(
+        index: number,
+        itemVM: TItemVM,
+        item: TItem
+    ): TItem;
+    removeItem<TItem extends IComponent>(item: TItem);
+    show();
+    hide();
+}
+
+interface IAggregateComponentViewModel extends IComponentViewModel {
+    readonly items: ko.ObservableArray<IComponentViewModel>;
     readonly isVisible: ko.Observable<boolean>;
 }
+
+interface IList {
+    addListItem<TListItem extends IListItem>(itemVM: IListItemViewModel, item: TListItem): TListItem;
+}
+
+interface IListViewModel extends IHtmlComponentViewModel {
+    readonly itemClicked: IEventHandler<IListItemViewModel>;
+    readonly items: ko.ObservableArray<IListItemViewModel>;
+    readonly hasItems: ko.Observable<boolean>;
+}
+
+interface IListItemViewModel extends IHtmlComponentViewModel {
+    readonly content: IAggregateComponentViewModel;
+    readonly isClickable: boolean;
+}
+
+interface IListItem {
+    readonly content: IAggregateComponent;
+
+    addCssName(name: string);
+
+    addContent<TItem extends IComponent>(item: TItem): TItem;
+
+    addToList(list: IList): this;
+}
+
+type ColumnCssSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 'auto' | 'fill';
+
+interface IColumnCss {
+    xs(columnSize: ColumnCssSize);
+    sm(columnSize: ColumnCssSize);
+    md(columnSize: ColumnCssSize);
+    lg(columnSize: ColumnCssSize);
+    xl(columnSize: ColumnCssSize);
+    xxl(columnSize: ColumnCssSize);
+}
+
+interface IColumn {
+    setColumnCss(columnCss: IColumnCss);
+    truncate();
+}
+
+interface IFormGroup extends IComponent {
+    readonly captionColumn: IColumn;
+    readonly valueColumn: IColumn;
+}
+
+interface IFormGroupField extends IFormGroup, IField {
+}
+
+interface IComponent {
+    addToContainer(container: IAggregateComponent): this;
+    insertIntoContainer(container: IAggregateComponent, index: number): this;
+    removeFromContainer(container: IAggregateComponent): this;
+}
+
+declare type constructor<T> = {
+    new(...args: any[]): T;
+};

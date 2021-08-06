@@ -14,20 +14,11 @@ namespace FakeWebAppClient
                 Permanent = Add(new EmployeeType(15, "Permanent"));
             }
 
-            public EmployeeType None
-            {
-                get;
-            }
+            public EmployeeType None { get; }
 
-            public EmployeeType Temp
-            {
-                get;
-            }
+            public EmployeeType Temp { get; }
 
-            public EmployeeType Permanent
-            {
-                get;
-            }
+            public EmployeeType Permanent { get; }
         }
 
         public static readonly EmployeeTypes Values = new EmployeeTypes();

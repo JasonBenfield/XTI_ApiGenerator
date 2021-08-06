@@ -1,1 +1,3 @@
-export declare function startup(pageVM: any, page: any): void;
+import { AppApi } from "./AppApi";
+export declare let defaultApi: AppApi;
+export declare function startup(page: IPage): void;

@@ -1,6 +1,8 @@
-export declare class ComponentTemplateAsync {
-    private readonly name;
+import { Url } from './Url';
+import { UrlBuilder } from './UrlBuilder';
+export declare class ComponentTemplateAsync implements IComponentTemplate {
+    readonly name: string;
+    constructor(name: string, url: Url | UrlBuilder | string);
     private readonly url;
-    constructor(name: string, url: any);
     register(): void;
 }
