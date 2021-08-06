@@ -18,44 +18,20 @@ namespace FakeWebAppClient
             EmployeeID = AddField(new HiddenField<int>(FieldName, nameof(EmployeeID)));
         }
 
-        public InputField<string> EmployeeName
-        {
-            get;
-        }
+        public InputField<string> EmployeeName { get; }
 
-        public InputField<DateTimeOffset?> BirthDate
-        {
-            get;
-        }
+        public InputField<DateTimeOffset?> BirthDate { get; }
 
-        public DropDownField<int> Department
-        {
-            get;
-        }
+        public DropDownField<int> Department { get; }
 
-        public AddressInput Address
-        {
-            get;
-        }
+        public AddressInput Address { get; }
 
-        public InputField<int> SSN
-        {
-            get;
-        }
+        public InputField<int> SSN { get; }
 
-        public DropDownField<DateTimeOffset?> HireDate
-        {
-            get;
-        }
+        public DropDownField<DateTimeOffset?> HireDate { get; }
 
-        public DropDownField<bool> IsTemp
-        {
-            get;
-        }
+        public DropDownField<bool> IsTemp { get; }
 
-        public HiddenField<int> EmployeeID
-        {
-            get;
-        }
+        public HiddenField<int> EmployeeID { get; }
     }
 }

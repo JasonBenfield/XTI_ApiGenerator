@@ -15,8 +15,8 @@ namespace FakeWebApp.Api
     public sealed class FakeAppApi : WebAppApiWrapper
     {
 
-        public FakeAppApi(IAppApiUser user, ResourceAccess access = null)
-            : base(new AppApi(FakeAppKey.AppKey, user, access))
+        public FakeAppApi(IAppApiUser user, ResourceAccess access, IServiceProvider sp)
+            : base(new AppApi(FakeAppKey.AppKey, user, access), sp)
         {
             Employee = new EmployeeGroup(source.AddGroup(nameof(Employee)));
             Product = new ProductGroup(source.AddGroup(nameof(Product)));

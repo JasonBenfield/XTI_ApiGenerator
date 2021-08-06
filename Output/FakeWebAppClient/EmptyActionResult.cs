@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 namespace FakeWebAppClient
 {
-    public sealed partial class UserStartRequest
+    public sealed partial class EmptyActionResult
     {
-        public string ReturnUrl { get; set; }
     }
 }
