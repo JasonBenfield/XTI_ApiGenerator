@@ -10,24 +10,18 @@ namespace FakeWebAppClient
         {
             this.xtiToken = xtiToken;
             User = new UserGroup(httpClientFactory, xtiToken, url);
+            UserCache = new UserCacheGroup(httpClientFactory, xtiToken, url);
             Employee = new EmployeeGroup(httpClientFactory, xtiToken, url);
             Product = new ProductGroup(httpClientFactory, xtiToken, url);
         }
 
         public const string DefaultVersion = "V2";
-        public UserGroup User
-        {
-            get;
-        }
+        public UserGroup User { get; }
 
-        public EmployeeGroup Employee
-        {
-            get;
-        }
+        public UserCacheGroup UserCache { get; }
 
-        public ProductGroup Product
-        {
-            get;
-        }
+        public EmployeeGroup Employee { get; }
+
+        public ProductGroup Product { get; }
     }
 }

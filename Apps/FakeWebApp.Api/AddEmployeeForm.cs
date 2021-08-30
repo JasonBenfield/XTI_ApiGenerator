@@ -31,6 +31,7 @@ namespace FakeWebApp.Api
                 new DropDownItem<DateTimeOffset?>(DateTimeOffset.Now.Date.AddDays(1), "Tomorrow")
             );
             IsTemp = AddBooleanDropDown(nameof(IsTemp));
+            EmployeeID = AddInt32Hidden(nameof(EmployeeID), 32);
         }
 
         public InputField<string> EmployeeName { get; }
@@ -40,6 +41,7 @@ namespace FakeWebApp.Api
         public InputField<int?> SSN { get; }
         public DropDownField<DateTimeOffset?> HireDate { get; }
         public DropDownField<bool?> IsTemp { get; }
+        public HiddenField<int?> EmployeeID { get; }
     }
 
 }

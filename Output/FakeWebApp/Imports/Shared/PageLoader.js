@@ -1,9 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var ko = require("knockout");
-var template = require("./Templates/PageFrame.html");
 require("./Styles/default.scss");
-require("../../node_modules/@fortawesome/fontawesome-free/css/all.css");
+require("@fortawesome/fontawesome-free/css/all.css");
 require("@fortawesome/fontawesome-free/webfonts/fa-brands-400.eot");
 require("@fortawesome/fontawesome-free/webfonts/fa-brands-400.svg");
 require("@fortawesome/fontawesome-free/webfonts/fa-brands-400.ttf");
@@ -19,25 +18,62 @@ require("@fortawesome/fontawesome-free/webfonts/fa-solid-900.svg");
 require("@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf");
 require("@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff");
 require("@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2");
-var ComponentTemplate_1 = require("./ComponentTemplate");
 require("tslib");
 var SubmitBindingHandler_1 = require("./SubmitBindingHandler");
 var ModalBindingHandler_1 = require("./ModalBindingHandler");
-var tsyringe_1 = require("tsyringe");
-var PageFrameViewModel_1 = require("./PageFrameViewModel");
 var UrlBuilder_1 = require("./UrlBuilder");
 var ConsoleLog_1 = require("./ConsoleLog");
-var bootstrap_1 = require("bootstrap");
 var DropdownBindingHandler_1 = require("./DropdownBindingHandler");
+var DelegatedEventBindingHandler_1 = require("./DelegatedEventBindingHandler");
 var PageLoader = /** @class */ (function () {
     function PageLoader() {
     }
     PageLoader.prototype.load = function () {
+        //let defaultConfigLoader = {
+        //    getConfig: (name: string, callback) => {
+        //        if (name.indexOf('/') > -1) {
+        //            callback({
+        //                template: { templateUrl: name },
+        //                synchronous: true
+        //            });
+        //        }
+        //        else {
+        //            callback(null);
+        //        }
+        //    }
+        //};
+        //let defaultComponentLoader = {
+        //    loadComponent: (name: string, config, callback) => {
+        //        let templateConfig = config.template;
+        //        if (templateConfig.templateUrl) {
+        //            this.loadFromTemplateUrl(templateConfig.templateUrl, callback, templateConfig.errorMarkup);
+        //        }
+        //        else if (templateConfig.containerID) {
+        //            let container = document.getElementById(templateConfig.containerID);
+        //            callback({
+        //                template: container && container.childNodes,
+        //                createViewModel: this.createViewModel
+        //            });
+        //        }
+        //        else {
+        //            callback(null);
+        //        }
+        //    }
+        //};
+        //ko.components.loaders.unshift(defaultConfigLoader);
+        //ko.components.loaders.unshift(defaultComponentLoader);
+        //new ComponentTemplate('page-frame', template).register();
+        //ko.options.deferUpdates = true;
+        //ko.bindingHandlers.submit = new SubmitBindingHandler();
+        //ko.bindingHandlers.modal = new ModalBindingHandler();
+        //ko.bindingHandlers.dropdown = new DropdownBindingHandler();
+        //ko.bindingHandlers.delegatedEvent = new DelegatedEventBindingHandler();
+        //let page = container.resolve('Page');
+        //let pageFrameVM = container.resolve(PageFrameViewModel);
+        //ko.applyBindings(pageFrameVM);
+    };
+    PageLoader.prototype.loadPage = function (pageVM) {
         var _this = this;
-        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-        dropdownElementList.map(function (dropdownToggleEl) {
-            return new bootstrap_1.Dropdown(dropdownToggleEl);
-        });
         var defaultConfigLoader = {
             getConfig: function (name, callback) {
                 if (name.indexOf('/') > -1) {
@@ -71,14 +107,13 @@ var PageLoader = /** @class */ (function () {
         };
         ko.components.loaders.unshift(defaultConfigLoader);
         ko.components.loaders.unshift(defaultComponentLoader);
-        new ComponentTemplate_1.ComponentTemplate('page-frame', template).register();
+        //new ComponentTemplate('page-frame', template).register();
         ko.options.deferUpdates = true;
         ko.bindingHandlers.submit = new SubmitBindingHandler_1.SubmitBindingHandler();
         ko.bindingHandlers.modal = new ModalBindingHandler_1.ModalBindingHandler();
         ko.bindingHandlers.dropdown = new DropdownBindingHandler_1.DropdownBindingHandler();
-        var page = tsyringe_1.container.resolve('Page');
-        var pageFrameVM = tsyringe_1.container.resolve(PageFrameViewModel_1.PageFrameViewModel);
-        ko.applyBindings(pageFrameVM);
+        ko.bindingHandlers.delegatedEvent = new DelegatedEventBindingHandler_1.DelegatedEventBindingHandler();
+        ko.applyBindings(pageVM);
     };
     PageLoader.prototype.createViewModel = function (params, componentInf) {
         return params;
@@ -89,7 +124,7 @@ var PageLoader = /** @class */ (function () {
         if (!urlBuilder.hasQuery('cacheBust')) {
             urlBuilder.addQuery('cacheBust', pageContext.CacheBust);
         }
-        var url = urlBuilder.getUrl();
+        var url = urlBuilder.value();
         function reqListener() {
             console.log(this.responseText);
         }
