@@ -9,7 +9,7 @@ import { ProductGroup } from "./ProductGroup";
 
 
 export class FakeAppApi extends AppApi {
-	public static readonly DefaultVersion = 'V2';
+	public static readonly DefaultVersion = 'V0';
 	
 	constructor(events: AppApiEvents, baseUrl: string, version: string = '') {
 		super(events, baseUrl, 'Fake', version || FakeAppApi.DefaultVersion);

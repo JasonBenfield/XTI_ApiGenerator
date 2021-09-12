@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using XTI_WebApp.Api;
 using XTI_App.Api;
 using FakeWebApp.Api;
 using XTI_App;
+using XTI_WebApp.Api;
 
 namespace FakeWebApp.ApiControllers
 {
@@ -20,9 +20,9 @@ namespace FakeWebApp.ApiControllers
 
         private readonly FakeAppApi api;
         [HttpPost]
-        public Task<ResultContainer<EmptyActionResult>> ClearCache([FromBody] ClearUserCacheRequest model)
+        public Task<ResultContainer<EmptyActionResult>> ClearCache([FromBody] string model)
         {
-            return api.Group("UserCache").Action<ClearUserCacheRequest, EmptyActionResult>("ClearCache").Execute(model);
+            return api.Group("UserCache").Action<string, EmptyActionResult>("ClearCache").Execute(model);
         }
     }
 }

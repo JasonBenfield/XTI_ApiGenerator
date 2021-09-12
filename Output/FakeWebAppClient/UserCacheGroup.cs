@@ -12,6 +12,6 @@ namespace FakeWebAppClient
         {
         }
 
-        public Task<EmptyActionResult> ClearCache(ClearUserCacheRequest model) => Post<EmptyActionResult, ClearUserCacheRequest>("ClearCache", "", model);
+        public Task<EmptyActionResult> ClearCache(string model) => Post<EmptyActionResult, string>("ClearCache", "", model);
     }
 }
