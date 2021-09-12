@@ -3,10 +3,6 @@
 interface IUserStartRequest {
 	ReturnUrl: string;
 }
-interface IClearUserCacheRequest {
-	UserID: number;
-	UserName: string;
-}
 interface IEmptyActionResult {
 }
 interface IEmptyRequest {
