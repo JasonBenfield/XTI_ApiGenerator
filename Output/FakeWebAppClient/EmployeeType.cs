@@ -1,29 +1,25 @@
 // Generated Code
-using XTI_WebAppClient;
-
-namespace FakeWebAppClient
+namespace FakeWebAppClient;
+public sealed class EmployeeType : NumericValue
 {
-    public sealed class EmployeeType : NumericValue
+    public sealed class EmployeeTypes : NumericValues<EmployeeType>
     {
-        public sealed class EmployeeTypes : NumericValues<EmployeeType>
+        internal EmployeeTypes()
         {
-            internal EmployeeTypes()
-            {
-                None = Add(new EmployeeType(0, "None"));
-                Temp = Add(new EmployeeType(10, "Temp"));
-                Permanent = Add(new EmployeeType(15, "Permanent"));
-            }
-
-            public EmployeeType None { get; }
-
-            public EmployeeType Temp { get; }
-
-            public EmployeeType Permanent { get; }
+            None = Add(new EmployeeType(0, "None"));
+            Temp = Add(new EmployeeType(10, "Temp"));
+            Permanent = Add(new EmployeeType(15, "Permanent"));
         }
 
-        public static readonly EmployeeTypes Values = new EmployeeTypes();
-        public EmployeeType(int value, string displayText): base(value, displayText)
-        {
-        }
+        public EmployeeType None { get; }
+
+        public EmployeeType Temp { get; }
+
+        public EmployeeType Permanent { get; }
+    }
+
+    public static readonly EmployeeTypes Values = new EmployeeTypes();
+    private EmployeeType(int value, string displayText) : base(value, displayText)
+    {
     }
 }

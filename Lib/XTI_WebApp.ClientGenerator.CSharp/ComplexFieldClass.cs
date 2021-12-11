@@ -1,65 +1,67 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using XTI_Forms;
 using XTI_WebApp.CodeGeneration.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace XTI_WebApp.ClientGenerator.CSharp
+namespace XTI_WebApp.ClientGenerator.CSharp;
+
+public sealed class ComplexFieldClass
 {
-    public sealed class ComplexFieldClass
+    private readonly string ns;
+    private readonly Func<string, Stream> createStream;
+    private readonly IComplexField template;
+    private readonly string baseClassName;
+
+    public ComplexFieldClass(string ns, Func<string, Stream> createStream, IComplexField template, string baseClassName)
     {
-        private readonly string ns;
-        private readonly Func<string, Stream> createStream;
-        private readonly IComplexField template;
-        private readonly string baseClassName;
+        this.ns = ns;
+        this.createStream = createStream;
+        this.template = template;
+        this.baseClassName = baseClassName;
+    }
 
-        public ComplexFieldClass(string ns, Func<string, Stream> createStream, IComplexField template, string baseClassName)
-        {
-            this.ns = ns;
-            this.createStream = createStream;
-            this.template = template;
-            this.baseClassName = baseClassName;
-        }
+    public async Task Output()
+    {
+        var complexField = createComplextFieldClass();
+        var className = template.TypeName;
+        await outputClass(complexField, className);
+    }
 
-        public async Task Output()
-        {
-            var complexField = createComplextFieldClass();
-            var className = template.TypeName;
-            await outputClass(complexField, className);
-        }
-
-        private CompilationUnitSyntax createComplextFieldClass()
-        {
-            return CompilationUnit()
-                .WithUsings
+    private CompilationUnitSyntax createComplextFieldClass()
+    {
+        return CompilationUnit()
+            .WithMembers
+            (
+                SingletonList<MemberDeclarationSyntax>
                 (
-                    List(usings())
-                )
-                .WithMembers
-                (
-                    SingletonList<MemberDeclarationSyntax>
-                    (
-                        NamespaceDeclaration(IdentifierName(ns))
-                            .WithMembers
+
+                    FileScopedNamespaceDeclaration(IdentifierName(ns))
+                        .WithNamespaceKeyword
+                        (
+                            Token
                             (
-                                SingletonList
-                                (
-                                    classDeclaration()
-                                )
+                                TriviaList(Comment("// Generated Code")),
+                                SyntaxKind.NamespaceKeyword,
+                                TriviaList()
                             )
-                    )
-                );
-        }
+                        )
+                        .WithMembers
+                        (
+                            SingletonList
+                            (
+                                classDeclaration()
+                            )
+                        )
+                )
+            );
+    }
 
-        private IEnumerable<UsingDirectiveSyntax> usings()
+    private IEnumerable<UsingDirectiveSyntax> usings()
+    {
+        return new[]
         {
-            return new[]
-            {
                 UsingDirective
                 (
                     QualifiedName
@@ -79,215 +81,215 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                 ),
                 UsingDirective(IdentifierName("System"))
             };
-        }
+    }
 
-        private MemberDeclarationSyntax classDeclaration()
-        {
-            return ClassDeclaration(template.TypeName)
-                .WithModifiers
+    private MemberDeclarationSyntax classDeclaration()
+    {
+        return ClassDeclaration(template.TypeName)
+            .WithModifiers
+            (
+                TokenList
                 (
-                    TokenList
-                    (
-                        new[]
-                        {
+                    new[]
+                    {
                             Token(SyntaxKind.PublicKeyword),
                             Token(SyntaxKind.SealedKeyword),
                             Token(SyntaxKind.PartialKeyword)
-                        }
+                    }
+                )
+            )
+            .WithBaseList
+            (
+                BaseList
+                (
+                    SingletonSeparatedList<BaseTypeSyntax>
+                    (
+                        SimpleBaseType(IdentifierName(baseClassName))
                     )
                 )
-                .WithBaseList
+            )
+            .WithMembers
+            (
+                List
                 (
-                    BaseList
-                    (
-                        SingletonSeparatedList<BaseTypeSyntax>
-                        (
-                            SimpleBaseType(IdentifierName(baseClassName))
-                        )
-                    )
+                    classMembers()
                 )
-                .WithMembers
-                (
-                    List
-                    (
-                        classMembers()
-                    )
-                );
-        }
+            );
+    }
 
-        private IEnumerable<MemberDeclarationSyntax> classMembers()
+    private IEnumerable<MemberDeclarationSyntax> classMembers()
+    {
+        var members = new List<MemberDeclarationSyntax>();
+        members.Add(constructor());
+        foreach (var field in template.Fields)
         {
-            var members = new List<MemberDeclarationSyntax>();
-            members.Add(constructor());
-            foreach (var field in template.Fields)
-            {
-                members.Add(fieldDeclarationStatement(field));
-            }
-            return members;
+            members.Add(fieldDeclarationStatement(field));
         }
+        return members;
+    }
 
-        private MemberDeclarationSyntax constructor()
-        {
-            return ConstructorDeclaration(Identifier(template.TypeName))
-                .WithModifiers
+    private MemberDeclarationSyntax constructor()
+    {
+        return ConstructorDeclaration(Identifier(template.TypeName))
+            .WithModifiers
+            (
+                TokenList(Token(SyntaxKind.PublicKeyword))
+            )
+            .WithParameterList
+            (
+                ParameterList
                 (
-                    TokenList(Token(SyntaxKind.PublicKeyword))
-                )
-                .WithParameterList
-                (
-                    ParameterList
+                    SeparatedList<ParameterSyntax>
                     (
-                        SeparatedList<ParameterSyntax>
+                        constructorArgs()
+                    )
+                )
+            )
+            .WithInitializer
+            (
+                ConstructorInitializer
+                (
+                    SyntaxKind.BaseConstructorInitializer,
+                    ArgumentList
+                    (
+                        SeparatedList<ArgumentSyntax>
                         (
-                            constructorArgs()
+                            constructorBaseArgs()
                         )
                     )
                 )
-                .WithInitializer
-                (
-                    ConstructorInitializer
-                    (
-                        SyntaxKind.BaseConstructorInitializer,
-                        ArgumentList
-                        (
-                            SeparatedList<ArgumentSyntax>
-                            (
-                                constructorBaseArgs()
-                            )
-                        )
-                    )
-                )
-                .WithBody
-                (
-                    Block(constructorBody())
-                );
-        }
+            )
+            .WithBody
+            (
+                Block(constructorBody())
+            );
+    }
 
-        private IEnumerable<SyntaxNodeOrToken> constructorArgs()
+    private IEnumerable<SyntaxNodeOrToken> constructorArgs()
+    {
+        var args = new List<SyntaxNodeOrToken>();
+        if (baseClassName == "ComplexField")
         {
-            var args = new List<SyntaxNodeOrToken>();
-            if (baseClassName == "ComplexField")
-            {
-                args.Add
-                (
-                    Parameter(Identifier("prefix"))
-                        .WithType
-                        (
-                            PredefinedType(Token(SyntaxKind.StringKeyword))
-                        )
-                );
-                args.Add(Token(SyntaxKind.CommaToken));
-            }
             args.Add
             (
-                Parameter(Identifier("name"))
+                Parameter(Identifier("prefix"))
                     .WithType
                     (
                         PredefinedType(Token(SyntaxKind.StringKeyword))
                     )
             );
-            return args;
+            args.Add(Token(SyntaxKind.CommaToken));
         }
-
-        private IEnumerable<SyntaxNodeOrToken> constructorBaseArgs()
-        {
-            var args = new List<SyntaxNodeOrToken>();
-            if (baseClassName == "ComplexField")
-            {
-                args.Add(Argument(IdentifierName("prefix")));
-                args.Add(Token(SyntaxKind.CommaToken));
-            }
-            args.Add(Argument(IdentifierName("name")));
-            return args;
-        }
-
-        private IEnumerable<StatementSyntax> constructorBody()
-        {
-            var statements = new List<StatementSyntax>();
-            foreach (var field in template.Fields)
-            {
-                statements.AddRange(initializeField(field));
-            }
-            return statements;
-        }
-
-        private IEnumerable<StatementSyntax> initializeField(FieldModel field)
-        {
-            var statements = new List<StatementSyntax>();
-            statements.Add(addFieldStatement(field));
-            return statements;
-        }
-
-        private ExpressionStatementSyntax addFieldStatement(FieldModel field)
-        {
-            return ExpressionStatement
-            (
-                AssignmentExpression
+        args.Add
+        (
+            Parameter(Identifier("name"))
+                .WithType
                 (
-                    SyntaxKind.SimpleAssignmentExpression,
-                    IdentifierName(field.Name),
-                    InvocationExpression(IdentifierName("AddField"))
-                        .WithArgumentList
+                    PredefinedType(Token(SyntaxKind.StringKeyword))
+                )
+        );
+        return args;
+    }
+
+    private IEnumerable<SyntaxNodeOrToken> constructorBaseArgs()
+    {
+        var args = new List<SyntaxNodeOrToken>();
+        if (baseClassName == "ComplexField")
+        {
+            args.Add(Argument(IdentifierName("prefix")));
+            args.Add(Token(SyntaxKind.CommaToken));
+        }
+        args.Add(Argument(IdentifierName("name")));
+        return args;
+    }
+
+    private IEnumerable<StatementSyntax> constructorBody()
+    {
+        var statements = new List<StatementSyntax>();
+        foreach (var field in template.Fields)
+        {
+            statements.AddRange(initializeField(field));
+        }
+        return statements;
+    }
+
+    private IEnumerable<StatementSyntax> initializeField(FieldModel field)
+    {
+        var statements = new List<StatementSyntax>();
+        statements.Add(addFieldStatement(field));
+        return statements;
+    }
+
+    private ExpressionStatementSyntax addFieldStatement(FieldModel field)
+    {
+        return ExpressionStatement
+        (
+            AssignmentExpression
+            (
+                SyntaxKind.SimpleAssignmentExpression,
+                IdentifierName(field.Name),
+                InvocationExpression(IdentifierName("AddField"))
+                    .WithArgumentList
+                    (
+                        ArgumentList
                         (
-                            ArgumentList
+                            SingletonSeparatedList
                             (
-                                SingletonSeparatedList
+                                Argument
                                 (
-                                    Argument
-                                    (
-                                        addFieldArgument(field)
-                                    )
+                                    addFieldArgument(field)
                                 )
+                            )
+                        )
+                    )
+                )
+            );
+    }
+
+    private PropertyDeclarationSyntax fieldDeclarationStatement(FieldModel field)
+    {
+        var typeSyntax = typeSyntaxFromField(field);
+        return PropertyDeclaration
+        (
+            typeSyntax,
+            Identifier(field.Name))
+                .WithModifiers
+                (
+                    TokenList(Token(SyntaxKind.PublicKeyword))
+                )
+                .WithAccessorList
+                (
+                    AccessorList
+                    (
+                        SingletonList
+                        (
+                            AccessorDeclaration
+                            (
+                                SyntaxKind.GetAccessorDeclaration
+                            )
+                            .WithSemicolonToken
+                            (
+                                Token(SyntaxKind.SemicolonToken)
                             )
                         )
                     )
                 );
-        }
+    }
 
-        private PropertyDeclarationSyntax fieldDeclarationStatement(FieldModel field)
-        {
-            var typeSyntax = typeSyntaxFromField(field);
-            return PropertyDeclaration
+    private ExpressionSyntax addFieldArgument(FieldModel field)
+    {
+        var expression = ObjectCreationExpression
+        (
+            typeSyntaxFromField(field)
+        );
+        expression = expression.WithArgumentList
+        (
+            ArgumentList
             (
-                typeSyntax,
-                Identifier(field.Name))
-                    .WithModifiers
-                    (
-                        TokenList(Token(SyntaxKind.PublicKeyword))
-                    )
-                    .WithAccessorList
-                    (
-                        AccessorList
-                        (
-                            SingletonList
-                            (
-                                AccessorDeclaration
-                                (
-                                    SyntaxKind.GetAccessorDeclaration
-                                )
-                                .WithSemicolonToken
-                                (
-                                    Token(SyntaxKind.SemicolonToken)
-                                )
-                            )
-                        )
-                    );
-        }
-
-        private ExpressionSyntax addFieldArgument(FieldModel field)
-        {
-            var expression = ObjectCreationExpression
-            (
-                typeSyntaxFromField(field)
-            );
-            expression = expression.WithArgumentList
-            (
-                ArgumentList
+                SeparatedList<ArgumentSyntax>
                 (
-                    SeparatedList<ArgumentSyntax>
-                    (
-                        new SyntaxNodeOrToken[]
-                        {
+                    new SyntaxNodeOrToken[]
+                    {
                             Argument(IdentifierName("FieldName")),
                             Token(SyntaxKind.CommaToken),
                             Argument
@@ -304,97 +306,96 @@ namespace XTI_WebApp.ClientGenerator.CSharp
                                         )
                                     )
                             )
-                        }
+                    }
+                )
+            )
+        );
+        return expression;
+    }
+
+    private TypeSyntax typeSyntaxFromField(FieldModel field)
+    {
+        TypeSyntax typeSyntax;
+        if (field is ComplexFieldModel complexField)
+        {
+            typeSyntax = IdentifierName(Identifier(complexField.TypeName));
+        }
+        else if (field is SimpleFieldModel simpleField)
+        {
+            typeSyntax = typeSyntaxFromSimpleField(simpleField);
+        }
+        else
+        {
+            throw new NotSupportedException($"Field of type {field.GetType()} is not supported");
+        }
+        return typeSyntax;
+    }
+
+    private static GenericNameSyntax typeSyntaxFromSimpleField(SimpleFieldModel field)
+    {
+        TypeSyntax typeSyntax;
+        if (field.InputDataType == typeof(DateTimeOffset?))
+        {
+            typeSyntax = NullableType(IdentifierName("DateTimeOffset"));
+        }
+        else
+        {
+            SyntaxKind syntaxKind;
+            if (field.InputDataType == typeof(int?))
+            {
+                syntaxKind = SyntaxKind.IntKeyword;
+            }
+            else if (field.InputDataType == typeof(decimal?))
+            {
+                syntaxKind = SyntaxKind.DecimalKeyword;
+            }
+            else if (field.InputDataType == typeof(bool?))
+            {
+                syntaxKind = SyntaxKind.BoolKeyword;
+            }
+            else if (field.InputDataType == typeof(string))
+            {
+                syntaxKind = SyntaxKind.StringKeyword;
+            }
+            else
+            {
+                throw new NotSupportedException($"Simple field of type '{field.InputDataType?.Name}' is not supported");
+            }
+            typeSyntax = PredefinedType(Token(syntaxKind));
+        }
+        string specificName;
+        if (field is InputFieldModel)
+        {
+            specificName = "InputField";
+        }
+        else if (field is DropDownFieldModel)
+        {
+            specificName = "DropDownField";
+        }
+        else if (field is HiddenFieldModel)
+        {
+            specificName = "HiddenField";
+        }
+        else
+        {
+            throw new NotSupportedException($"Simple field of type {field.GetType()} is not supported");
+        }
+        return GenericName(Identifier(specificName))
+            .WithTypeArgumentList
+            (
+                TypeArgumentList
+                (
+                    SingletonSeparatedList
+                    (
+                        typeSyntax
                     )
                 )
             );
-            return expression;
-        }
+    }
 
-        private TypeSyntax typeSyntaxFromField(FieldModel field)
-        {
-            TypeSyntax typeSyntax;
-            if (field is ComplexFieldModel complexField)
-            {
-                typeSyntax = IdentifierName(Identifier(complexField.TypeName));
-            }
-            else if (field is SimpleFieldModel simpleField)
-            {
-                typeSyntax = typeSyntaxFromSimpleField(simpleField);
-            }
-            else
-            {
-                throw new NotSupportedException($"Field of type {field.GetType()} is not supported");
-            }
-            return typeSyntax;
-        }
-
-        private static GenericNameSyntax typeSyntaxFromSimpleField(SimpleFieldModel field)
-        {
-            TypeSyntax typeSyntax;
-            if (field.InputDataType == typeof(DateTimeOffset?))
-            {
-                typeSyntax = NullableType(IdentifierName("DateTimeOffset"));
-            }
-            else
-            {
-                SyntaxKind syntaxKind;
-                if (field.InputDataType == typeof(int?))
-                {
-                    syntaxKind = SyntaxKind.IntKeyword;
-                }
-                else if (field.InputDataType == typeof(decimal?))
-                {
-                    syntaxKind = SyntaxKind.DecimalKeyword;
-                }
-                else if (field.InputDataType == typeof(bool?))
-                {
-                    syntaxKind = SyntaxKind.BoolKeyword;
-                }
-                else if (field.InputDataType == typeof(string))
-                {
-                    syntaxKind = SyntaxKind.StringKeyword;
-                }
-                else
-                {
-                    throw new NotSupportedException($"Simple field of type {field.InputDataType.Name} is not supported");
-                }
-                typeSyntax = PredefinedType(Token(syntaxKind));
-            }
-            string specificName;
-            if (field is InputFieldModel)
-            {
-                specificName = "InputField";
-            }
-            else if (field is DropDownFieldModel)
-            {
-                specificName = "DropDownField";
-            }
-            else if (field is HiddenFieldModel)
-            {
-                specificName = "HiddenField";
-            }
-            else
-            {
-                throw new NotSupportedException($"Simple field of type {field.GetType()} is not supported");
-            }
-            return GenericName(Identifier(specificName))
-                .WithTypeArgumentList
-                (
-                    TypeArgumentList
-                    (
-                        SingletonSeparatedList
-                        (
-                            typeSyntax
-                        )
-                    )
-                );
-        }
-
-        private Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
-        {
-            var cSharpFile = new CSharpFile(compilationUnitSyntax, createStream, className);
-            return cSharpFile.Output();
-        }
+    private Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
+    {
+        var cSharpFile = new CSharpFile(compilationUnitSyntax, createStream, className);
+        return cSharpFile.Output();
     }
 }

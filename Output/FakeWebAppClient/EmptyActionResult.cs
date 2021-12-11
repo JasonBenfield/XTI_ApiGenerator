@@ -1,10 +1,5 @@
 // Generated Code
-using System;
-using System.Collections.Generic;
-
-namespace FakeWebAppClient
+namespace FakeWebAppClient;
+public sealed partial class EmptyActionResult
 {
-    public sealed partial class EmptyActionResult
-    {
-    }
 }

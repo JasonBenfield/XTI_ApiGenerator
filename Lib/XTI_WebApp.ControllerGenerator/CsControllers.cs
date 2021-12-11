@@ -1,144 +1,248 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using XTI_App.Api;
 using XTI_WebApp.CodeGeneration;
 using XTI_WebApp.CodeGeneration.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace XTI_WebApp.ControllerGenerator
+namespace XTI_WebApp.ControllerGenerator;
+
+public sealed class CsControllers : CodeGenerator
 {
-    public sealed class CsControllers : CodeGenerator
+    private readonly string ns;
+    private readonly Func<string, Stream> createStream;
+
+    public CsControllers(string outputFolder, Func<string, Stream> createStream)
     {
-        public CsControllers(string ns, IEnumerable<string> additionalNamespaces, Func<string, Stream> createStream)
-        {
-            this.ns = ns;
-            this.additionalNamespaces = additionalNamespaces;
-            this.createStream = createStream;
-        }
+        ns = new NamespaceFromFolder(outputFolder).Value();
+        this.createStream = createStream;
+    }
 
-        private readonly string ns;
-        private readonly IEnumerable<string> additionalNamespaces;
-        private readonly Func<string, Stream> createStream;
-
-        public async Task Output(AppApiTemplate appTemplate)
+    public async Task Output(AppApiTemplate appTemplate)
+    {
+        foreach (var group in appTemplate.GroupTemplates)
         {
-            foreach (var group in appTemplate.GroupTemplates)
-            {
-                var controller = createController(appTemplate, group);
-                var controllerClassName = getControllerClassName(group);
-                var cSharpFile = new CSharpFile(controller, createStream, controllerClassName);
-                await cSharpFile.Output();
-            }
-        }
-
-        private CompilationUnitSyntax createController(AppApiTemplate app, AppApiGroupTemplate group)
-        {
-            var nsToken = NamespaceDeclaration(ParseName(ns));
-            var apiClassName = $"{app.Name}AppApi";
+            var controller = createController(appTemplate, group);
             var controllerClassName = getControllerClassName(group);
-            var classToken = ClassDeclaration(controllerClassName)
-                .AddModifiers
-                (
-                    Token(SyntaxKind.PublicKeyword),
-                    Token(SyntaxKind.PartialKeyword)
-                );
-            var actionDeclarations = group.ActionTemplates.Select(a => actionDeclaration(group, a));
-            var code = withUsings
+            var cSharpFile = new CSharpFile(controller, createStream, controllerClassName);
+            await cSharpFile.Output();
+        }
+        var namespaces = appTemplate.ObjectTemplates()
+            .Select(o => o.DataType.Namespace ?? "")
+            .Union
             (
-                CompilationUnit(),
-                group
+                new[]
+                {
+                    "Microsoft.AspNetCore.Authorization",
+                    "Microsoft.AspNetCore.Mvc",
+                    "XTI_App.Api",
+                    "XTI_WebApp.Api"
+                }
             )
-            .WithMembers
+            .Distinct()
+            .OrderBy(str => str)
+            .ToArray();
+        await new GlobalUsingsClass(createStream, namespaces).Output();
+    }
+
+    private CompilationUnitSyntax createController(AppApiTemplate app, AppApiGroupTemplate group)
+    {
+        var apiClassName = $"{app.Name}AppApi";
+        var controllerClassName = getControllerClassName(group);
+        var classToken = ClassDeclaration(controllerClassName)
+            .AddModifiers
             (
-                SingletonList<MemberDeclarationSyntax>
+                Token(SyntaxKind.PublicKeyword),
+                Token(SyntaxKind.PartialKeyword)
+            );
+        var actionDeclarations = group.ActionTemplates.Select(a => actionDeclaration(group, a));
+        var code = CompilationUnit()
+        .WithMembers
+        (
+            SingletonList<MemberDeclarationSyntax>
+            (
+                namespaceDeclaration()
+                .WithMembers
                 (
-                    namespaceDeclaration()
-                    .WithMembers
+                    SingletonList<MemberDeclarationSyntax>
                     (
-                        SingletonList<MemberDeclarationSyntax>
+                        classDeclaration(controllerClassName, group.Access.IsAnonymousAllowed)
+                        .WithMembers
                         (
-                            classDeclaration(controllerClassName, group.Access.IsAnonymousAllowed)
-                            .WithMembers
+                            List
                             (
-                                List
-                                (
-                                    new MemberDeclarationSyntax[]
-                                    {
-                                        constructorDeclaration(apiClassName, getControllerClassName(group)),
-                                        apiFieldDeclaration(apiClassName)
-                                    }
-                                    .Union(actionDeclarations)
-                                )
+                                new MemberDeclarationSyntax[]
+                                {
+                                    apiFieldDeclaration(apiClassName),
+                                    constructorDeclaration(apiClassName, getControllerClassName(group))
+                                }
+                                .Union(actionDeclarations)
                             )
                         )
                     )
                 )
-            );
-            return code;
-        }
-
-        private static string getControllerClassName(AppApiGroupTemplate group)
-        {
-            return $"{group.Name}Controller";
-        }
-
-        private MethodDeclarationSyntax actionDeclaration(AppApiGroupTemplate group, AppApiActionTemplate action)
-        {
-            if (action.IsRedirect())
-            {
-                return actionDeclarationForRedirect(group, action);
-            }
-            if (action.IsView() || action.IsPartialView())
-            {
-                return actionDeclarationForView(group, action);
-            }
-            return actionDeclarationForPost(group, action);
-        }
-
-        private MethodDeclarationSyntax actionDeclarationForRedirect(AppApiGroupTemplate group, AppApiActionTemplate action)
-        {
-            var actionDeclaration = MethodDeclaration
-            (
-                GenericName(Identifier("Task"))
-                    .WithTypeArgumentList
-                    (
-                        TypeArgumentList
-                        (
-                            SingletonSeparatedList<TypeSyntax>
-                            (
-                                IdentifierName("IActionResult")
-                            )
-                        )
-                    ),
-                    Identifier(action.Name)
             )
-            .WithModifiers
-            (
-                TokenList
+        );
+        return code;
+    }
+
+    private static string getControllerClassName(AppApiGroupTemplate group)
+    {
+        return $"{group.Name}Controller";
+    }
+
+    private MethodDeclarationSyntax actionDeclaration(AppApiGroupTemplate group, AppApiActionTemplate action)
+    {
+        if (action.IsRedirect())
+        {
+            return actionDeclarationForRedirect(group, action);
+        }
+        if (action.IsView() || action.IsPartialView())
+        {
+            return actionDeclarationForView(group, action);
+        }
+        return actionDeclarationForPost(group, action);
+    }
+
+    private MethodDeclarationSyntax actionDeclarationForRedirect(AppApiGroupTemplate group, AppApiActionTemplate action)
+    {
+        var actionDeclaration = MethodDeclaration
+        (
+            GenericName(Identifier("Task"))
+                .WithTypeArgumentList
                 (
-                    new[]
-                    {
+                    TypeArgumentList
+                    (
+                        SingletonSeparatedList<TypeSyntax>
+                        (
+                            IdentifierName("IActionResult")
+                        )
+                    )
+                ),
+                Identifier(action.Name)
+        )
+        .WithModifiers
+        (
+            TokenList
+            (
+                new[]
+                {
                         Token(SyntaxKind.PublicKeyword),
                         Token(SyntaxKind.AsyncKeyword)
-                    }
+                }
+            )
+        )
+        .WithBody
+        (
+            Block
+            (
+                LocalDeclarationStatement
+                (
+                    VariableDeclaration
+                    (
+                        IdentifierName("var")
+                    )
+                    .WithVariables
+                    (
+                        SingletonSeparatedList
+                        (
+                            VariableDeclarator(Identifier("result"))
+                                .WithInitializer
+                                (
+                                    EqualsValueClause
+                                    (
+                                        AwaitExpression
+                                        (
+                                            executeInvocationExpression(group, action)
+                                        )
+                                    )
+                                )
+                        )
+                    )
+                ),
+                ReturnStatement
+                (
+                    InvocationExpression(IdentifierName("Redirect"))
+                        .WithArgumentList
+                        (
+                            ArgumentList
+                            (
+                                SingletonSeparatedList
+                                (
+                                    Argument
+                                    (
+                                        MemberAccessExpression
+                                        (
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            MemberAccessExpression
+                                            (
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("result"),
+                                                IdentifierName("Data")
+                                            ),
+                                            IdentifierName("Url")
+                                        )
+                                    )
+                                )
+                            )
+                        )
                 )
             )
-            .WithBody
-            (
-                Block
+        );
+        if (!action.HasEmptyModel())
+        {
+            actionDeclaration = actionDeclaration
+                .WithParameterList
                 (
-                    LocalDeclarationStatement
+                    ParameterList
                     (
-                        VariableDeclaration
+                        SingletonSeparatedList
                         (
-                            IdentifierName("var")
+                            Parameter(Identifier("model"))
+                                .WithType(typeSyntax(action.ModelTemplate))
                         )
+                    )
+                );
+        }
+        return actionDeclaration;
+    }
+
+    private MethodDeclarationSyntax actionDeclarationForView(AppApiGroupTemplate group, AppApiActionTemplate action)
+    {
+        var actionDeclaration = MethodDeclaration
+        (
+            GenericName(Identifier("Task"))
+                .WithTypeArgumentList
+                (
+                    TypeArgumentList
+                    (
+                        SingletonSeparatedList<TypeSyntax>
+                        (
+                            IdentifierName("IActionResult")
+                        )
+                    )
+                ),
+                Identifier(action.Name)
+        )
+        .WithModifiers
+        (
+            TokenList
+            (
+                new[]
+                {
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.AsyncKeyword)
+                }
+            )
+        )
+        .WithBody
+        (
+            Block
+            (
+                LocalDeclarationStatement
+                (
+                    VariableDeclaration(IdentifierName("var"))
                         .WithVariables
                         (
                             SingletonSeparatedList
@@ -156,438 +260,338 @@ namespace XTI_WebApp.ControllerGenerator
                                     )
                             )
                         )
-                    ),
-                    ReturnStatement
-                    (
-                        InvocationExpression(IdentifierName("Redirect"))
-                            .WithArgumentList
-                            (
-                                ArgumentList
-                                (
-                                    SingletonSeparatedList
-                                    (
-                                        Argument
-                                        (
-                                            MemberAccessExpression
-                                            (
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                MemberAccessExpression
-                                                (
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("result"),
-                                                    IdentifierName("Data")
-                                                ),
-                                                IdentifierName("Url")
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                    )
-                )
-            );
-            if (!action.HasEmptyModel())
-            {
-                actionDeclaration = actionDeclaration
-                    .WithParameterList
-                    (
-                        ParameterList
-                        (
-                            SingletonSeparatedList
-                            (
-                                Parameter(Identifier("model"))
-                                    .WithType(typeSyntax(action.ModelTemplate))
-                            )
-                        )
-                    );
-            }
-            return actionDeclaration;
-        }
-
-        private MethodDeclarationSyntax actionDeclarationForView(AppApiGroupTemplate group, AppApiActionTemplate action)
-        {
-            var actionDeclaration = MethodDeclaration
-            (
-                GenericName(Identifier("Task"))
-                    .WithTypeArgumentList
-                    (
-                        TypeArgumentList
-                        (
-                            SingletonSeparatedList<TypeSyntax>
-                            (
-                                IdentifierName("IActionResult")
-                            )
-                        )
-                    ),
-                    Identifier(action.Name)
-            )
-            .WithModifiers
-            (
-                TokenList
-                (
-                    new[]
-                    {
-                        Token(SyntaxKind.PublicKeyword),
-                        Token(SyntaxKind.AsyncKeyword)
-                    }
-                )
-            )
-            .WithBody
-            (
-                Block
-                (
-                    LocalDeclarationStatement
-                    (
-                        VariableDeclaration(IdentifierName("var"))
-                            .WithVariables
-                            (
-                                SingletonSeparatedList
-                                (
-                                    VariableDeclarator(Identifier("result"))
-                                        .WithInitializer
-                                        (
-                                            EqualsValueClause
-                                            (
-                                                AwaitExpression
-                                                (
-                                                    executeInvocationExpression(group, action)
-                                                )
-                                            )
-                                        )
-                                )
-                            )
-                    ),
-                    ReturnStatement
-                    (
-                        InvocationExpression(IdentifierName(action.IsView() ? "View" : "PartialView"))
-                            .WithArgumentList
-                            (
-                                ArgumentList
-                                (
-                                    SingletonSeparatedList
-                                    (
-                                        Argument
-                                        (
-                                            MemberAccessExpression
-                                            (
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                MemberAccessExpression
-                                                (
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("result"),
-                                                    IdentifierName("Data")
-                                                ),
-                                                IdentifierName("ViewName")
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                    )
-                )
-            );
-            if (!action.HasEmptyModel())
-            {
-                actionDeclaration = actionDeclaration
-                    .WithParameterList
-                    (
-                        ParameterList
-                        (
-                            SingletonSeparatedList
-                            (
-                                Parameter(Identifier("model"))
-                                    .WithType(typeSyntax(action.ModelTemplate))
-                            )
-                        )
-                    );
-            }
-            if (action.IsPartialView())
-            {
-                actionDeclaration = actionDeclaration
-                    .WithAttributeLists
-                    (
-                        SingletonList
-                        (
-                            AttributeList
-                            (
-                                SingletonSeparatedList
-                                (
-                                    Attribute(IdentifierName("ResponseCache"))
-                                        .WithArgumentList
-                                        (
-                                            AttributeArgumentList
-                                            (
-                                                SingletonSeparatedList
-                                                (
-                                                    AttributeArgument
-                                                    (
-                                                        LiteralExpression
-                                                        (
-                                                            SyntaxKind.StringLiteralExpression,
-                                                            Literal("Default")
-                                                        )
-                                                    )
-                                                    .WithNameEquals
-                                                    (
-                                                        NameEquals(IdentifierName("CacheProfileName"))
-                                                    )
-                                                )
-                                            )
-                                        )
-                                )
-                            )
-                        )
-                    );
-            }
-            return actionDeclaration;
-        }
-
-        private MethodDeclarationSyntax actionDeclarationForPost(AppApiGroupTemplate group, AppApiActionTemplate action)
-        {
-            var actionDeclaration =
-                MethodDeclaration
-                (
-                    GenericName(Identifier("Task")
-                )
-                .WithTypeArgumentList
-                (
-                    TypeArgumentList
-                    (
-                        SingletonSeparatedList<TypeSyntax>
-                        (
-                            GenericName(Identifier("ResultContainer"))
-                                .WithTypeArgumentList
-                                (
-                                    TypeArgumentList
-                                    (
-                                        SingletonSeparatedList
-                                        (
-                                            typeSyntax(action.ResultTemplate)
-                                        )
-                                    )
-                                )
-                        )
-                    )
                 ),
-                Identifier(action.Name)
-            )
-            .WithAttributeLists
-            (
-                SingletonList
+                ReturnStatement
                 (
-                    AttributeList
+                    InvocationExpression(IdentifierName(action.IsView() ? "View" : "PartialView"))
+                        .WithArgumentList
+                        (
+                            ArgumentList
+                            (
+                                SingletonSeparatedList
+                                (
+                                    Argument
+                                    (
+                                        MemberAccessExpression
+                                        (
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            MemberAccessExpression
+                                            (
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("result"),
+                                                IdentifierName("Data")
+                                            ),
+                                            IdentifierName("ViewName")
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                )
+            )
+        );
+        if (!action.HasEmptyModel())
+        {
+            actionDeclaration = actionDeclaration
+                .WithParameterList
+                (
+                    ParameterList
                     (
                         SingletonSeparatedList
                         (
-                            Attribute(IdentifierName("HttpPost"))
+                            Parameter(Identifier("model"))
+                                .WithType(typeSyntax(action.ModelTemplate))
                         )
                     )
-                )
-            )
-            .WithModifiers
-            (
-                TokenList(Token(SyntaxKind.PublicKeyword))
-            );
-            if (!action.HasEmptyModel())
-            {
-                actionDeclaration = actionDeclaration
-                    .WithParameterList
+                );
+        }
+        if (action.IsPartialView())
+        {
+            actionDeclaration = actionDeclaration
+                .WithAttributeLists
+                (
+                    SingletonList
                     (
-                        ParameterList
+                        AttributeList
                         (
                             SingletonSeparatedList
                             (
-                                Parameter(Identifier("model"))
-                                    .WithType(typeSyntax(action.ModelTemplate))
-                                    .WithAttributeLists
+                                Attribute(IdentifierName("ResponseCache"))
+                                    .WithArgumentList
                                     (
-                                        SingletonList
+                                        AttributeArgumentList
                                         (
-                                            AttributeList
+                                            SingletonSeparatedList
                                             (
-                                                SingletonSeparatedList
+                                                AttributeArgument
                                                 (
-                                                    Attribute(IdentifierName("FromBody"))
+                                                    LiteralExpression
+                                                    (
+                                                        SyntaxKind.StringLiteralExpression,
+                                                        Literal("Default")
+                                                    )
+                                                )
+                                                .WithNameEquals
+                                                (
+                                                    NameEquals(IdentifierName("CacheProfileName"))
                                                 )
                                             )
                                         )
                                     )
-                            )
-                        )
-                    );
-            }
-            return actionDeclaration
-                .WithBody
-                (
-                    Block
-                    (
-                        SingletonList<StatementSyntax>
-                        (
-                            ReturnStatement
-                            (
-                                executeInvocationExpression(group, action)
                             )
                         )
                     )
                 );
         }
+        return actionDeclaration;
+    }
 
-        private InvocationExpressionSyntax executeInvocationExpression(AppApiGroupTemplate group, AppApiActionTemplate action)
-        {
-            return InvocationExpression
+    private MethodDeclarationSyntax actionDeclarationForPost(AppApiGroupTemplate group, AppApiActionTemplate action)
+    {
+        var actionDeclaration =
+            MethodDeclaration
             (
-                MemberAccessExpression
+                GenericName(Identifier("Task")
+            )
+            .WithTypeArgumentList
+            (
+                TypeArgumentList
                 (
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    InvocationExpression
+                    SingletonSeparatedList<TypeSyntax>
                     (
-                        MemberAccessExpression
-                        (
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            InvocationExpression
+                        GenericName(Identifier("ResultContainer"))
+                            .WithTypeArgumentList
                             (
-                                MemberAccessExpression
-                                (
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("api"),
-                                    IdentifierName("Group")
-                                )
-                            )
-                            .WithArgumentList
-                            (
-                                ArgumentList
+                                TypeArgumentList
                                 (
                                     SingletonSeparatedList
                                     (
-                                        Argument
-                                        (
-                                            LiteralExpression
-                                            (
-                                                SyntaxKind.StringLiteralExpression,
-                                                Literal(group.Name)
-                                            )
-                                        )
+                                        typeSyntax(action.ResultTemplate)
                                     )
                                 )
-                            ),
-                            GenericName(Identifier("Action"))
-                                .WithTypeArgumentList
+                            )
+                    )
+                )
+            ),
+            Identifier(action.Name)
+        )
+        .WithAttributeLists
+        (
+            SingletonList
+            (
+                AttributeList
+                (
+                    SingletonSeparatedList
+                    (
+                        Attribute(IdentifierName("HttpPost"))
+                    )
+                )
+            )
+        )
+        .WithModifiers
+        (
+            TokenList(Token(SyntaxKind.PublicKeyword))
+        );
+        if (!action.HasEmptyModel())
+        {
+            actionDeclaration = actionDeclaration
+                .WithParameterList
+                (
+                    ParameterList
+                    (
+                        SingletonSeparatedList
+                        (
+                            Parameter(Identifier("model"))
+                                .WithType(typeSyntax(action.ModelTemplate))
+                                .WithAttributeLists
                                 (
-                                    TypeArgumentList
+                                    SingletonList
                                     (
-                                        SeparatedList<TypeSyntax>
+                                        AttributeList
                                         (
-                                            new SyntaxNodeOrToken[]
-                                            {
-                                                typeSyntax(action.ModelTemplate),
-                                                Token(SyntaxKind.CommaToken),
-                                                typeSyntax(action.ResultTemplate)
-                                            }
+                                            SingletonSeparatedList
+                                            (
+                                                Attribute(IdentifierName("FromBody"))
+                                            )
                                         )
                                     )
                                 )
                         )
                     )
-                    .WithArgumentList
+                );
+        }
+        return actionDeclaration
+            .WithBody
+            (
+                Block
+                (
+                    SingletonList<StatementSyntax>
                     (
-                        ArgumentList
+                        ReturnStatement
                         (
-                            SingletonSeparatedList
+                            executeInvocationExpression(group, action)
+                        )
+                    )
+                )
+            );
+    }
+
+    private InvocationExpressionSyntax executeInvocationExpression(AppApiGroupTemplate group, AppApiActionTemplate action)
+    {
+        return InvocationExpression
+        (
+            MemberAccessExpression
+            (
+                SyntaxKind.SimpleMemberAccessExpression,
+                InvocationExpression
+                (
+                    MemberAccessExpression
+                    (
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        InvocationExpression
+                        (
+                            MemberAccessExpression
                             (
-                                Argument
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("api"),
+                                IdentifierName("Group")
+                            )
+                        )
+                        .WithArgumentList
+                        (
+                            ArgumentList
+                            (
+                                SingletonSeparatedList
                                 (
-                                    LiteralExpression
+                                    Argument
                                     (
-                                        SyntaxKind.StringLiteralExpression,
-                                        Literal(action.Name)
+                                        LiteralExpression
+                                        (
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(group.Name)
+                                        )
                                     )
                                 )
                             )
-                        )
-                    ),
-                    IdentifierName("Execute")
+                        ),
+                        GenericName(Identifier("Action"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SeparatedList<TypeSyntax>
+                                    (
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                                typeSyntax(action.ModelTemplate),
+                                                Token(SyntaxKind.CommaToken),
+                                                typeSyntax(action.ResultTemplate)
+                                        }
+                                    )
+                                )
+                            )
+                    )
                 )
-            )
-            .WithArgumentList
-            (
-                ArgumentList
+                .WithArgumentList
                 (
-                    SeparatedList
+                    ArgumentList
                     (
-                        new ArgumentSyntax[]
-                        {
+                        SingletonSeparatedList
+                        (
+                            Argument
+                            (
+                                LiteralExpression
+                                (
+                                    SyntaxKind.StringLiteralExpression,
+                                    Literal(action.Name)
+                                )
+                            )
+                        )
+                    )
+                ),
+                IdentifierName("Execute")
+            )
+        )
+        .WithArgumentList
+        (
+            ArgumentList
+            (
+                SeparatedList
+                (
+                    new ArgumentSyntax[]
+                    {
                             Argument
                             (
                                 action.HasEmptyModel()
                                     ? (ExpressionSyntax)newEmptyRequest()
                                     : IdentifierName("model")
                             )
+                    }
+                )
+            )
+        );
+    }
+
+    private static ObjectCreationExpressionSyntax newEmptyRequest()
+    {
+        return ObjectCreationExpression(IdentifierName("EmptyRequest"))
+            .WithArgumentList(ArgumentList());
+    }
+
+    private static FieldDeclarationSyntax apiFieldDeclaration(string apiClassName)
+    {
+        return
+            FieldDeclaration
+            (
+                VariableDeclaration(IdentifierName(apiClassName))
+                    .WithVariables
+                    (
+                        SingletonSeparatedList
+                        (
+                            VariableDeclarator(Identifier("api"))
+                        )
+                    )
+            )
+            .WithModifiers
+            (
+                TokenList
+                (
+                    Token(SyntaxKind.PrivateKeyword),
+                    Token(SyntaxKind.ReadOnlyKeyword)
+                )
+            );
+    }
+
+    private static ConstructorDeclarationSyntax constructorDeclaration(string apiClassName, string groupClassName)
+    {
+        return
+            ConstructorDeclaration(Identifier(groupClassName))
+            .WithModifiers
+            (
+                TokenList(Token(SyntaxKind.PublicKeyword))
+            )
+            .WithParameterList
+            (
+                ParameterList
+                (
+                    SeparatedList
+                    (
+                        new ParameterSyntax[]
+                        {
+                                Parameter(Identifier("api"))
+                                    .WithType(IdentifierName(apiClassName))
                         }
                     )
                 )
-            );
-        }
-
-        private static ObjectCreationExpressionSyntax newEmptyRequest()
-        {
-            return ObjectCreationExpression(IdentifierName("EmptyRequest"))
-                .WithArgumentList(ArgumentList());
-        }
-
-        private static FieldDeclarationSyntax apiFieldDeclaration(string apiClassName)
-        {
-            return
-                FieldDeclaration
+            )
+            .WithBody
+            (
+                Block
                 (
-                    VariableDeclaration(IdentifierName(apiClassName))
-                        .WithVariables
-                        (
-                            SingletonSeparatedList
-                            (
-                                VariableDeclarator(Identifier("api"))
-                            )
-                        )
-                )
-                .WithModifiers
-                (
-                    TokenList
+                    SeparatedList
                     (
-                        Token(SyntaxKind.PrivateKeyword),
-                        Token(SyntaxKind.ReadOnlyKeyword)
-                    )
-                );
-        }
-
-        private static ConstructorDeclarationSyntax constructorDeclaration(string apiClassName, string groupClassName)
-        {
-            return
-                ConstructorDeclaration(Identifier(groupClassName))
-                .WithModifiers
-                (
-                    TokenList(Token(SyntaxKind.PublicKeyword))
-                )
-                .WithParameterList
-                (
-                    ParameterList
-                    (
-                        SeparatedList
-                        (
-                            new ParameterSyntax[]
-                            {
-                                Parameter(Identifier("api"))
-                                    .WithType(IdentifierName(apiClassName))
-                            }
-                        )
-                    )
-                )
-                .WithBody
-                (
-                    Block
-                    (
-                        SeparatedList
-                        (
-                            new StatementSyntax[]
-                            {
+                        new StatementSyntax[]
+                        {
                                 ExpressionStatement
                                 (
                                     AssignmentExpression
@@ -602,140 +606,65 @@ namespace XTI_WebApp.ControllerGenerator
                                         IdentifierName("api")
                                     )
                                 )
-                            }
-                        )
-                    )
-                );
-        }
-
-        private static ClassDeclarationSyntax classDeclaration(string controllerName, bool isAnonymousAllowed)
-        {
-            return
-                ClassDeclaration(controllerName)
-                .WithAttributeLists
-                (
-                    SingletonList
-                    (
-                        AttributeList
-                        (
-                            SingletonSeparatedList
-                            (
-                                Attribute
-                                (
-                                    IdentifierName
-                                    (
-                                        isAnonymousAllowed ? "AllowAnonymous" : "Authorize"
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-                .WithModifiers
-                (
-                    TokenList(Token(SyntaxKind.PublicKeyword))
-                )
-                .WithBaseList
-                (
-                    BaseList
-                    (
-                        SingletonSeparatedList<BaseTypeSyntax>
-                        (
-                            SimpleBaseType(IdentifierName("Controller"))
-                        )
-                    )
-                );
-        }
-
-        private NamespaceDeclarationSyntax namespaceDeclaration()
-        {
-            return NamespaceDeclaration(IdentifierName(ns));
-        }
-
-        private CompilationUnitSyntax withUsings(CompilationUnitSyntax compilationUnit, AppApiGroupTemplate group)
-        {
-            var code = compilationUnit
-                .WithUsings
-                (
-                    List
-                    (
-                        new UsingDirectiveSyntax[]
-                        {
-                            UsingDirective
-                            (
-                                QualifiedName
-                                (
-                                    QualifiedName
-                                    (
-                                        IdentifierName("Microsoft"),
-                                        IdentifierName("AspNetCore")
-                                    ),
-                                    IdentifierName("Authorization")
-                                )
-                            )
-                            .WithUsingKeyword
-                            (
-                                Token
-                                (
-                                    TriviaList(Comment("// Generated Code")),
-                                    SyntaxKind.UsingKeyword,
-                                    TriviaList()
-                                )
-                            ),
-                            UsingDirective
-                            (
-                                QualifiedName
-                                (
-                                    QualifiedName
-                                    (
-                                        IdentifierName("Microsoft"),
-                                        IdentifierName("AspNetCore")
-                                    ),
-                                    IdentifierName("Mvc")
-                                )
-                            ),
-                            UsingDirective
-                            (
-                                QualifiedName
-                                (
-                                    QualifiedName
-                                    (
-                                        IdentifierName("System"),
-                                        IdentifierName("Threading")
-                                    ),
-                                    IdentifierName("Tasks")
-                                )
-                            ),
-                            UsingDirective
-                            (
-                                QualifiedName
-                                (
-                                    QualifiedName
-                                    (
-                                        IdentifierName("System"),
-                                        IdentifierName("Collections")
-                                    ),
-                                    IdentifierName("Generic")
-                                )
-                            )
                         }
                     )
-                );
-            var namespaces = group.ObjectTemplates()
-                .Select(ot => ot.DataType.Namespace)
-                .Union(additionalNamespaces ?? new string[] { })
-                .Union(new[] { "XTI_App", "XTI_App.Api", "XTI_WebApp.Api" })
-                .Distinct();
-            foreach (var ns in namespaces)
-            {
-                code = code.AddUsings(UsingDirective(IdentifierName(ns)));
-            }
-            return code;
-        }
-
-        private TypeSyntax typeSyntax(ValueTemplate valueTemplate)
-        {
-            return new TypeSyntaxFromValueTemplate(valueTemplate).Value();
-        }
+                )
+            );
     }
+
+    private static ClassDeclarationSyntax classDeclaration(string controllerName, bool isAnonymousAllowed)
+    {
+        return
+            ClassDeclaration(controllerName)
+            .WithAttributeLists
+            (
+                SingletonList
+                (
+                    AttributeList
+                    (
+                        SingletonSeparatedList
+                        (
+                            Attribute
+                            (
+                                IdentifierName
+                                (
+                                    isAnonymousAllowed ? "AllowAnonymous" : "Authorize"
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+            .WithModifiers
+            (
+                TokenList(Token(SyntaxKind.PublicKeyword))
+            )
+            .WithBaseList
+            (
+                BaseList
+                (
+                    SingletonSeparatedList<BaseTypeSyntax>
+                    (
+                        SimpleBaseType(IdentifierName("Controller"))
+                    )
+                )
+            );
+    }
+
+    private FileScopedNamespaceDeclarationSyntax namespaceDeclaration()
+    {
+        return FileScopedNamespaceDeclaration(IdentifierName(ns))
+            .WithNamespaceKeyword
+            (
+                Token
+                (
+                    TriviaList(Comment("// Generated Code")),
+                    SyntaxKind.NamespaceKeyword,
+                    TriviaList()
+                )
+            );
+    }
+
+    private TypeSyntax typeSyntax(ValueTemplate valueTemplate) =>
+        new TypeSyntaxFromValueTemplate(valueTemplate).Value();
 }

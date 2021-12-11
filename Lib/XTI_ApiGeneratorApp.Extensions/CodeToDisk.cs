@@ -1,77 +1,72 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 using XTI_App.Api;
 using XTI_WebApp.CodeGeneration;
 
-namespace XTI_ApiGeneratorApp.Extensions
+namespace XTI_ApiGeneratorApp.Extensions;
+
+public sealed class CodeToDisk
 {
-    public sealed class CodeToDisk
+    private readonly Func<Func<string, Stream>, CodeGenerator> createCodeGenerator;
+    private readonly string folderPath;
+
+    public CodeToDisk(Func<Func<string, Stream>, CodeGenerator> createCodeGenerator, string folderPath)
     {
-        private readonly Func<Func<string, Stream>, CodeGenerator> createCodeGenerator;
-        private readonly string folderPath;
+        this.createCodeGenerator = createCodeGenerator;
+        this.folderPath = folderPath;
+    }
 
-        public CodeToDisk(Func<Func<string, Stream>, CodeGenerator> createCodeGenerator, string folderPath)
+    private static readonly Regex generatedCodeRegex = new Regex("\\s*//\\s*Generated code\\s*", RegexOptions.IgnoreCase);
+
+    public Task Output(AppApiTemplate appTemplate)
+    {
+        if (!Directory.Exists(folderPath))
         {
-            this.createCodeGenerator = createCodeGenerator;
-            this.folderPath = folderPath;
+            throw new ArgumentException($"Output folder '{folderPath}' does not exist");
         }
-
-        private static readonly Regex generatedCodeRegex = new Regex("\\s*//\\s*Generated code\\s*", RegexOptions.IgnoreCase);
-
-        public Task Output(AppApiTemplate appTemplate)
+        var filePaths = Directory.GetFiles(folderPath)
+            .Where(f => f.EndsWith(".ts", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".cs", StringComparison.OrdinalIgnoreCase));
+        foreach (var filePath in filePaths)
         {
-            if (!Directory.Exists(folderPath))
+            string firstLine;
+            using (var reader = new StreamReader(filePath))
             {
-                throw new ArgumentException($"Output folder '{folderPath}' does not exist");
+                firstLine = reader.ReadLine() ?? "";
             }
-            var filePaths = Directory.GetFiles(folderPath)
-                .Where(f => f.EndsWith(".ts", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".cs", StringComparison.OrdinalIgnoreCase));
-            foreach (var filePath in filePaths)
+            if (generatedCodeRegex.IsMatch(firstLine))
             {
-                string firstLine;
-                using (var reader = new StreamReader(filePath))
+                try
                 {
-                    firstLine = reader.ReadLine();
-                }
-                if (generatedCodeRegex.IsMatch(firstLine))
-                {
-                    try
+                    File.Delete(filePath);
+                    if (filePath.EndsWith(".ts", StringComparison.OrdinalIgnoreCase))
                     {
-                        File.Delete(filePath);
-                        if (filePath.EndsWith(".ts", StringComparison.OrdinalIgnoreCase))
+                        var jsFilePath = filePath.Remove(filePath.Length - 3) + ".js";
+                        if (File.Exists(jsFilePath))
                         {
-                            var jsFilePath = filePath.Remove(filePath.Length - 3) + ".js";
-                            if (File.Exists(jsFilePath))
-                            {
-                                File.Delete(jsFilePath);
-                            }
-                            var jsMapFilePath = filePath.Remove(filePath.Length - 3) + ".js.map";
-                            if (File.Exists(jsMapFilePath))
-                            {
-                                File.Delete(jsMapFilePath);
-                            }
+                            File.Delete(jsFilePath);
+                        }
+                        var jsMapFilePath = filePath.Remove(filePath.Length - 3) + ".js.map";
+                        if (File.Exists(jsMapFilePath))
+                        {
+                            File.Delete(jsMapFilePath);
                         }
                     }
-                    catch
-                    {
-                    }
+                }
+                catch
+                {
                 }
             }
-            var codeGenerator = createCodeGenerator(createStream);
-            return codeGenerator.Output(appTemplate);
         }
+        var codeGenerator = createCodeGenerator(createStream);
+        return codeGenerator.Output(appTemplate);
+    }
 
-        private Stream createStream(string name)
+    private Stream createStream(string name)
+    {
+        var filePath = Path.Combine(folderPath, name);
+        if (File.Exists(filePath))
         {
-            var filePath = Path.Combine(folderPath, name);
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-            return new FileStream(filePath, FileMode.OpenOrCreate);
+            File.Delete(filePath);
         }
+        return new FileStream(filePath, FileMode.OpenOrCreate);
     }
 }
