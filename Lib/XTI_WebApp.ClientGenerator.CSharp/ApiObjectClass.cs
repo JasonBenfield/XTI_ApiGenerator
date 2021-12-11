@@ -1,131 +1,237 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using XTI_App.Api;
 using XTI_WebApp.CodeGeneration.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace XTI_WebApp.ClientGenerator.CSharp
+namespace XTI_WebApp.ClientGenerator.CSharp;
+
+public sealed class ApiObjectClass
 {
-    public sealed class ApiObjectClass
+    private readonly string ns;
+    private readonly Func<string, Stream> createStream;
+    private readonly ObjectValueTemplate template;
+
+    public ApiObjectClass(string ns, Func<string, Stream> createStream, ObjectValueTemplate template)
     {
-        private readonly string ns;
-        private readonly Func<string, Stream> createStream;
-        private readonly ObjectValueTemplate template;
+        this.ns = ns;
+        this.createStream = createStream;
+        this.template = template;
+    }
 
-        public ApiObjectClass(string ns, Func<string, Stream> createStream, ObjectValueTemplate template)
-        {
-            this.ns = ns;
-            this.createStream = createStream;
-            this.template = template;
-        }
+    public async Task Output()
+    {
+        var apiObject = createApiObject();
+        var className = template.DataType.Name;
+        await outputClass(apiObject, className);
+    }
 
-        public async Task Output()
-        {
-            var apiObject = createApiObject();
-            var className = template.DataType.Name;
-            await outputClass(apiObject, className);
-        }
-
-        private CompilationUnitSyntax createApiObject()
-        {
-            return CompilationUnit()
-                .WithUsings
+    private CompilationUnitSyntax createApiObject()
+    {
+        return CompilationUnit()
+            .WithMembers
+            (
+                SingletonList<MemberDeclarationSyntax>
                 (
-                    List
-                    (
-                        new[]
-                        {
-                            UsingDirective(IdentifierName("System"))
-                                .WithUsingKeyword
-                                (
-                                    Token
-                                    (
-                                        TriviaList(Comment("// Generated Code")),
-                                        SyntaxKind.UsingKeyword,
-                                        TriviaList()
-                                    )
-                                ),
-                            UsingDirective(IdentifierName("System.Collections.Generic"))
-                        }
-                    )
-                )
-                .WithMembers
-                (
-                    SingletonList<MemberDeclarationSyntax>
-                    (
-                        NamespaceDeclaration(IdentifierName(ns))
-                            .WithMembers
+                    FileScopedNamespaceDeclaration(IdentifierName(ns))
+                        .WithNamespaceKeyword
+                        (
+                            Token
                             (
-                                SingletonList<MemberDeclarationSyntax>
-                                (
-                                    ClassDeclaration(template.DataType.Name)
-                                        .WithModifiers
+                                TriviaList(Comment("// Generated Code")),
+                                SyntaxKind.NamespaceKeyword,
+                                TriviaList()
+                            )
+                        )
+                        .WithMembers
+                        (
+                            SingletonList<MemberDeclarationSyntax>
+                            (
+                                ClassDeclaration(template.DataType.Name)
+                                    .WithModifiers
+                                    (
+                                        TokenList
                                         (
-                                            TokenList
-                                            (
-                                                new[]
-                                                {
+                                            new[]
+                                            {
                                                     Token(SyntaxKind.PublicKeyword),
                                                     Token(SyntaxKind.SealedKeyword),
                                                     Token(SyntaxKind.PartialKeyword)
-                                                }
-                                            )
+                                            }
                                         )
-                                        .WithMembers
+                                    )
+                                    .WithMembers
+                                    (
+                                        List
                                         (
-                                            List
+                                            getProperties(template.PropertyTemplates)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                );
+    }
+
+    private static IEnumerable<MemberDeclarationSyntax> getProperties(IEnumerable<ObjectPropertyTemplate> properties)
+    {
+        var propDecls = new List<MemberDeclarationSyntax>();
+        foreach (var property in properties)
+        {
+            var propDecl = PropertyDeclaration
+                (
+                    new TypeSyntaxFromValueTemplate(property.ValueTemplate).Value(),
+                    Identifier(property.Name)
+                )
+                .WithModifiers
+                (
+                    TokenList(Token(SyntaxKind.PublicKeyword))
+                )
+                .WithAccessorList
+                (
+                    AccessorList
+                    (
+                        List
+                        (
+                            new AccessorDeclarationSyntax[]
+                            {
+                                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                                    AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                            }
+                        )
+                    )
+                );
+            if (property.ValueTemplate.DataType == typeof(string))
+            {
+                propDecl = propDecl
+                    .WithInitializer
+                    (
+                        EqualsValueClause
+                        (
+                            LiteralExpression
+                            (
+                                SyntaxKind.StringLiteralExpression,
+                                Literal("")
+                            )
+                        )
+                    )
+                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+            }
+            else if (property.ValueTemplate is NumericValueTemplate)
+            {
+                propDecl = propDecl
+                    .WithInitializer
+                    (
+                        EqualsValueClause
+                        (
+                            InvocationExpression
+                            (
+                                MemberAccessExpression
+                                (
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    MemberAccessExpression
+                                    (
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName(property.ValueTemplate.DataType.Name),
+                                        IdentifierName("Values")
+                                    ),
+                                    IdentifierName("GetDefault")
+                                )
+                            )
+                        )
+                    )
+                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+            }
+            else if (property.ValueTemplate is ArrayValueTemplate arr)
+            {
+                propDecl = propDecl
+                    .WithInitializer
+                    (
+                        EqualsValueClause
+                        (
+                            ArrayCreationExpression
+                            (
+                                ArrayType
+                                (
+                                    new TypeSyntaxFromValueTemplate(arr.ElementTemplate).Value()
+                                )
+                                .WithRankSpecifiers
+                                (
+                                    SingletonList
+                                    (
+                                        ArrayRankSpecifier
+                                        (
+                                            SingletonSeparatedList<ExpressionSyntax>
                                             (
-                                                getProperties(template.PropertyTemplates)
+                                                LiteralExpression
+                                                (
+                                                    SyntaxKind.NumericLiteralExpression,
+                                                    Literal(0)
+                                                )
                                             )
                                         )
                                     )
                                 )
                             )
-                    );
-        }
-
-        private static IEnumerable<MemberDeclarationSyntax> getProperties(IEnumerable<ObjectPropertyTemplate> properties)
-        {
-            return properties.Select
-            (
-                property =>
-                    PropertyDeclaration
-                    (
-                        new TypeSyntaxFromValueTemplate(property.ValueTemplate).Value(),
-                        Identifier(property.Name)
-                    )
-                    .WithModifiers
-                    (
-                        TokenList(Token(SyntaxKind.PublicKeyword))
-                    )
-                    .WithAccessorList
-                    (
-                        AccessorList
-                        (
-                            List
-                            (
-                                new AccessorDeclarationSyntax[]
-                                {
-                                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                                    AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                                }
-                            )
                         )
                     )
-            );
+                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+            }
+            else if (property.ValueTemplate is DictionaryValueTemplate dict)
+            {
+                propDecl = propDecl
+                    .WithInitializer
+                    (
+                        EqualsValueClause
+                        (
+                            ObjectCreationExpression
+                            (
+                                    GenericName(Identifier("Dictionary"))
+                                    .WithTypeArgumentList
+                                    (
+                                        TypeArgumentList
+                                        (
+                                            SeparatedList<TypeSyntax>
+                                            (
+                                                new SyntaxNodeOrToken[]
+                                                {
+                                                    new TypeSyntaxFromValueTemplate(dict.KeyTemplate).Value(),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    new TypeSyntaxFromValueTemplate(dict.ValueTemplate).Value()
+                                                }
+                                            )
+                                        )
+                                    )
+                                )
+                                .WithArgumentList(ArgumentList())
+                        )
+                    )
+                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+            }
+            else if(property.ValueTemplate is not SimpleValueTemplate)
+            {
+                propDecl = propDecl
+                    .WithInitializer
+                    (
+                        EqualsValueClause
+                        (
+                            ObjectCreationExpression(IdentifierName(property.ValueTemplate.DataType.Name))
+                                .WithArgumentList(ArgumentList())
+                        )
+                    )
+                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+            }
+            propDecls.Add(propDecl);
         }
+        return propDecls;
+    }
 
-        private Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
-        {
-            var cSharpFile = new CSharpFile(compilationUnitSyntax, createStream, className);
-            return cSharpFile.Output();
-        }
+    private Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
+    {
+        var cSharpFile = new CSharpFile(compilationUnitSyntax, createStream, className);
+        return cSharpFile.Output();
     }
 }

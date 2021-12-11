@@ -1,74 +1,76 @@
 ﻿using Microsoft.CodeAnalysis;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using XTI_App.Abstractions;
 using XTI_App.Api;
 using XTI_WebApp.CodeGeneration;
+using XTI_WebApp.CodeGeneration.CSharp;
 
-namespace XTI_WebApp.ClientGenerator.CSharp
+namespace XTI_WebApp.ClientGenerator.CSharp;
+
+public sealed class CsClient : CodeGenerator
 {
-    public sealed class CsClient : CodeGenerator
+    private readonly AppVersionKey versionKey;
+    private readonly string ns;
+    private readonly Func<string, Stream> createStream;
+
+    public CsClient
+    (
+        AppVersionKey versionKey,
+        string outputFolder,
+        Func<string, Stream> createStream
+    )
     {
-        private readonly DefaultVersion defaultVersion;
-        private readonly string ns;
-        private readonly Func<string, Stream> createStream;
+        this.versionKey = versionKey;
+        ns = new NamespaceFromFolder(outputFolder).Value();
+        this.createStream = createStream;
+    }
 
-        public CsClient
-        (
-            DefaultVersion defaultVersion,
-            string ns,
-            Func<string, Stream> createStream
-        )
-        {
-            this.defaultVersion = defaultVersion;
-            this.ns = ns;
-            this.createStream = createStream;
-        }
-
-        private static readonly string[] ModelsToOmit = new[]
-        {
+    private static readonly string[] ModelsToOmit = new[]
+    {
             "LoginCredentials",
             "LoginModel",
             "LoginResult",
             "EmptyRequest"
         };
 
-        public async Task Output(AppApiTemplate appTemplate)
+    public async Task Output(AppApiTemplate appTemplate)
+    {
+        var objTemplates = appTemplate.ObjectTemplates()
+            .Where
+            (
+                obj =>
+                    !ModelsToOmit.Any
+                    (
+                        m => obj.DataType.Name.Equals(m, StringComparison.OrdinalIgnoreCase)
+                    )
+            );
+        foreach (var objTemplate in objTemplates)
         {
-            var objTemplates = appTemplate.ObjectTemplates()
-                .Where
-                (
-                    obj =>
-                        !ModelsToOmit.Any
-                        (
-                            m => obj.DataType.Name.Equals(m, StringComparison.OrdinalIgnoreCase)
-                        )
-                );
-            foreach (var objTemplate in objTemplates)
-            {
-                await new ApiObjectClass(ns, createStream, objTemplate).Output();
-            }
-            var formTemplates = appTemplate.FormTemplates();
-            var complexFieldTemplates = formTemplates.SelectMany(ft => ft.Form.ComplexFieldTemplates).Distinct();
-            foreach (var complexFieldTemplate in complexFieldTemplates)
-            {
-                await new ComplexFieldClass(ns, createStream, complexFieldTemplate, "ComplexField").Output();
-            }
-            foreach (var formTemplate in formTemplates)
-            {
-                await new ComplexFieldClass(ns, createStream, formTemplate.Form, "Form").Output();
-            }
-            foreach (var groupTemplate in appTemplate.GroupTemplates)
-            {
-                await new ApiGroupClass(ns, createStream, groupTemplate).Output();
-            }
-            foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
-            {
-                await new NumericValueClass(ns, createStream, numericValueTemplate).Output();
-            }
-            await new ApiAppClass(ns, createStream, appTemplate, defaultVersion).Output();
+            await new ApiObjectClass(ns, createStream, objTemplate).Output();
         }
-
+        var formTemplates = appTemplate.FormTemplates();
+        var complexFieldTemplates = formTemplates.SelectMany(ft => ft.Form.ComplexFieldTemplates).Distinct();
+        foreach (var complexFieldTemplate in complexFieldTemplates)
+        {
+            await new ComplexFieldClass(ns, createStream, complexFieldTemplate, "ComplexField").Output();
+        }
+        foreach (var formTemplate in formTemplates)
+        {
+            await new ComplexFieldClass(ns, createStream, formTemplate.Form, "Form").Output();
+        }
+        foreach (var groupTemplate in appTemplate.GroupTemplates)
+        {
+            await new ApiGroupClass(ns, createStream, groupTemplate).Output();
+        }
+        foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
+        {
+            await new NumericValueClass(ns, createStream, numericValueTemplate).Output();
+        }
+        await new ApiAppClass(ns, createStream, appTemplate, versionKey).Output();
+        var namespaces = new[]
+        {
+            "XTI_WebAppClient",
+            "XTI_WebAppClient.Forms"
+        };
+        await new GlobalUsingsClass(createStream, namespaces).Output();
     }
 }

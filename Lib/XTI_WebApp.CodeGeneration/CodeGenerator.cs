@@ -1,10 +1,8 @@
-﻿using System.Threading.Tasks;
-using XTI_App.Api;
+﻿using XTI_App.Api;
 
-namespace XTI_WebApp.CodeGeneration
+namespace XTI_WebApp.CodeGeneration;
+
+public interface CodeGenerator
 {
-    public interface CodeGenerator
-    {
-        Task Output(AppApiTemplate appTemplate);
-    }
+    Task Output(AppApiTemplate appTemplate);
 }

@@ -2,6 +2,6 @@
 {
     partial class FakeAppClient : ITest
     {
-        public string Something { get; set; }
+        public string Something { get; set; } = "";
     }
 }

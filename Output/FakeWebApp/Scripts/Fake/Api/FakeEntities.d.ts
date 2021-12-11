@@ -12,14 +12,17 @@ interface IEmployee {
 	Name: string;
 	BirthDate: Date;
 	EmployeeType: IEmployeeType;
-}
-interface IAddProductModel {
-	Name: string;
-	Quantity: number;
-	Price: number;
+	Departments: number[];
+	CurrentProduct: IProduct;
+	Rates: Record<string,number>;
 }
 interface IProduct {
 	ID: number;
+	Quantity: number;
+	Price: number;
+}
+interface IAddProductModel {
+	Name: string;
 	Quantity: number;
 	Price: number;
 }

@@ -1,561 +1,567 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
+using XTI_App.Abstractions;
 using XTI_App.Api;
 using XTI_Forms;
 using XTI_WebApp.CodeGeneration;
 
-namespace XTI_WebApp.ClientGenerator.Typescript
+namespace XTI_WebApp.ClientGenerator.Typescript;
+
+public sealed class TsClient : CodeGenerator
 {
-    public sealed class TsClient : CodeGenerator
+    private readonly AppVersionKey versionKey;
+    private readonly Func<string, Stream> createStream;
+
+    private static readonly Regex whitespaceRegex = new Regex("\\s+");
+
+    public TsClient(AppVersionKey versionKey, Func<string, Stream> createStream)
     {
-        private readonly DefaultVersion defaultVersion;
-        private readonly Func<string, Stream> createStream;
+        this.versionKey = versionKey;
+        this.createStream = createStream;
+    }
 
-        public TsClient(DefaultVersion defaultVersion, Func<string, Stream> createStream)
+    public async Task Output(AppApiTemplate appTemplate)
+    {
+        await generateApp(appTemplate);
+        var formTemplates = appTemplate.FormTemplates();
+        var complexFieldTemplates = formTemplates.SelectMany(ft => ft.Form.ComplexFieldTemplates).Distinct();
+        foreach (var complexFieldTemplate in complexFieldTemplates)
         {
-            this.defaultVersion = defaultVersion;
-            this.createStream = createStream;
+            await generateComplexField(complexFieldTemplate, false);
         }
-
-        private static readonly Regex whitespaceRegex = new Regex("\\s+");
-
-        public async Task Output(AppApiTemplate appTemplate)
+        foreach (var formTemplate in formTemplates)
         {
-            await generateApp(appTemplate);
-            var formTemplates = appTemplate.FormTemplates();
-            var complexFieldTemplates = formTemplates.SelectMany(ft => ft.Form.ComplexFieldTemplates).Distinct();
-            foreach (var complexFieldTemplate in complexFieldTemplates)
+            await generateComplexField(formTemplate.Form, true);
+        }
+        foreach (var group in appTemplate.GroupTemplates)
+        {
+            await generateGroup(group);
+        }
+        await generateEntities(appTemplate);
+        foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
+        {
+            await generateNumericValue(numericValueTemplate);
+        }
+    }
+
+    private Task generateComplexField(IComplexField complexField, bool isForm)
+    {
+        var className = complexField.TypeName;
+        var tsFile = new TypeScriptFile(className, createStream);
+        if (isForm)
+        {
+            tsFile.AddLine("import { BaseForm } from 'XtiShared/Forms/BaseForm';");
+            tsFile.AddLine("import { FormComponentViewModel } from 'XtiShared/Html/FormComponentViewModel';");
+        }
+        else
+        {
+            tsFile.AddLine("import { ComplexFieldFormGroup } from 'XtiShared/Forms/ComplexFieldFormGroup';");
+            tsFile.AddLine("import { BlockViewModel } from 'XtiShared/Html/BlockViewModel';");
+        }
+        var fields = complexField.Fields;
+        if (fields.OfType<DropDownFieldModel>().Any())
+        {
+            tsFile.AddLine("import { DropDownFieldItem } from \"XtiShared/Forms/DropDownFieldItem\";");
+        }
+        foreach (var field in fields.OfType<ComplexFieldModel>().Select(f => f.TypeName).Distinct())
+        {
+            tsFile.AddLine($"import {{ {field} }} from './{field}';");
+        }
+        tsFile.AddLine();
+        var baseClass = isForm ? "BaseForm" : "ComplexFieldFormGroup";
+        tsFile.AddLine($"export class {className} extends {baseClass} {{");
+        tsFile.Indent();
+        var ctorArgs = isForm ? "" : "prefix: string, name: string, ";
+        var vmClassName = isForm ? "FormComponentViewModel" : "BlockViewModel";
+        tsFile.AddLine($"constructor({ctorArgs}vm: {vmClassName} = new {vmClassName}()) {{");
+        tsFile.Indent();
+        var superArgs = isForm ? $"'{className}'" : "prefix, name";
+        tsFile.AddLine($"super({superArgs}, vm);");
+        foreach (var field in fields)
+        {
+            if (!string.IsNullOrWhiteSpace(field.Caption))
             {
-                await generateComplexField(complexFieldTemplate, false);
+                tsFile.AddLine($"this.{field.Name}.setCaption('{field.Caption}');");
             }
-            foreach (var formTemplate in formTemplates)
+            if (field is SimpleFieldModel simpleField)
             {
-                await generateComplexField(formTemplate.Form, true);
+                if (!simpleField.IsNullAllowed)
+                {
+                    tsFile.AddLine($"this.{field.Name}.constraints.mustNotBeNull();");
+                }
+                foreach (var constraint in simpleField.Constraints)
+                {
+                    if (constraint is NotWhitespaceConstraintModel)
+                    {
+                        tsFile.AddLine($"this.{field.Name}.constraints.mustNotBeWhitespace('{constraint.FailureMessage}');");
+                    }
+                    else if (constraint is LowerRangeConstraintModel lowerRange)
+                    {
+                        var lowerValue = valueToJsLiteral(lowerRange.Value);
+                        if (lowerRange.IsIncluded)
+                        {
+                            tsFile.AddLine($"this.{field.Name}.constraints.mustBeOnOrAbove({lowerRange.Value}, '{constraint.FailureMessage}');");
+                        }
+                        else
+                        {
+                            tsFile.AddLine($"this.{field.Name}.constraints.mustBeAbove({lowerRange.Value}, '{constraint.FailureMessage}');");
+                        }
+                    }
+                    else if (constraint is UpperRangeConstraintModel upperRange)
+                    {
+                        var upperValue = valueToJsLiteral(upperRange.Value);
+                        if (upperRange.IsIncluded)
+                        {
+                            tsFile.AddLine($"this.{field.Name}.constraints.mustBeOnOrBelow({upperRange.Value}, '{constraint.FailureMessage}');");
+                        }
+                        else
+                        {
+                            tsFile.AddLine($"this.{field.Name}.constraints.mustBeBelow({upperRange.Value}, '{constraint.FailureMessage}');");
+                        }
+                    }
+                }
             }
-            foreach (var group in appTemplate.GroupTemplates)
+            if (field is InputFieldModel inputField)
             {
-                await generateGroup(group);
+                if (inputField.MaxLength.HasValue)
+                {
+                    tsFile.AddLine($"this.{field.Name}.setMaxLength({inputField.MaxLength});");
+                }
+                if (inputField.IsProtected)
+                {
+                    tsFile.AddLine($"this.{field.Name}.protect();");
+                }
             }
-            await generateEntities(appTemplate);
-            foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
+            else if (field is DropDownFieldModel dropDownField)
             {
-                await generateNumericValue(numericValueTemplate);
+                if (!string.IsNullOrWhiteSpace(dropDownField.ItemCaption))
+                {
+                    tsFile.AddLine($"this.{field.Name}.setItemCaption('{dropDownField.ItemCaption}');");
+                }
+                var dropDownItems = dropDownField.Items;
+                if (dropDownItems?.Any() == true)
+                {
+                    tsFile.AddLine($"this.{field.Name}.setItems(");
+                    tsFile.Indent();
+                    var inputType = dropDownField.InputDataType;
+                    var lastItem = dropDownItems.Last();
+                    foreach (var dropDownItem in dropDownItems)
+                    {
+                        var itemValue = valueToJsLiteral(dropDownItem.Value);
+                        tsFile.AddLine($"new DropDownFieldItem({itemValue}, '{dropDownItem.DisplayText}')");
+                        if (dropDownItem != lastItem)
+                        {
+                            tsFile.Append(",");
+                        }
+                    }
+                    tsFile.Outdent();
+                    tsFile.AddLine(");");
+                }
             }
         }
-
-        private Task generateComplexField(IComplexField complexField, bool isForm)
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        foreach (var field in fields)
         {
-            var className = complexField.TypeName;
-            var tsFile = new TypeScriptFile(className, createStream);
-            if (isForm)
+            tsFile.AddLine("");
+            tsFile.Append($"readonly {field.Name} = ");
+            var vm = isForm ? "this.vm" : "this.vm.value";
+            if (field is IComplexField complex)
             {
-                tsFile.AddLine("import { BaseForm } from 'XtiShared/Forms/BaseForm';");
-                tsFile.AddLine("import { FormComponentViewModel } from 'XtiShared/Html/FormComponentViewModel';");
+                tsFile.Append($"this.addFormGroup(new {complex.TypeName}(this.getName(), '{field.Name}'))");
             }
             else
             {
-                tsFile.AddLine("import { ComplexFieldFormGroup } from 'XtiShared/Forms/ComplexFieldFormGroup';");
-                tsFile.AddLine("import { BlockViewModel } from 'XtiShared/Html/BlockViewModel';");
-            }
-            var fields = complexField.Fields;
-            if (fields.OfType<DropDownFieldModel>().Any())
-            {
-                tsFile.AddLine("import { DropDownFieldItem } from \"XtiShared/Forms/DropDownFieldItem\";");
-            }
-            foreach (var field in fields.OfType<ComplexFieldModel>().Select(f => f.TypeName).Distinct())
-            {
-                tsFile.AddLine($"import {{ {field} }} from './{field}';");
-            }
-            tsFile.AddLine();
-            var baseClass = isForm ? "BaseForm" : "ComplexFieldFormGroup";
-            tsFile.AddLine($"export class {className} extends {baseClass} {{");
-            tsFile.Indent();
-            var ctorArgs = isForm ? "" : "prefix: string, name: string, ";
-            var vmClassName = isForm ? "FormComponentViewModel" : "BlockViewModel";
-            tsFile.AddLine($"constructor({ctorArgs}vm: {vmClassName} = new {vmClassName}()) {{");
-            tsFile.Indent();
-            var superArgs = isForm ? $"'{className}'" : "prefix, name";
-            tsFile.AddLine($"super({superArgs}, vm);");
-            foreach (var field in fields)
-            {
-                if (!string.IsNullOrWhiteSpace(field.Caption))
-                {
-                    tsFile.AddLine($"this.{field.Name}.setCaption('{field.Caption}');");
-                }
-                if (field is SimpleFieldModel simpleField)
-                {
-                    if (!simpleField.IsNullAllowed)
-                    {
-                        tsFile.AddLine($"this.{field.Name}.constraints.mustNotBeNull();");
-                    }
-                    foreach (var constraint in simpleField.Constraints)
-                    {
-                        if (constraint is NotWhitespaceConstraintModel)
-                        {
-                            tsFile.AddLine($"this.{field.Name}.constraints.mustNotBeWhitespace('{constraint.FailureMessage}');");
-                        }
-                        else if (constraint is LowerRangeConstraintModel lowerRange)
-                        {
-                            var lowerValue = valueToJsLiteral(lowerRange.Value);
-                            if (lowerRange.IsIncluded)
-                            {
-                                tsFile.AddLine($"this.{field.Name}.constraints.mustBeOnOrAbove({lowerRange.Value}, '{constraint.FailureMessage}');");
-                            }
-                            else
-                            {
-                                tsFile.AddLine($"this.{field.Name}.constraints.mustBeAbove({lowerRange.Value}, '{constraint.FailureMessage}');");
-                            }
-                        }
-                        else if (constraint is UpperRangeConstraintModel upperRange)
-                        {
-                            var upperValue = valueToJsLiteral(upperRange.Value);
-                            if (upperRange.IsIncluded)
-                            {
-                                tsFile.AddLine($"this.{field.Name}.constraints.mustBeOnOrBelow({upperRange.Value}, '{constraint.FailureMessage}');");
-                            }
-                            else
-                            {
-                                tsFile.AddLine($"this.{field.Name}.constraints.mustBeBelow({upperRange.Value}, '{constraint.FailureMessage}');");
-                            }
-                        }
-                    }
-                }
+                string addFormGroup;
                 if (field is InputFieldModel inputField)
                 {
-                    if (inputField.MaxLength.HasValue)
+                    var inputType = inputField.InputDataType;
+                    if (inputType == typeof(int?) || inputType == typeof(decimal?))
                     {
-                        tsFile.AddLine($"this.{field.Name}.setMaxLength({inputField.MaxLength});");
+                        addFormGroup = "addNumberInputFormGroup";
                     }
-                    if (inputField.IsProtected)
+                    else if (inputType == typeof(DateTimeOffset?))
                     {
-                        tsFile.AddLine($"this.{field.Name}.protect();");
+                        addFormGroup = "addDateInputFormGroup";
+                    }
+                    else if (inputType == typeof(string))
+                    {
+                        addFormGroup = "addTextInputFormGroup";
+                    }
+                    else
+                    {
+                        throw new NotSupportedException($"Simple field with input type {inputType} is not supported");
                     }
                 }
                 else if (field is DropDownFieldModel dropDownField)
                 {
-                    if (!string.IsNullOrWhiteSpace(dropDownField.ItemCaption))
+                    var inputType = dropDownField.InputDataType;
+                    var tsInputType = getTsType(inputType);
+                    if (inputType == typeof(int?) || inputType == typeof(decimal?))
                     {
-                        tsFile.AddLine($"this.{field.Name}.setItemCaption('{dropDownField.ItemCaption}');");
+                        addFormGroup = "addNumberDropDownFormGroup";
                     }
-                    var dropDownItems = dropDownField.Items;
-                    if (dropDownItems?.Any() == true)
+                    else if (inputType == typeof(DateTimeOffset?))
                     {
-                        tsFile.AddLine($"this.{field.Name}.setItems(");
-                        tsFile.Indent();
-                        var inputType = dropDownField.InputDataType;
-                        var lastItem = dropDownItems.Last();
-                        foreach (var dropDownItem in dropDownItems)
-                        {
-                            var itemValue = valueToJsLiteral(dropDownItem.Value);
-                            tsFile.AddLine($"new DropDownFieldItem({itemValue}, '{dropDownItem.DisplayText}')");
-                            if (dropDownItem != lastItem)
-                            {
-                                tsFile.Append(",");
-                            }
-                        }
-                        tsFile.Outdent();
-                        tsFile.AddLine(");");
+                        addFormGroup = "addDateDropDownFormGroup";
                     }
-                }
-            }
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            foreach (var field in fields)
-            {
-                tsFile.AddLine("");
-                tsFile.Append($"readonly {field.Name} = ");
-                var vm = isForm ? "this.vm" : "this.vm.value";
-                if (field is IComplexField complex)
-                {
-                    tsFile.Append($"this.addFormGroup(new {complex.TypeName}(this.getName(), '{field.Name}'))");
-                }
-                else
-                {
-                    string addFormGroup;
-                    if (field is InputFieldModel inputField)
+                    else if (inputType == typeof(string))
                     {
-                        var inputType = inputField.InputDataType;
-                        if (inputType == typeof(int?) || inputType == typeof(decimal?))
-                        {
-                            addFormGroup = "addNumberInputFormGroup";
-                        }
-                        else if (inputType == typeof(DateTimeOffset?))
-                        {
-                            addFormGroup = "addDateInputFormGroup";
-                        }
-                        else if (inputType == typeof(string))
-                        {
-                            addFormGroup = "addTextInputFormGroup";
-                        }
-                        else
-                        {
-                            throw new NotSupportedException($"Simple field with input type {inputType} is not supported");
-                        }
+                        addFormGroup = "addTextDropDownFormGroup";
                     }
-                    else if (field is DropDownFieldModel dropDownField)
+                    else if (inputType == typeof(bool?))
                     {
-                        var inputType = dropDownField.InputDataType;
-                        var tsInputType = getTsType(inputType);
-                        if (inputType == typeof(int?) || inputType == typeof(decimal?))
-                        {
-                            addFormGroup = "addNumberDropDownFormGroup";
-                        }
-                        else if (inputType == typeof(DateTimeOffset?))
-                        {
-                            addFormGroup = "addDateDropDownFormGroup";
-                        }
-                        else if (inputType == typeof(string))
-                        {
-                            addFormGroup = "addTextDropDownFormGroup";
-                        }
-                        else if (inputType == typeof(bool?))
-                        {
-                            addFormGroup = "addBooleanDropDownFormGroup";
-                        }
-                        else
-                        {
-                            throw new NotSupportedException($"DropDown field with input type {inputType} is not supported");
-                        }
-                    }
-                    else if (field is SimpleFieldModel hiddenField)
-                    {
-                        var inputType = hiddenField.InputDataType;
-                        if (inputType == typeof(int?) || inputType == typeof(decimal?))
-                        {
-                            addFormGroup = "addHiddenNumberFormGroup";
-                        }
-                        else if (inputType == typeof(DateTimeOffset?))
-                        {
-                            addFormGroup = "addHiddenDateFormGroup";
-                        }
-                        else if (inputType == typeof(string))
-                        {
-                            addFormGroup = "addHiddenTextFormGroup";
-                        }
-                        else
-                        {
-                            throw new NotSupportedException($"Simple field with input type {inputType} is not supported");
-                        }
+                        addFormGroup = "addBooleanDropDownFormGroup";
                     }
                     else
                     {
-                        throw new NotSupportedException($"Simple field of type {field.GetType()} is not supported");
+                        throw new NotSupportedException($"DropDown field with input type {inputType} is not supported");
                     }
-                    tsFile.Append($"this.{addFormGroup}('{field.Name}')");
                 }
-                tsFile.Append(";");
-            }
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            return tsFile.Output();
-        }
-
-        private string valueToJsLiteral(object value)
-        {
-            string jsLiteral;
-            if (value == null)
-            {
-                jsLiteral = "null";
-            }
-            else
-            {
-                if (value is string)
+                else if (field is SimpleFieldModel hiddenField)
                 {
-                    jsLiteral = $"'{value}'";
-                }
-                else if (value is DateTime? || value is DateTimeOffset?)
-                {
-                    DateTime? dateTime;
-                    if (value is DateTime?)
+                    var inputType = hiddenField.InputDataType;
+                    if (inputType == typeof(int?) || inputType == typeof(decimal?))
                     {
-                        dateTime = (DateTime?)value;
+                        addFormGroup = "addHiddenNumberFormGroup";
+                    }
+                    else if (inputType == typeof(DateTimeOffset?))
+                    {
+                        addFormGroup = "addHiddenDateFormGroup";
+                    }
+                    else if (inputType == typeof(string))
+                    {
+                        addFormGroup = "addHiddenTextFormGroup";
                     }
                     else
                     {
-                        var dateTimeOffset = (DateTimeOffset?)value;
-                        dateTime = dateTimeOffset.Value.DateTime;
+                        throw new NotSupportedException($"Simple field with input type {inputType} is not supported");
                     }
-                    dateTime = dateTime.Value.ToUniversalTime();
-                    jsLiteral = $"new Date(Date.UTC({dateTime.Value.Year}, {dateTime.Value.Month - 1}, {dateTime.Value.Day}, {dateTime.Value.Hour}, {dateTime.Value.Minute}, {dateTime.Value.Second}, {dateTime.Value.Millisecond}))";
-                }
-                else if (value is bool?)
-                {
-                    jsLiteral = value.ToString().ToLower();
                 }
                 else
                 {
-                    jsLiteral = $"{value}";
+                    throw new NotSupportedException($"Simple field of type {field.GetType()} is not supported");
                 }
+                tsFile.Append($"this.{addFormGroup}('{field.Name}')");
             }
-            return jsLiteral;
+            tsFile.Append(";");
         }
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        return tsFile.Output();
+    }
 
-        private async Task generateApp(AppApiTemplate appTemplate)
+    private string valueToJsLiteral(object? value)
+    {
+        string jsLiteral;
+        if (value == null)
         {
-            var appClassName = $"{appTemplate.Name}AppApi";
-            var tsFile = new TypeScriptFile(appClassName, createStream);
-            tsFile.AddLine();
-            tsFile.AddLine("import { AppApi } from \"XtiShared/AppApi\";");
-            tsFile.AddLine("import { AppApiEvents } from \"XtiShared/AppApiEvents\";");
-            foreach (var groupTemplate in appTemplate.GroupTemplates)
-            {
-                var groupClassName = getGroupClassName(groupTemplate);
-                tsFile.AddLine($"import {{ {groupClassName} }} from \"./{groupClassName}\";");
-            }
-            tsFile.AddLine();
-            tsFile.AddLine($"\r\nexport class {appClassName} extends AppApi {{");
-            var versionKey = await defaultVersion.Value(appTemplate.AppKey);
-            tsFile.Indent();
-            tsFile.AddLine($"public static readonly DefaultVersion = '{versionKey.Value}';");
-            tsFile.AddLine();
-            tsFile.AddLine($"constructor(events: AppApiEvents, baseUrl: string, version: string = '') {{");
-            tsFile.Indent();
-            tsFile.AddLine($"super(events, baseUrl, '{appTemplate.Name}', version || {appClassName}.DefaultVersion);");
-            foreach (var groupTemplate in appTemplate.GroupTemplates)
-            {
-                tsFile.AddLine($"this.{groupTemplate.Name} = this.addGroup((evts, resourceUrl) => new {groupTemplate.Name}Group(evts, resourceUrl));");
-            }
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            tsFile.AddLine();
-            foreach (var group in appTemplate.GroupTemplates)
-            {
-                tsFile.AddLine($"readonly {group.Name}: {group.Name}Group;");
-            }
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            await tsFile.Output();
+            jsLiteral = "null";
         }
-
-        private Task generateEntities(AppApiTemplate appTemplate)
+        else
         {
-            var tsFile = new TypeScriptFile($"{appTemplate.Name}Entities.d.ts", createStream);
-            tsFile.AddLine();
-            foreach (var objectTemplate in appTemplate.ObjectTemplates())
+            if (value is string)
             {
-                tsFile.AddLine($"interface I{objectTemplate.DataType.Name} {{");
-                tsFile.Indent();
-                foreach (var property in objectTemplate.PropertyTemplates)
+                jsLiteral = $"'{value}'";
+            }
+            else if (value is DateTime? || value is DateTimeOffset?)
+            {
+                DateTime? dateTime;
+                if (value is DateTime?)
                 {
-                    var tsType = getTsType(property.ValueTemplate);
-                    tsFile.AddLine($"{property.Name}: {tsType};");
-                }
-                tsFile.Outdent();
-                tsFile.AddLine("}");
-            }
-            foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
-            {
-                tsFile.AddLine($"interface I{numericValueTemplate.DataType.Name} {{");
-                tsFile.Indent();
-                tsFile.AddLine($"Value: number;");
-                tsFile.AddLine($"DisplayText: string;");
-                tsFile.Outdent();
-                tsFile.AddLine("}");
-            }
-            return tsFile.Output();
-        }
-
-        private Task generateGroup(AppApiGroupTemplate group)
-        {
-            var groupClassName = getGroupClassName(group);
-            var tsFile = new TypeScriptFile(groupClassName, createStream);
-            tsFile.AddLine();
-            tsFile.AddLine("import { AppApiGroup } from \"XtiShared/AppApiGroup\";");
-            tsFile.AddLine("import { AppApiAction } from \"XtiShared/AppApiAction\";");
-            tsFile.AddLine("import { AppApiView } from \"XtiShared/AppApiView\";");
-            tsFile.AddLine("import { AppApiEvents } from \"XtiShared/AppApiEvents\";");
-            tsFile.AddLine("import { AppResourceUrl } from \"XtiShared/AppResourceUrl\";");
-            foreach (var form in group.FormTemplates())
-            {
-                tsFile.AddLine($"import {{ {form.Form.TypeName} }} from \"./{form.Form.TypeName}\";");
-            }
-            tsFile.AddLine();
-            var implementsClause = group.IsUser()
-                ? "implements IUserGroup "
-                : "";
-            tsFile.AddLine($"export class {groupClassName} extends AppApiGroup {implementsClause}{{");
-            tsFile.Indent();
-            tsFile.AddLine("constructor(events: AppApiEvents, resourceUrl: AppResourceUrl) {");
-            tsFile.Indent();
-            tsFile.AddLine($"super(events, resourceUrl, '{group.Name}');");
-            foreach (var action in group.ActionTemplates)
-            {
-                if (action.IsView() || action.IsPartialView() || action.IsRedirect())
-                {
-                    var modelType = getTsType(action.ModelTemplate);
-                    tsFile.AddLine($"this.{action.Name} = this.createView<{modelType}>('{action.Name}');");
+                    dateTime = (DateTime?)value;
                 }
                 else
                 {
-                    var genericArgs = getGenericArguments(action);
-                    tsFile.AddLine($"this.{action.Name}Action = this.createAction{genericArgs}('{action.Name}', '{action.FriendlyName}');");
+                    var dateTimeOffset = (DateTimeOffset?)value;
+                    dateTime = dateTimeOffset.Value.DateTime;
                 }
+                dateTime = dateTime.Value.ToUniversalTime();
+                jsLiteral = $"new Date(Date.UTC({dateTime.Value.Year}, {dateTime.Value.Month - 1}, {dateTime.Value.Day}, {dateTime.Value.Hour}, {dateTime.Value.Minute}, {dateTime.Value.Second}, {dateTime.Value.Millisecond}))";
             }
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            tsFile.AddLine();
-            foreach (var action in group.ActionTemplates)
+            else if (value is bool?)
             {
-                if (action.IsView() || action.IsPartialView() || action.IsRedirect())
-                {
-                    var modelType = getTsType(action.ModelTemplate);
-                    tsFile.AddLine($"readonly {action.Name}: AppApiView<{modelType}>;");
-                }
-                else
-                {
-                    var genericArgs = getGenericArguments(action);
-                    tsFile.AddLine($"readonly {action.Name}Action: AppApiAction{genericArgs};");
-                }
-            }
-            tsFile.AddLine();
-            foreach (var action in group.ActionTemplates)
-            {
-                if (!action.IsView() && !action.IsPartialView() && !action.IsRedirect())
-                {
-                    var modelType = getTsType(action.ModelTemplate.DataType);
-                    var modelDecl = action.HasEmptyModel() ? "" : $"model: {modelType}, ";
-                    var modelParm = action.HasEmptyModel() ? "{}" : "model";
-                    tsFile.AddLine($"{action.Name}({modelDecl}errorOptions?: IActionErrorOptions) {{");
-                    tsFile.Indent();
-                    tsFile.AddLine($"return this.{action.Name}Action.execute({modelParm}, errorOptions || {{}});");
-                    tsFile.Outdent();
-                    tsFile.AddLine("}");
-                }
-            }
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            return tsFile.Output();
-        }
-
-        private static string getGroupClassName(AppApiGroupTemplate group) => $"{group.Name}Group";
-
-        private Task generateNumericValue(NumericValueTemplate numericValueTemplate)
-        {
-            var tsFile = new TypeScriptFile($"{numericValueTemplate.DataType.Name}.ts", createStream);
-            var className = numericValueTemplate.DataType.Name;
-            tsFile.AddLine("import { NumericValue } from 'XtiShared/NumericValue';");
-            tsFile.AddLine("import { NumericValues } from 'XtiShared/NumericValues';");
-            tsFile.AddLine();
-            tsFile.AddLine($"export class {className}s extends NumericValues<{className}> {{");
-            tsFile.Indent();
-            tsFile.AddLine("constructor(");
-            tsFile.Indent();
-            var valueNames = numericValueTemplate.Values.Select(v => whitespaceRegex.Replace(v.DisplayText, ""));
-            var lastValueName = valueNames.Last();
-            foreach (var valueName in valueNames)
-            {
-                tsFile.AddLine($"public readonly {valueName}: {className}");
-                if (valueName != lastValueName)
-                {
-                    tsFile.Append(",");
-                }
-            }
-            tsFile.Outdent();
-            tsFile.AddLine(") {");
-            tsFile.Indent();
-            var joinedValueNames = string.Join(",", valueNames);
-            tsFile.AddLine($"super([{joinedValueNames}]);");
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            tsFile.AddLine();
-            tsFile.AddLine($"export class {className} extends NumericValue implements I{className} {{");
-            tsFile.Indent();
-            tsFile.AddLine($"public static readonly values = new {className}s(");
-            tsFile.Indent();
-            var lastValue = numericValueTemplate.Values.Last();
-            foreach (var numericValue in numericValueTemplate.Values)
-            {
-                tsFile.AddLine($"new {className}({numericValue.Value}, '{numericValue.DisplayText.Replace("'", "\'")}')");
-                if (numericValue != lastValue)
-                {
-                    tsFile.Append(",");
-                }
-            }
-            tsFile.Outdent();
-            tsFile.AddLine(");");
-            tsFile.AddLine();
-            tsFile.AddLine("private constructor(Value: number, DisplayText: string) {");
-            tsFile.Indent();
-            tsFile.AddLine("super(Value, DisplayText);");
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            tsFile.Outdent();
-            tsFile.AddLine("}");
-            return tsFile.Output();
-        }
-
-        private string getGenericArguments(AppApiActionTemplate action)
-        {
-            var modelType = getTsType(action.ModelTemplate);
-            var resultType = getTsType(action.ResultTemplate);
-            return $"<{modelType},{resultType}>";
-        }
-
-        private string getTsType(ValueTemplate valueTemplate)
-        {
-            if (valueTemplate is ArrayValueTemplate arrTempl)
-            {
-                var elType = getTsType(arrTempl.ElementTemplate.DataType);
-                return $"{elType}[]";
-            }
-            return getTsType(valueTemplate.DataType);
-        }
-
-        private string getTsType(Type type)
-        {
-            string tsType;
-            if (type == typeof(string))
-            {
-                tsType = "string";
-            }
-            else if
-            (
-                type == typeof(short) || type == typeof(int) || type == typeof(long)
-                || type == typeof(double) || type == typeof(decimal) || type == typeof(float)
-                || type == typeof(short?) || type == typeof(int?) || type == typeof(long?)
-                || type == typeof(double?) || type == typeof(decimal?) || type == typeof(float?)
-            )
-            {
-                tsType = "number";
-            }
-            else if
-            (
-                type == typeof(DateTime) || type == typeof(DateTimeOffset)
-                || type == typeof(DateTime?) || type == typeof(DateTimeOffset?)
-            )
-            {
-                tsType = "Date";
-            }
-            else if (type == typeof(bool) || type == typeof(bool?))
-            {
-                tsType = "boolean";
-            }
-            else if (type == typeof(object))
-            {
-                tsType = "object";
-            }
-            else if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IDictionary<,>) || type.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
-            {
-                var dictArgs = type.GetGenericArguments();
-                var keyType = getTsType(dictArgs[0]);
-                var valueType = getTsType(dictArgs[1]);
-                tsType = $"Record<{keyType},{valueType}>";
-            }
-            else if (typeof(Form).IsAssignableFrom(type))
-            {
-                tsType = type.Name;
+                jsLiteral = value?.ToString()?.ToLower() ?? "";
             }
             else
             {
-                tsType = $"I{type.Name}";
+                jsLiteral = $"{value}";
             }
-            return tsType;
         }
+        return jsLiteral;
+    }
+
+    private async Task generateApp(AppApiTemplate appTemplate)
+    {
+        var appClassName = $"{appTemplate.Name}AppApi";
+        var tsFile = new TypeScriptFile(appClassName, createStream);
+        tsFile.AddLine();
+        tsFile.AddLine("import { AppApi } from \"XtiShared/AppApi\";");
+        tsFile.AddLine("import { AppApiEvents } from \"XtiShared/AppApiEvents\";");
+        foreach (var groupTemplate in appTemplate.GroupTemplates)
+        {
+            var groupClassName = getGroupClassName(groupTemplate);
+            tsFile.AddLine($"import {{ {groupClassName} }} from \"./{groupClassName}\";");
+        }
+        tsFile.AddLine();
+        tsFile.AddLine($"\r\nexport class {appClassName} extends AppApi {{");
+        tsFile.Indent();
+        tsFile.AddLine($"public static readonly DefaultVersion = '{versionKey.Value}';");
+        tsFile.AddLine();
+        tsFile.AddLine($"constructor(events: AppApiEvents, baseUrl: string, version: string = '') {{");
+        tsFile.Indent();
+        tsFile.AddLine($"super(events, baseUrl, '{appTemplate.Name}', version || {appClassName}.DefaultVersion);");
+        foreach (var groupTemplate in appTemplate.GroupTemplates)
+        {
+            tsFile.AddLine($"this.{groupTemplate.Name} = this.addGroup((evts, resourceUrl) => new {groupTemplate.Name}Group(evts, resourceUrl));");
+        }
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        tsFile.AddLine();
+        foreach (var group in appTemplate.GroupTemplates)
+        {
+            tsFile.AddLine($"readonly {group.Name}: {group.Name}Group;");
+        }
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        await tsFile.Output();
+    }
+
+    private Task generateEntities(AppApiTemplate appTemplate)
+    {
+        var tsFile = new TypeScriptFile($"{appTemplate.Name}Entities.d.ts", createStream);
+        tsFile.AddLine();
+        foreach (var objectTemplate in appTemplate.ObjectTemplates())
+        {
+            tsFile.AddLine($"interface I{objectTemplate.DataType.Name} {{");
+            tsFile.Indent();
+            foreach (var property in objectTemplate.PropertyTemplates)
+            {
+                var tsType = getTsType(property.ValueTemplate);
+                tsFile.AddLine($"{property.Name}: {tsType};");
+            }
+            tsFile.Outdent();
+            tsFile.AddLine("}");
+        }
+        foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
+        {
+            tsFile.AddLine($"interface I{numericValueTemplate.DataType.Name} {{");
+            tsFile.Indent();
+            tsFile.AddLine($"Value: number;");
+            tsFile.AddLine($"DisplayText: string;");
+            tsFile.Outdent();
+            tsFile.AddLine("}");
+        }
+        return tsFile.Output();
+    }
+
+    private Task generateGroup(AppApiGroupTemplate group)
+    {
+        var groupClassName = getGroupClassName(group);
+        var tsFile = new TypeScriptFile(groupClassName, createStream);
+        tsFile.AddLine();
+        tsFile.AddLine("import { AppApiGroup } from \"XtiShared/AppApiGroup\";");
+        tsFile.AddLine("import { AppApiAction } from \"XtiShared/AppApiAction\";");
+        tsFile.AddLine("import { AppApiView } from \"XtiShared/AppApiView\";");
+        tsFile.AddLine("import { AppApiEvents } from \"XtiShared/AppApiEvents\";");
+        tsFile.AddLine("import { AppResourceUrl } from \"XtiShared/AppResourceUrl\";");
+        foreach (var form in group.FormTemplates())
+        {
+            tsFile.AddLine($"import {{ {form.Form.TypeName} }} from \"./{form.Form.TypeName}\";");
+        }
+        tsFile.AddLine();
+        var implementsClause = group.IsUser()
+            ? "implements IUserGroup "
+            : "";
+        tsFile.AddLine($"export class {groupClassName} extends AppApiGroup {implementsClause}{{");
+        tsFile.Indent();
+        tsFile.AddLine("constructor(events: AppApiEvents, resourceUrl: AppResourceUrl) {");
+        tsFile.Indent();
+        tsFile.AddLine($"super(events, resourceUrl, '{group.Name}');");
+        foreach (var action in group.ActionTemplates)
+        {
+            if (action.IsView() || action.IsPartialView() || action.IsRedirect())
+            {
+                var modelType = getTsType(action.ModelTemplate);
+                tsFile.AddLine($"this.{action.Name} = this.createView<{modelType}>('{action.Name}');");
+            }
+            else
+            {
+                var genericArgs = getGenericArguments(action);
+                tsFile.AddLine($"this.{action.Name}Action = this.createAction{genericArgs}('{action.Name}', '{action.FriendlyName}');");
+            }
+        }
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        tsFile.AddLine();
+        foreach (var action in group.ActionTemplates)
+        {
+            if (action.IsView() || action.IsPartialView() || action.IsRedirect())
+            {
+                var modelType = getTsType(action.ModelTemplate);
+                tsFile.AddLine($"readonly {action.Name}: AppApiView<{modelType}>;");
+            }
+            else
+            {
+                var genericArgs = getGenericArguments(action);
+                tsFile.AddLine($"readonly {action.Name}Action: AppApiAction{genericArgs};");
+            }
+        }
+        tsFile.AddLine();
+        foreach (var action in group.ActionTemplates)
+        {
+            if (!action.IsView() && !action.IsPartialView() && !action.IsRedirect())
+            {
+                var modelType = getTsType(action.ModelTemplate.DataType);
+                var modelDecl = action.HasEmptyModel() ? "" : $"model: {modelType}, ";
+                var modelParm = action.HasEmptyModel() ? "{}" : "model";
+                tsFile.AddLine($"{action.Name}({modelDecl}errorOptions?: IActionErrorOptions) {{");
+                tsFile.Indent();
+                tsFile.AddLine($"return this.{action.Name}Action.execute({modelParm}, errorOptions || {{}});");
+                tsFile.Outdent();
+                tsFile.AddLine("}");
+            }
+        }
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        return tsFile.Output();
+    }
+
+    private static string getGroupClassName(AppApiGroupTemplate group) => $"{group.Name}Group";
+
+    private Task generateNumericValue(NumericValueTemplate numericValueTemplate)
+    {
+        var tsFile = new TypeScriptFile($"{numericValueTemplate.DataType.Name}.ts", createStream);
+        var className = numericValueTemplate.DataType.Name;
+        tsFile.AddLine("import { NumericValue } from 'XtiShared/NumericValue';");
+        tsFile.AddLine("import { NumericValues } from 'XtiShared/NumericValues';");
+        tsFile.AddLine();
+        tsFile.AddLine($"export class {className}s extends NumericValues<{className}> {{");
+        tsFile.Indent();
+        tsFile.AddLine("constructor(");
+        tsFile.Indent();
+        var valueNames = numericValueTemplate.Values.Select(v => whitespaceRegex.Replace(v.DisplayText, ""));
+        var lastValueName = valueNames.Last();
+        foreach (var valueName in valueNames)
+        {
+            tsFile.AddLine($"public readonly {valueName}: {className}");
+            if (valueName != lastValueName)
+            {
+                tsFile.Append(",");
+            }
+        }
+        tsFile.Outdent();
+        tsFile.AddLine(") {");
+        tsFile.Indent();
+        var joinedValueNames = string.Join(",", valueNames);
+        tsFile.AddLine($"super([{joinedValueNames}]);");
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        tsFile.AddLine();
+        tsFile.AddLine($"export class {className} extends NumericValue implements I{className} {{");
+        tsFile.Indent();
+        tsFile.AddLine($"public static readonly values = new {className}s(");
+        tsFile.Indent();
+        var lastValue = numericValueTemplate.Values.Last();
+        foreach (var numericValue in numericValueTemplate.Values)
+        {
+            tsFile.AddLine($"new {className}({numericValue.Value}, '{numericValue.DisplayText.Replace("'", "\'")}')");
+            if (numericValue != lastValue)
+            {
+                tsFile.Append(",");
+            }
+        }
+        tsFile.Outdent();
+        tsFile.AddLine(");");
+        tsFile.AddLine();
+        tsFile.AddLine("private constructor(Value: number, DisplayText: string) {");
+        tsFile.Indent();
+        tsFile.AddLine("super(Value, DisplayText);");
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        return tsFile.Output();
+    }
+
+    private string getGenericArguments(AppApiActionTemplate action)
+    {
+        var modelType = getTsType(action.ModelTemplate);
+        var resultType = getTsType(action.ResultTemplate);
+        return $"<{modelType},{resultType}>";
+    }
+
+    private string getTsType(ValueTemplate valueTemplate)
+    {
+        if (valueTemplate is ArrayValueTemplate arrTempl)
+        {
+            var elType = getTsType(arrTempl.ElementTemplate.DataType);
+            return $"{elType}[]";
+        }
+        return getTsType(valueTemplate.DataType);
+    }
+
+    private string getTsType(Type? type)
+    {
+        string tsType;
+        if (type == typeof(string))
+        {
+            tsType = "string";
+        }
+        else if
+        (
+            type == typeof(short) || type == typeof(int) || type == typeof(long)
+            || type == typeof(double) || type == typeof(decimal) || type == typeof(float)
+            || type == typeof(short?) || type == typeof(int?) || type == typeof(long?)
+            || type == typeof(double?) || type == typeof(decimal?) || type == typeof(float?)
+        )
+        {
+            tsType = "number";
+        }
+        else if
+        (
+            type == typeof(DateTime) || type == typeof(DateTimeOffset)
+            || type == typeof(DateTime?) || type == typeof(DateTimeOffset?)
+        )
+        {
+            tsType = "Date";
+        }
+        else if (type == typeof(bool) || type == typeof(bool?))
+        {
+            tsType = "boolean";
+        }
+        else if (type == typeof(object))
+        {
+            tsType = "object";
+        }
+        else if
+        (
+            type != null &&
+            type.IsGenericType &&
+            (
+                type.GetGenericTypeDefinition() == typeof(IDictionary<,>) ||
+                type.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+            )
+        )
+        {
+            var dictArgs = type.GetGenericArguments();
+            var keyType = getTsType(dictArgs[0]);
+            var valueType = getTsType(dictArgs[1]);
+            tsType = $"Record<{keyType},{valueType}>";
+        }
+        else if (typeof(Form).IsAssignableFrom(type))
+        {
+            tsType = type.Name;
+        }
+        else if(type != null)
+        {
+            tsType = $"I{type.Name}";
+        }
+        else 
+        { 
+            throw new ArgumentException($"Invalid type '{type}'"); 
+        }
+        return tsType;
     }
 }
