@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LinkViewModel = void 0;
 var tslib_1 = require("tslib");
 var ComponentTemplate_1 = require("../ComponentTemplate");
 var ko = require("knockout");
@@ -20,7 +21,6 @@ var LinkViewModel = /** @class */ (function (_super) {
     }
     LinkViewModel.prototype.click = function () {
         this._clicked.invoke();
-        return true;
     };
     return LinkViewModel;
 }(HtmlComponentViewModel_1.HtmlComponentViewModel));

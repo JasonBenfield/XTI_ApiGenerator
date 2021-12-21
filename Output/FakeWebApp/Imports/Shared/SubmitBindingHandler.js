@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SubmitBindingHandler = void 0;
 var tslib_1 = require("tslib");
 var ko = require("knockout");
 var _ = require("lodash");
@@ -11,7 +12,7 @@ var SubmitBindingHandler = /** @class */ (function () {
     SubmitBindingHandler.prototype.init = function (element, valueAccessor) {
         var _this = this;
         ko.utils.registerEventHandler(element, "submit", function (event) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
-            var unwrapped;
+            var unwrapped, model, result;
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -33,7 +34,16 @@ var SubmitBindingHandler = /** @class */ (function () {
                         return [3 /*break*/, 3];
                     case 2:
                         if (_.isFunction(unwrapped)) {
-                            unwrapped.call(unwrapped, element);
+                            model = ko.dataFor(element);
+                            result = unwrapped.call(model, element);
+                            if (result !== true) {
+                                if (event.preventDefault) {
+                                    event.preventDefault();
+                                }
+                                else {
+                                    event.returnValue = false;
+                                }
+                            }
                         }
                         _a.label = 3;
                     case 3: return [2 /*return*/];

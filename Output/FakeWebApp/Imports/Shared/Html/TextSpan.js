@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TextSpan = void 0;
 var tslib_1 = require("tslib");
 var TextSpanViewModel_1 = require("./TextSpanViewModel");
 var HtmlComponent_1 = require("./HtmlComponent");
@@ -13,7 +14,11 @@ var TextSpan = /** @class */ (function (_super) {
         return _this;
     }
     TextSpan.prototype.setText = function (text) {
+        this.text = text;
         this.vm.text(text);
+    };
+    TextSpan.prototype.setTitleFromText = function () {
+        this.vm.title(this.text);
     };
     return TextSpan;
 }(HtmlComponent_1.HtmlComponent));

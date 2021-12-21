@@ -1,8 +1,8 @@
-import { BlockViewModel } from "../Html/BlockViewModel";
 import { MessageAlert } from "../MessageAlert";
-import { CardBody } from "./CardBody";
-export declare class CardAlert extends CardBody {
-    constructor(vm?: BlockViewModel);
+import { CardAlertView } from "./CardAlertView";
+export declare class CardAlert {
+    private readonly view;
     readonly alert: MessageAlert;
+    constructor(view: CardAlertView);
     private onMessageChanged;
 }

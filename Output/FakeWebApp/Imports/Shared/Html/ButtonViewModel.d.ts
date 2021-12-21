@@ -8,5 +8,5 @@ export declare class ButtonViewModel extends HtmlComponentViewModel {
     readonly isEnabled: ko.Observable<boolean>;
     private readonly _clicked;
     readonly clicked: import("../Events").DefaultEventHandler<any>;
-    click(): void;
+    click(): boolean;
 }

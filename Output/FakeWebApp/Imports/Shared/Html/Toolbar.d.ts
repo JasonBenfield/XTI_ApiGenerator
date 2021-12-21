@@ -1,7 +1,7 @@
 import { Column } from "../Grid/Column";
-import { Block } from "./Block";
 import { BlockViewModel } from "./BlockViewModel";
-export declare class Toolbar extends Block {
+import { HtmlComponent } from "./HtmlComponent";
+export declare class Toolbar extends HtmlComponent {
     constructor(vm?: BlockViewModel);
     readonly columnStart: Column;
     readonly columnEnd: Column;

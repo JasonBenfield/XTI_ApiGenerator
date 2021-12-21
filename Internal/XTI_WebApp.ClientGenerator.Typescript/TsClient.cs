@@ -27,10 +27,12 @@ public sealed class TsClient : CodeGenerator
         foreach (var complexFieldTemplate in complexFieldTemplates)
         {
             await generateComplexField(complexFieldTemplate, false);
+            await generateComplexFieldView(complexFieldTemplate, false);
         }
         foreach (var formTemplate in formTemplates)
         {
             await generateComplexField(formTemplate.Form, true);
+            await generateComplexFieldView(formTemplate.Form, true);
         }
         foreach (var group in appTemplate.GroupTemplates)
         {
@@ -49,18 +51,17 @@ public sealed class TsClient : CodeGenerator
         var tsFile = new TypeScriptFile(className, createStream);
         if (isForm)
         {
-            tsFile.AddLine("import { BaseForm } from 'XtiShared/Forms/BaseForm';");
-            tsFile.AddLine("import { FormComponentViewModel } from 'XtiShared/Html/FormComponentViewModel';");
+            tsFile.AddLine("import { BaseForm } from '@jasonbenfield/sharedwebapp/Forms/BaseForm';");
         }
         else
         {
-            tsFile.AddLine("import { ComplexFieldFormGroup } from 'XtiShared/Forms/ComplexFieldFormGroup';");
-            tsFile.AddLine("import { BlockViewModel } from 'XtiShared/Html/BlockViewModel';");
+            tsFile.AddLine("import { ComplexFieldFormGroup } from '@jasonbenfield/sharedwebapp/Forms/ComplexFieldFormGroup';");
         }
+        tsFile.AddLine($"import {{ {className}View }} from './{className}View';");
         var fields = complexField.Fields;
         if (fields.OfType<DropDownFieldModel>().Any())
         {
-            tsFile.AddLine("import { DropDownFieldItem } from \"XtiShared/Forms/DropDownFieldItem\";");
+            tsFile.AddLine("import { DropDownFieldItem } from \"@jasonbenfield/sharedwebapp/Forms/DropDownFieldItem\";");
         }
         foreach (var field in fields.OfType<ComplexFieldModel>().Select(f => f.TypeName).Distinct())
         {
@@ -70,12 +71,14 @@ public sealed class TsClient : CodeGenerator
         var baseClass = isForm ? "BaseForm" : "ComplexFieldFormGroup";
         tsFile.AddLine($"export class {className} extends {baseClass} {{");
         tsFile.Indent();
+        tsFile.AddLine($"protected readonly view: {className}View;");
+        tsFile.AddLine();
         var ctorArgs = isForm ? "" : "prefix: string, name: string, ";
         var vmClassName = isForm ? "FormComponentViewModel" : "BlockViewModel";
-        tsFile.AddLine($"constructor({ctorArgs}vm: {vmClassName} = new {vmClassName}()) {{");
+        tsFile.AddLine($"constructor({ctorArgs}view: {className}View) {{");
         tsFile.Indent();
         var superArgs = isForm ? $"'{className}'" : "prefix, name";
-        tsFile.AddLine($"super({superArgs}, vm);");
+        tsFile.AddLine($"super({superArgs}, view);");
         foreach (var field in fields)
         {
             if (!string.IsNullOrWhiteSpace(field.Caption))
@@ -164,10 +167,9 @@ public sealed class TsClient : CodeGenerator
         {
             tsFile.AddLine("");
             tsFile.Append($"readonly {field.Name} = ");
-            var vm = isForm ? "this.vm" : "this.vm.value";
             if (field is IComplexField complex)
             {
-                tsFile.Append($"this.addFormGroup(new {complex.TypeName}(this.getName(), '{field.Name}'))");
+                tsFile.Append($"this.addFormGroup(new {complex.TypeName}(this.getName(), '{field.Name}', this.view.{field.Name}))");
             }
             else
             {
@@ -241,7 +243,66 @@ public sealed class TsClient : CodeGenerator
                 {
                     throw new NotSupportedException($"Simple field of type {field.GetType()} is not supported");
                 }
-                tsFile.Append($"this.{addFormGroup}('{field.Name}')");
+                tsFile.Append($"this.{addFormGroup}('{field.Name}', this.view.{field.Name})");
+            }
+            tsFile.Append(";");
+        }
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        return tsFile.Output();
+    }
+
+    private Task generateComplexFieldView(IComplexField complexField, bool isForm)
+    {
+        var className = $"{complexField.TypeName}View";
+        var tsFile = new TypeScriptFile(className, createStream);
+        if (isForm)
+        {
+            tsFile.AddLine("import { BaseFormView } from '@jasonbenfield/sharedwebapp/Forms/BaseFormView';");
+        }
+        else
+        {
+            tsFile.AddLine("import { ComplexFieldFormGroupView } from '@jasonbenfield/sharedwebapp/Forms/ComplexFieldFormGroupView';");
+        }
+        var fields = complexField.Fields;
+        foreach (var field in fields.OfType<ComplexFieldModel>().Select(f => f.TypeName).Distinct())
+        {
+            tsFile.AddLine($"import {{ {field}View }} from './{field}View';");
+        }
+        tsFile.AddLine();
+        var baseClass = isForm ? "BaseFormView" : "ComplexFieldFormGroupView";
+        tsFile.AddLine($"export class {className} extends {baseClass} {{");
+        tsFile.Indent();
+        foreach (var field in fields)
+        {
+            tsFile.AddLine("");
+            tsFile.Append($"readonly {field.Name} = ");
+            if (field is IComplexField complex)
+            {
+                tsFile.Append($"this.addFormGroup(new {complex.TypeName}View())");
+            }
+            else
+            {
+                string addFormGroup;
+                if (field is InputFieldModel inputField)
+                {
+                    addFormGroup = "addInputFormGroup";
+                }
+                else if (field is DropDownFieldModel dropDownField)
+                {
+                    var inputType = dropDownField.InputDataType;
+                    var tsInputType = getTsType(inputType);
+                    addFormGroup = $"addDropDownFormGroup<{tsInputType}>";
+                }
+                else if (field is SimpleFieldModel hiddenField)
+                {
+                    addFormGroup = "addInputFormGroup";
+                }
+                else
+                {
+                    throw new NotSupportedException($"Simple field of type {field.GetType()} is not supported");
+                }
+                tsFile.Append($"this.{addFormGroup}()");
             }
             tsFile.Append(";");
         }
@@ -295,8 +356,8 @@ public sealed class TsClient : CodeGenerator
         var appClassName = $"{appTemplate.Name}AppApi";
         var tsFile = new TypeScriptFile(appClassName, createStream);
         tsFile.AddLine();
-        tsFile.AddLine("import { AppApi } from \"XtiShared/AppApi\";");
-        tsFile.AddLine("import { AppApiEvents } from \"XtiShared/AppApiEvents\";");
+        tsFile.AddLine("import { AppApi } from \"@jasonbenfield/sharedwebapp/AppApi\";");
+        tsFile.AddLine("import { AppApiEvents } from \"@jasonbenfield/sharedwebapp/AppApiEvents\";");
         foreach (var groupTemplate in appTemplate.GroupTemplates)
         {
             var groupClassName = getGroupClassName(groupTemplate);
@@ -359,11 +420,11 @@ public sealed class TsClient : CodeGenerator
         var groupClassName = getGroupClassName(group);
         var tsFile = new TypeScriptFile(groupClassName, createStream);
         tsFile.AddLine();
-        tsFile.AddLine("import { AppApiGroup } from \"XtiShared/AppApiGroup\";");
-        tsFile.AddLine("import { AppApiAction } from \"XtiShared/AppApiAction\";");
-        tsFile.AddLine("import { AppApiView } from \"XtiShared/AppApiView\";");
-        tsFile.AddLine("import { AppApiEvents } from \"XtiShared/AppApiEvents\";");
-        tsFile.AddLine("import { AppResourceUrl } from \"XtiShared/AppResourceUrl\";");
+        tsFile.AddLine("import { AppApiGroup } from \"@jasonbenfield/sharedwebapp/AppApiGroup\";");
+        tsFile.AddLine("import { AppApiAction } from \"@jasonbenfield/sharedwebapp/AppApiAction\";");
+        tsFile.AddLine("import { AppApiView } from \"@jasonbenfield/sharedwebapp/AppApiView\";");
+        tsFile.AddLine("import { AppApiEvents } from \"@jasonbenfield/sharedwebapp/AppApiEvents\";");
+        tsFile.AddLine("import { AppResourceUrl } from \"@jasonbenfield/sharedwebapp/AppResourceUrl\";");
         foreach (var form in group.FormTemplates())
         {
             tsFile.AddLine($"import {{ {form.Form.TypeName} }} from \"./{form.Form.TypeName}\";");
@@ -432,8 +493,8 @@ public sealed class TsClient : CodeGenerator
     {
         var tsFile = new TypeScriptFile($"{numericValueTemplate.DataType.Name}.ts", createStream);
         var className = numericValueTemplate.DataType.Name;
-        tsFile.AddLine("import { NumericValue } from 'XtiShared/NumericValue';");
-        tsFile.AddLine("import { NumericValues } from 'XtiShared/NumericValues';");
+        tsFile.AddLine("import { NumericValue } from '@jasonbenfield/sharedwebapp/NumericValue';");
+        tsFile.AddLine("import { NumericValues } from '@jasonbenfield/sharedwebapp/NumericValues';");
         tsFile.AddLine();
         tsFile.AddLine($"export class {className}s extends NumericValues<{className}> {{");
         tsFile.Indent();

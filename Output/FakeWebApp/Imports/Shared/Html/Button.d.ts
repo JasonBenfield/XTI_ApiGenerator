@@ -8,7 +8,6 @@ export declare class Button extends HtmlContainerComponent {
     changeTypeToSubmit(): void;
     enable(): void;
     disable(): void;
-    addContent<TItem extends IComponent>(item: TItem): TItem;
     private context;
     setContext(context: ContextualClass): void;
     private getContextCss;

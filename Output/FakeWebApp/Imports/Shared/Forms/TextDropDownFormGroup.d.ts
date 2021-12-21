@@ -1,9 +1,9 @@
-import { BlockViewModel } from "../Html/BlockViewModel";
 import { TextConstraintCollection } from "./ConstraintCollection";
 import { DropDownFormGroup } from "./DropDownFormGroup";
+import { DropDownFormGroupView } from "./DropDownFormGroupView";
 import { ErrorList } from "./ErrorList";
 export declare class TextDropDownFormGroup extends DropDownFormGroup<string> {
-    constructor(prefix: string, name: string, vm?: BlockViewModel);
     readonly constraints: TextConstraintCollection;
+    constructor(prefix: string, name: string, view: DropDownFormGroupView<string>);
     protected validateConstraints(fieldErrors: ErrorList): void;
 }

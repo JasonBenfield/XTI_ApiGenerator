@@ -1,3 +1,3 @@
-import { AppApi } from "./AppApi";
-export declare let defaultApi: AppApi;
-export declare function startup(page: IPage): void;
+import { BaseStartup } from "./BaseStartup";
+export declare class Startup extends BaseStartup {
+}

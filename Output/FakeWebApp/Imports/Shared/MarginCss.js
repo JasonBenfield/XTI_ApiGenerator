@@ -1,134 +1,106 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.MarginCss = void 0;
 var CssClass_1 = require("./CssClass");
-var MarginCssForBreakpoint = /** @class */ (function () {
-    function MarginCssForBreakpoint(breakpoint) {
-        this.breakpoint = breakpoint;
-        this.amounts = {};
-    }
-    MarginCssForBreakpoint.prototype.start = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.start = amount;
-    };
-    MarginCssForBreakpoint.prototype.end = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.end = amount;
-    };
-    MarginCssForBreakpoint.prototype.top = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.top = amount;
-    };
-    MarginCssForBreakpoint.prototype.bottom = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.bottom = amount;
-    };
-    MarginCssForBreakpoint.prototype.all = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.all = amount;
-    };
-    MarginCssForBreakpoint.prototype.cssClass = function () {
-        var css = new CssClass_1.CssClass();
-        if (this.amounts.start !== undefined) {
-            css.addName(this.getCss('s', this.amounts.start));
-        }
-        if (this.amounts.end !== undefined) {
-            css.addName(this.getCss('e', this.amounts.end));
-        }
-        if (this.amounts.top !== undefined) {
-            css.addName(this.getCss('t', this.amounts.top));
-        }
-        if (this.amounts.bottom !== undefined) {
-            css.addName(this.getCss('b', this.amounts.bottom));
-        }
-        if (this.amounts.all !== undefined) {
-            css.addName(this.getCss('', this.amounts.all));
-        }
-        return css;
-    };
-    MarginCssForBreakpoint.prototype.getCss = function (direction, amount) {
-        var css = 'm';
-        if (direction) {
-            css += direction;
-        }
-        if (amount === null || amount === undefined) {
-            amount = 0;
-        }
-        if (this.breakpoint && this.breakpoint !== 'xs') {
-            css += "-" + this.breakpoint;
-        }
-        css += "-" + amount;
-        return css;
-    };
-    MarginCssForBreakpoint.prototype.toString = function () {
-        return this.cssClass();
-    };
-    return MarginCssForBreakpoint;
-}());
-exports.MarginCssForBreakpoint = MarginCssForBreakpoint;
 var MarginCss = /** @class */ (function () {
     function MarginCss() {
-        this.breakpoints = {};
+        this.css = new CssClass_1.CssClass;
     }
-    MarginCss.xs = function (config) {
-        return new MarginCss().xs(config);
+    MarginCss.bottom = function (amount) {
+        return MarginCss.xs({ bottom: amount });
     };
-    MarginCss.sm = function (config) {
-        return new MarginCss().sm(config);
+    MarginCss.top = function (amount) {
+        return MarginCss.xs({ top: amount });
     };
-    MarginCss.md = function (config) {
-        return new MarginCss().md(config);
+    MarginCss.start = function (amount) {
+        return MarginCss.xs({ start: amount });
     };
-    MarginCss.lg = function (config) {
-        return new MarginCss().lg(config);
+    MarginCss.end = function (amount) {
+        return MarginCss.xs({ end: amount });
     };
-    MarginCss.xl = function (config) {
-        return new MarginCss().xl(config);
+    MarginCss.xs = function (amounts) {
+        return new MarginCss().xs(amounts);
     };
-    MarginCss.xxl = function (config) {
-        return new MarginCss().xxl(config);
+    MarginCss.sm = function (amounts) {
+        return new MarginCss().sm(amounts);
     };
-    MarginCss.prototype.xs = function (config) {
-        this.breakpoints.xs = new MarginCssForBreakpoint('xs');
-        config(this.breakpoints.xs);
+    MarginCss.md = function (amounts) {
+        return new MarginCss().md(amounts);
+    };
+    MarginCss.lg = function (amounts) {
+        return new MarginCss().lg(amounts);
+    };
+    MarginCss.xl = function (amounts) {
+        return new MarginCss().xl(amounts);
+    };
+    MarginCss.xxl = function (amounts) {
+        return new MarginCss().xxl(amounts);
+    };
+    MarginCss.prototype.xs = function (amounts) {
+        this.addCssForBreakpoint('xs', amounts);
         return this;
     };
-    MarginCss.prototype.sm = function (config) {
-        this.breakpoints.sm = new MarginCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    MarginCss.prototype.sm = function (amounts) {
+        this.addCssForBreakpoint('sm', amounts);
         return this;
     };
-    MarginCss.prototype.md = function (config) {
-        this.breakpoints.sm = new MarginCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    MarginCss.prototype.md = function (amounts) {
+        this.addCssForBreakpoint('md', amounts);
         return this;
     };
-    MarginCss.prototype.lg = function (config) {
-        this.breakpoints.sm = new MarginCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    MarginCss.prototype.lg = function (amounts) {
+        this.addCssForBreakpoint('lg', amounts);
         return this;
     };
-    MarginCss.prototype.xl = function (config) {
-        this.breakpoints.sm = new MarginCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    MarginCss.prototype.xl = function (amounts) {
+        this.addCssForBreakpoint('xl', amounts);
         return this;
     };
-    MarginCss.prototype.xxl = function (config) {
-        this.breakpoints.sm = new MarginCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    MarginCss.prototype.xxl = function (amounts) {
+        this.addCssForBreakpoint('xxl', amounts);
         return this;
     };
-    MarginCss.prototype.cssClass = function () {
-        var css = new CssClass_1.CssClass();
-        css.addFrom(this.breakpoints.xs && this.breakpoints.xs.cssClass());
-        css.addFrom(this.breakpoints.sm && this.breakpoints.sm.cssClass());
-        css.addFrom(this.breakpoints.md && this.breakpoints.md.cssClass());
-        css.addFrom(this.breakpoints.lg && this.breakpoints.lg.cssClass());
-        css.addFrom(this.breakpoints.xl && this.breakpoints.xl.cssClass());
-        css.addFrom(this.breakpoints.xxl && this.breakpoints.xxl.cssClass());
+    MarginCss.prototype.addCssForBreakpoint = function (breakpoint, amounts) {
+        if (amounts !== null && amounts !== undefined) {
+            if (this.isMarginAmount(amounts)) {
+                this.css.addName(this.getCss(breakpoint, '', amounts));
+            }
+            else {
+                this.css.addName(this.getCss(breakpoint, 'b', amounts.bottom));
+                this.css.addName(this.getCss(breakpoint, 't', amounts.top));
+                this.css.addName(this.getCss(breakpoint, 's', amounts.start));
+                this.css.addName(this.getCss(breakpoint, 'e', amounts.end));
+            }
+        }
+    };
+    MarginCss.prototype.isMarginAmount = function (data) {
+        return typeof data === 'number' || data === 'auto';
+    };
+    MarginCss.prototype.getCss = function (breakpoint, direction, amount) {
+        var css;
+        if (amount === undefined) {
+            css = '';
+        }
+        else {
+            css = 'm';
+            if (direction) {
+                css += direction;
+            }
+            if (amount === null || amount === undefined) {
+                amount = 0;
+            }
+            if (breakpoint && breakpoint !== 'xs') {
+                css += "-" + breakpoint;
+            }
+            css += "-" + amount;
+        }
         return css;
     };
+    MarginCss.prototype.cssClass = function () {
+        return this.css;
+    };
     MarginCss.prototype.toString = function () {
-        return this.cssClass.toString();
+        return this.css.toString();
     };
     return MarginCss;
 }());

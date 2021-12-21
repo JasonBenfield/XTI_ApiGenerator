@@ -1,14 +1,14 @@
-import { BlockViewModel } from "../Html/BlockViewModel";
-import { Select } from "../Html/Select";
 import { SelectOption } from "../Html/SelectOption";
 import { ConstraintCollection } from "./ConstraintCollection";
+import { DropDownFormGroupView } from "./DropDownFormGroupView";
 import { ErrorList } from "./ErrorList";
 import { SimpleFieldFormGroup } from "./SimpleFieldFormGroup";
 export declare class DropDownFormGroup<TValue> extends SimpleFieldFormGroup<TValue> {
-    constructor(prefix: string, name: string, vm?: BlockViewModel);
+    protected readonly view: DropDownFormGroupView<TValue>;
     readonly constraints: ConstraintCollection;
+    readonly valueChanged: import("../Events").DefaultEventHandler<TValue>;
+    constructor(prefix: string, name: string, view: DropDownFormGroupView<TValue>);
     protected validateConstraints(fieldErrors: ErrorList): void;
-    readonly select: Select<TValue>;
     getValue(): TValue;
     setValue(value: TValue): void;
     setItems(...items: SelectOption<TValue>[]): void;

@@ -1,9 +1,9 @@
-import { BlockViewModel } from "../Html/BlockViewModel";
 import { NumberConstraintCollection } from "./ConstraintCollection";
 import { ErrorList } from "./ErrorList";
 import { InputFormGroup } from "./InputFormGroup";
+import { InputFormGroupView } from "./InputFormGroupView";
 export declare class NumberInputFormGroup extends InputFormGroup<number> {
-    constructor(prefix: string, name: string, vm?: BlockViewModel);
     readonly constraints: NumberConstraintCollection;
+    constructor(prefix: string, name: string, view: InputFormGroupView);
     protected validateConstraints(fieldErrors: ErrorList): void;
 }

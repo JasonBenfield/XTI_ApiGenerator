@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.HtmlComponent = void 0;
 var CssClass_1 = require("../CssClass");
 var HtmlComponent = /** @class */ (function () {
     function HtmlComponent(vm) {
         this.vm = vm;
         this.bgContextCss = '';
-        this.textContextCss = '';
         this.margin = null;
         this.padding = null;
         this.css = new CssClass_1.CssClass();
@@ -34,28 +34,17 @@ var HtmlComponent = /** @class */ (function () {
         this.replaceCssName(this.bgContextCss, css);
         this.bgContextCss = css;
     };
-    HtmlComponent.prototype.setTextContext = function (contextClass) {
-        var css = contextClass.append('text');
-        this.replaceCssName(this.textContextCss, css);
-        this.textContextCss = css;
+    HtmlComponent.prototype.setTextCss = function (textCss) {
+        this.replaceCssName(this.textCss && this.textCss.cssClass().toString(), textCss && textCss.cssClass().toString());
+        this.textCss = textCss;
     };
     HtmlComponent.prototype.setMargin = function (margin) {
-        if (this.margin) {
-            this.css.removeName(this.margin.cssClass.toString());
-        }
+        this.replaceCssName(this.margin && this.margin.cssClass().toString(), margin && margin.cssClass().toString());
         this.margin = margin;
-        if (this.margin) {
-            this.addCssFrom(this.margin.cssClass());
-        }
     };
     HtmlComponent.prototype.setPadding = function (padding) {
-        if (this.padding) {
-            this.css.removeName(this.padding.cssClass.toString());
-        }
+        this.replaceCssName(this.padding && this.padding.cssClass().toString(), padding && padding.cssClass().toString());
         this.padding = padding;
-        if (this.padding) {
-            this.addCssFrom(this.padding.cssClass());
-        }
     };
     HtmlComponent.prototype.replaceCss = function (css) {
         this.clearCss();

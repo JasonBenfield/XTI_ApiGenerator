@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Link = void 0;
 var tslib_1 = require("tslib");
+var WebPage_1 = require("../WebPage");
 var AggregateComponent_1 = require("./AggregateComponent");
 var HtmlContainerComponent_1 = require("./HtmlContainerComponent");
 var LinkViewModel_1 = require("./LinkViewModel");
@@ -11,9 +13,16 @@ var Link = /** @class */ (function (_super) {
         var _this = _super.call(this, vm, new AggregateComponent_1.AggregateComponent(vm.content)) || this;
         _this.clicked = _this.vm.clicked;
         _this.setHref('javascript:;');
+        _this.clicked.register(_this.onClick.bind(_this));
         return _this;
     }
+    Link.prototype.onClick = function () {
+        if (this.href && this.href !== 'javascript:;') {
+            new WebPage_1.WebPage(this.href).open();
+        }
+    };
     Link.prototype.setHref = function (href) {
+        this.href = href;
         this.vm.href(href);
     };
     Link.prototype.enable = function () {

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Button = void 0;
 var tslib_1 = require("tslib");
 var ButtonViewModel_1 = require("./ButtonViewModel");
 var HtmlContainerComponent_1 = require("./HtmlContainerComponent");
@@ -19,9 +20,6 @@ var Button = /** @class */ (function (_super) {
     };
     Button.prototype.enable = function () { this.vm.isEnabled(true); };
     Button.prototype.disable = function () { this.vm.isEnabled(false); };
-    Button.prototype.addContent = function (item) {
-        return item.addToContainer(this.content);
-    };
     Button.prototype.setContext = function (context) {
         var contextCss = this.getContextCss(context, this.isOutline);
         this.replaceCssName(this.getContextCss(this.context, this.isOutline), contextCss);

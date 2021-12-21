@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Row = void 0;
 var tslib_1 = require("tslib");
 var FaIcon_1 = require("../FaIcon");
 var Block_1 = require("../Html/Block");
 var BlockViewModel_1 = require("../Html/BlockViewModel");
 var HtmlComponent_1 = require("../Html/HtmlComponent");
-var LabelViewModel_1 = require("../Html/LabelViewModel");
 var TextBlock_1 = require("../Html/TextBlock");
 var Column_1 = require("./Column");
 var LabelColumn_1 = require("./LabelColumn");
@@ -32,13 +32,11 @@ var Row = /** @class */ (function (_super) {
         return column;
     };
     Row.prototype.addColumn = function () {
-        var columnVM = new BlockViewModel_1.BlockViewModel();
         var column = this.block.addContent(new Column_1.Column());
         this.columns.push(column);
         return column;
     };
     Row.prototype.addLabelColumn = function () {
-        var columnVM = new LabelViewModel_1.LabelViewModel();
         var column = this.block.addContent(new LabelColumn_1.LabelColumn());
         this.columns.push(column);
         return column;

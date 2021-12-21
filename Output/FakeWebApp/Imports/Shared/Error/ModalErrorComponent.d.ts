@@ -1,15 +1,14 @@
-import { ModalErrorComponentViewModel } from './ModalErrorComponentViewModel';
-import { Command } from '../Command/Command';
 import { ErrorModel } from '../ErrorModel';
-export declare class ModalErrorComponent implements IComponent {
-    private readonly vm;
-    constructor(vm?: ModalErrorComponentViewModel);
-    addToContainer(container: IAggregateComponent): any;
-    insertIntoContainer(container: IAggregateComponent, index: number): this;
-    removeFromContainer(container: IAggregateComponent): any;
+import { ModalErrorComponentView } from './ModalErrorComponentView';
+export declare class ModalErrorComponent {
+    private readonly view;
+    private readonly errorGroups;
+    private readonly _errorSelected;
     readonly errorSelected: import("../Events").DefaultEventHandler<ErrorModel>;
+    constructor(view: ModalErrorComponentView);
     private onClosed;
     show(errors: ErrorModel[], caption?: string): void;
-    readonly okCommand: Command;
-    private ok;
+    hide(): void;
+    private onErrorSelected;
+    private clearErrors;
 }

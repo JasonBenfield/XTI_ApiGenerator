@@ -1,12 +1,14 @@
-import { BlockViewModel } from "../Html/BlockViewModel";
-import { Input } from "../Html/Input";
+import { InputFormGroupView } from "./InputFormGroupView";
 import { SimpleFieldFormGroup } from "./SimpleFieldFormGroup";
 import { TypedFieldViewValue } from "./TypedFieldViewValue";
 export declare abstract class InputFormGroup<TValue> extends SimpleFieldFormGroup<TValue> {
     private readonly viewValue;
-    constructor(prefix: string, name: string, vm: BlockViewModel, viewValue: TypedFieldViewValue<string, TValue>);
+    protected readonly view: InputFormGroupView;
+    private readonly _valueChanged;
+    readonly valueChanged: import("../Events").DefaultEventHandler<TValue>;
+    constructor(prefix: string, name: string, view: InputFormGroupView, viewValue: TypedFieldViewValue<string, TValue>);
     private onInputValueChanged;
-    readonly input: Input;
+    private debouncedOnInputValueChanged;
     getValue(): TValue;
     setValue(value: TValue): void;
     setMaxLength(maxLength: number): void;

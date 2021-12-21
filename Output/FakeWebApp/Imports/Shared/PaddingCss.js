@@ -1,134 +1,103 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PaddingCss = void 0;
 var CssClass_1 = require("./CssClass");
-var PaddingCssForBreakpoint = /** @class */ (function () {
-    function PaddingCssForBreakpoint(breakpoint) {
-        this.breakpoint = breakpoint;
-        this.amounts = {};
-    }
-    PaddingCssForBreakpoint.prototype.start = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.start = amount;
-    };
-    PaddingCssForBreakpoint.prototype.end = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.end = amount;
-    };
-    PaddingCssForBreakpoint.prototype.top = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.top = amount;
-    };
-    PaddingCssForBreakpoint.prototype.bottom = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.bottom = amount;
-    };
-    PaddingCssForBreakpoint.prototype.all = function (amount) {
-        if (amount === void 0) { amount = 0; }
-        this.amounts.all = amount;
-    };
-    PaddingCssForBreakpoint.prototype.cssClass = function () {
-        var css = new CssClass_1.CssClass();
-        if (this.amounts.start !== undefined) {
-            css.addName(this.getCss('s', this.amounts.start));
-        }
-        if (this.amounts.end !== undefined) {
-            css.addName(this.getCss('e', this.amounts.end));
-        }
-        if (this.amounts.top !== undefined) {
-            css.addName(this.getCss('t', this.amounts.top));
-        }
-        if (this.amounts.bottom !== undefined) {
-            css.addName(this.getCss('b', this.amounts.bottom));
-        }
-        if (this.amounts.all !== undefined) {
-            css.addName(this.getCss('', this.amounts.all));
-        }
-        return css;
-    };
-    PaddingCssForBreakpoint.prototype.getCss = function (direction, amount) {
-        var css = 'p';
-        if (direction) {
-            css += direction;
-        }
-        if (amount === null || amount === undefined) {
-            amount = 0;
-        }
-        if (this.breakpoint && this.breakpoint !== 'xs') {
-            css += "-" + this.breakpoint;
-        }
-        css += "-" + amount;
-        return css;
-    };
-    PaddingCssForBreakpoint.prototype.toString = function () {
-        return this.cssClass();
-    };
-    return PaddingCssForBreakpoint;
-}());
-exports.PaddingCssForBreakpoint = PaddingCssForBreakpoint;
 var PaddingCss = /** @class */ (function () {
     function PaddingCss() {
-        this.breakpoints = {};
+        this.css = new CssClass_1.CssClass;
     }
-    PaddingCss.xs = function (config) {
-        return new PaddingCss().xs(config);
+    PaddingCss.bottom = function (amount) {
+        return PaddingCss.xs({ bottom: amount });
     };
-    PaddingCss.sm = function (config) {
-        return new PaddingCss().sm(config);
+    PaddingCss.top = function (amount) {
+        return PaddingCss.xs({ top: amount });
     };
-    PaddingCss.md = function (config) {
-        return new PaddingCss().md(config);
+    PaddingCss.start = function (amount) {
+        return PaddingCss.xs({ start: amount });
     };
-    PaddingCss.lg = function (config) {
-        return new PaddingCss().lg(config);
+    PaddingCss.end = function (amount) {
+        return PaddingCss.xs({ end: amount });
     };
-    PaddingCss.xl = function (config) {
-        return new PaddingCss().xl(config);
+    PaddingCss.xs = function (amounts) {
+        return new PaddingCss().xs(amounts);
     };
-    PaddingCss.xxl = function (config) {
-        return new PaddingCss().xxl(config);
+    PaddingCss.sm = function (amounts) {
+        return new PaddingCss().sm(amounts);
     };
-    PaddingCss.prototype.xs = function (config) {
-        this.breakpoints.xs = new PaddingCssForBreakpoint('xs');
-        config(this.breakpoints.xs);
+    PaddingCss.md = function (amounts) {
+        return new PaddingCss().md(amounts);
+    };
+    PaddingCss.lg = function (amounts) {
+        return new PaddingCss().lg(amounts);
+    };
+    PaddingCss.xl = function (amounts) {
+        return new PaddingCss().xl(amounts);
+    };
+    PaddingCss.xxl = function (amounts) {
+        return new PaddingCss().xxl(amounts);
+    };
+    PaddingCss.prototype.xs = function (amounts) {
+        this.addCssForBreakpoint('xs', amounts);
         return this;
     };
-    PaddingCss.prototype.sm = function (config) {
-        this.breakpoints.sm = new PaddingCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    PaddingCss.prototype.sm = function (amounts) {
+        this.addCssForBreakpoint('sm', amounts);
         return this;
     };
-    PaddingCss.prototype.md = function (config) {
-        this.breakpoints.sm = new PaddingCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    PaddingCss.prototype.md = function (amounts) {
+        this.addCssForBreakpoint('md', amounts);
         return this;
     };
-    PaddingCss.prototype.lg = function (config) {
-        this.breakpoints.sm = new PaddingCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    PaddingCss.prototype.lg = function (amounts) {
+        this.addCssForBreakpoint('lg', amounts);
         return this;
     };
-    PaddingCss.prototype.xl = function (config) {
-        this.breakpoints.sm = new PaddingCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    PaddingCss.prototype.xl = function (amounts) {
+        this.addCssForBreakpoint('xl', amounts);
         return this;
     };
-    PaddingCss.prototype.xxl = function (config) {
-        this.breakpoints.sm = new PaddingCssForBreakpoint('sm');
-        config(this.breakpoints.sm);
+    PaddingCss.prototype.xxl = function (amounts) {
+        this.addCssForBreakpoint('xxl', amounts);
         return this;
     };
-    PaddingCss.prototype.cssClass = function () {
-        var css = new CssClass_1.CssClass();
-        css.addFrom(this.breakpoints.xs && this.breakpoints.xs.cssClass());
-        css.addFrom(this.breakpoints.sm && this.breakpoints.sm.cssClass());
-        css.addFrom(this.breakpoints.md && this.breakpoints.md.cssClass());
-        css.addFrom(this.breakpoints.lg && this.breakpoints.lg.cssClass());
-        css.addFrom(this.breakpoints.xl && this.breakpoints.xl.cssClass());
-        css.addFrom(this.breakpoints.xxl && this.breakpoints.xxl.cssClass());
+    PaddingCss.prototype.addCssForBreakpoint = function (breakpoint, amounts) {
+        if (amounts !== null && amounts !== undefined) {
+            if (this.isPaddingAmount(amounts)) {
+                this.css.addName(this.getCss(breakpoint, '', amounts));
+            }
+            else {
+                this.css.addName(this.getCss(breakpoint, 'b', amounts.bottom));
+                this.css.addName(this.getCss(breakpoint, 't', amounts.top));
+                this.css.addName(this.getCss(breakpoint, 's', amounts.start));
+                this.css.addName(this.getCss(breakpoint, 'e', amounts.end));
+            }
+        }
+    };
+    PaddingCss.prototype.isPaddingAmount = function (data) {
+        return typeof data === 'number' || data === 'auto';
+    };
+    PaddingCss.prototype.getCss = function (breakpoint, direction, amount) {
+        var css;
+        if (amount === undefined || amount == null) {
+            css = '';
+        }
+        else {
+            css = 'p';
+            if (direction) {
+                css += direction;
+            }
+            if (breakpoint && breakpoint !== 'xs') {
+                css += "-" + breakpoint;
+            }
+            css += "-" + amount;
+        }
         return css;
     };
+    PaddingCss.prototype.cssClass = function () {
+        return this.css;
+    };
     PaddingCss.prototype.toString = function () {
-        return this.cssClass.toString();
+        return this.css.toString();
     };
     return PaddingCss;
 }());

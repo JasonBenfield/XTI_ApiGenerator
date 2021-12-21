@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.UrlQueryBuilder = void 0;
 var NamedValue_1 = require("./NamedValue");
 var _ = require("lodash");
 var UrlQuery_1 = require("./UrlQuery");
@@ -14,7 +15,7 @@ var UrlQueryBuilder = /** @class */ (function () {
     }
     Object.defineProperty(UrlQueryBuilder.prototype, "query", {
         get: function () { return this._query; },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     UrlQueryBuilder.prototype.getValues = function () {
@@ -90,7 +91,7 @@ var UrlQueryBuilder = /** @class */ (function () {
                 if (obj.hasOwnProperty(prop)) {
                     var k = prefix ? prefix + "[" + prop + "]" : prop;
                     var propValue = obj[prop];
-                    if (propValue !== null && typeof propValue === "object") {
+                    if (propValue !== null && typeof propValue === "object" && !(propValue instanceof Date)) {
                         this._addQueryFromObject(propValue, k);
                     }
                     else {

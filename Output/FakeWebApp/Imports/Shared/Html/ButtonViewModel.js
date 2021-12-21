@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ButtonViewModel = void 0;
 var tslib_1 = require("tslib");
 var ComponentTemplate_1 = require("../ComponentTemplate");
 var ko = require("knockout");
@@ -20,6 +21,9 @@ var ButtonViewModel = /** @class */ (function (_super) {
     }
     ButtonViewModel.prototype.click = function () {
         this._clicked.invoke();
+        if (this.type() === "submit") {
+            return true;
+        }
     };
     return ButtonViewModel;
 }(HtmlComponentViewModel_1.HtmlComponentViewModel));

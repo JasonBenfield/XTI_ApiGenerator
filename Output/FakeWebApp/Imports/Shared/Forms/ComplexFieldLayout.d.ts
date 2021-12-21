@@ -1,8 +1,8 @@
-import { BaseForm } from "./BaseForm";
-import { ComplexFieldFormGroup } from "./ComplexFieldFormGroup";
+import { BaseFormView } from "./BaseFormView";
+import { ComplexFieldFormGroupView } from "./ComplexFieldFormGroupView";
 export declare class ComplexFieldLayout {
     private readonly complexField;
-    constructor(complexField: ComplexFieldFormGroup | BaseForm);
+    constructor(complexField: ComplexFieldFormGroupView | BaseFormView);
     execute(): void;
-    protected executeLayout(complexField: ComplexFieldFormGroup | BaseForm): void;
+    protected executeLayout(complexField: ComplexFieldFormGroupView | BaseFormView): void;
 }
