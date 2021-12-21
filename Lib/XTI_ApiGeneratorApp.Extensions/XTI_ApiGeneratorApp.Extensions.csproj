@@ -10,12 +10,16 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
+    <PackageReference Include="Teronis.MSBuild.Packaging.ProjectBuildInPackage" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Internal\XTI_WebApp.ControllerGenerator\XTI_WebApp.ControllerGenerator.csproj" />
-    <ProjectReference Include="..\..\Internal\XTI_WebApp.ClientGenerator.CSharp\XTI_WebApp.ClientGenerator.CSharp.csproj" />
-    <ProjectReference Include="..\..\Internal\XTI_WebApp.ClientGenerator.Typescript\XTI_WebApp.ClientGenerator.Typescript.csproj" />
+    <ProjectReference Include="..\..\Internal\XTI_WebApp.ControllerGenerator\XTI_WebApp.ControllerGenerator.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\..\Internal\XTI_WebApp.ClientGenerator.CSharp\XTI_WebApp.ClientGenerator.CSharp.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\..\Internal\XTI_WebApp.ClientGenerator.Typescript\XTI_WebApp.ClientGenerator.Typescript.csproj" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
