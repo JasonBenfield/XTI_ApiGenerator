@@ -1,33 +1,32 @@
 import { CssClass } from "./CssClass";
-export declare type PaddingAmount = 0 | 1 | 2 | 3 | 4 | 5;
-export declare type PaddingDirection = '' | 'b' | 't' | 'e' | 's';
-export declare class PaddingCssForBreakpoint {
-    private readonly breakpoint;
-    private readonly amounts;
-    constructor(breakpoint: string);
-    start(amount?: PaddingAmount): void;
-    end(amount?: PaddingAmount): void;
-    top(amount?: PaddingAmount): void;
-    bottom(amount?: PaddingAmount): void;
-    all(amount?: PaddingAmount): void;
-    cssClass(): CssClass;
-    private getCss;
-    toString(): CssClass;
+export declare type PaddingAmount = 0 | 1 | 2 | 3 | 4 | 5 | 'auto';
+export interface PaddingAmounts {
+    bottom?: PaddingAmount;
+    top?: PaddingAmount;
+    start?: PaddingAmount;
+    end?: PaddingAmount;
 }
 export declare class PaddingCss {
-    static xs(config: (margin: PaddingCssForBreakpoint) => void): PaddingCss;
-    static sm(config: (margin: PaddingCssForBreakpoint) => void): PaddingCss;
-    static md(config: (margin: PaddingCssForBreakpoint) => void): PaddingCss;
-    static lg(config: (margin: PaddingCssForBreakpoint) => void): PaddingCss;
-    static xl(config: (margin: PaddingCssForBreakpoint) => void): PaddingCss;
-    static xxl(config: (margin: PaddingCssForBreakpoint) => void): PaddingCss;
-    private breakpoints;
-    xs(config: (margin: PaddingCssForBreakpoint) => void): this;
-    sm(config: (margin: PaddingCssForBreakpoint) => void): this;
-    md(config: (margin: PaddingCssForBreakpoint) => void): this;
-    lg(config: (margin: PaddingCssForBreakpoint) => void): this;
-    xl(config: (margin: PaddingCssForBreakpoint) => void): this;
-    xxl(config: (margin: PaddingCssForBreakpoint) => void): this;
+    static bottom(amount: PaddingAmount): PaddingCss;
+    static top(amount: PaddingAmount): PaddingCss;
+    static start(amount: PaddingAmount): PaddingCss;
+    static end(amount: PaddingAmount): PaddingCss;
+    static xs(amounts: PaddingAmounts | PaddingAmount): PaddingCss;
+    static sm(amounts: PaddingAmounts | PaddingAmount): PaddingCss;
+    static md(amounts: PaddingAmounts | PaddingAmount): PaddingCss;
+    static lg(amounts: PaddingAmounts | PaddingAmount): PaddingCss;
+    static xl(amounts: PaddingAmounts | PaddingAmount): PaddingCss;
+    static xxl(amounts: PaddingAmounts | PaddingAmount): PaddingCss;
+    private readonly css;
+    xs(amounts: PaddingAmounts | PaddingAmount): this;
+    sm(amounts: PaddingAmounts | PaddingAmount): this;
+    md(amounts: PaddingAmounts | PaddingAmount): this;
+    lg(amounts: PaddingAmounts | PaddingAmount): this;
+    xl(amounts: PaddingAmounts | PaddingAmount): this;
+    xxl(amounts: PaddingAmounts | PaddingAmount): this;
+    private addCssForBreakpoint;
+    private isPaddingAmount;
+    private getCss;
     cssClass(): CssClass;
     toString(): string;
 }

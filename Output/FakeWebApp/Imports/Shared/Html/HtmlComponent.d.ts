@@ -2,6 +2,7 @@ import { ContextualClass } from "../ContextualClass";
 import { CssClass } from "../CssClass";
 import { MarginCss } from "../MarginCss";
 import { PaddingCss } from "../PaddingCss";
+import { TextCss } from "../TextCss";
 export declare class HtmlComponent implements IComponent {
     protected readonly vm: IHtmlComponentViewModel;
     constructor(vm: IHtmlComponentViewModel);
@@ -13,8 +14,8 @@ export declare class HtmlComponent implements IComponent {
     setName(name: string): void;
     private bgContextCss;
     setBackgroundContext(contextClass: ContextualClass): void;
-    private textContextCss;
-    setTextContext(contextClass: ContextualClass): void;
+    private textCss;
+    setTextCss(textCss: TextCss): void;
     private margin;
     setMargin(margin: MarginCss): void;
     private padding;

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AggregateComponent = void 0;
 var tslib_1 = require("tslib");
 var Enumerable_1 = require("../Enumerable");
 var AggregateComponent = /** @class */ (function () {
@@ -7,15 +8,34 @@ var AggregateComponent = /** @class */ (function () {
         this.vm = vm;
         this.items = [];
     }
+    AggregateComponent.prototype.setName = function (name) {
+        this.vm.name(name);
+    };
     AggregateComponent.prototype.configure = function (action) {
         action(this);
         return this;
     };
-    AggregateComponent.prototype.addItemsTo = function (other) {
+    AggregateComponent.prototype.addToContainer = function (container) {
         for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
             var item = _a[_i];
-            item.addToContainer(other);
+            item.addToContainer(container);
         }
+        return this;
+    };
+    AggregateComponent.prototype.insertIntoContainer = function (container, index) {
+        for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
+            var item = _a[_i];
+            item.insertIntoContainer(container, index);
+            index++;
+        }
+        return this;
+    };
+    AggregateComponent.prototype.removeFromContainer = function (container) {
+        for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
+            var item = _a[_i];
+            item.removeFromContainer(container);
+        }
+        return this;
     };
     AggregateComponent.prototype.clear = function () {
         this.items.splice(0, this.items.length);
@@ -77,9 +97,9 @@ var AggregateComponent = /** @class */ (function () {
             itemsToAdd[_i - 2] = arguments[_i];
         }
         var itemVMs = new Enumerable_1.MappedArray(itemsToAdd, function (aggItem) { return aggItem.vm; }).value();
-        (_a = this.vm.items).splice.apply(_a, tslib_1.__spreadArrays([index, deleteCount], itemVMs));
+        (_a = this.vm.items).splice.apply(_a, tslib_1.__spreadArray([index, deleteCount], itemVMs));
         var items = new Enumerable_1.MappedArray(itemsToAdd, function (aggItem) { return aggItem.component; }).value();
-        (_b = this.items).splice.apply(_b, tslib_1.__spreadArrays([index, deleteCount], items));
+        (_b = this.items).splice.apply(_b, tslib_1.__spreadArray([index, deleteCount], items));
     };
     AggregateComponent.prototype.show = function () { this.vm.isVisible(true); };
     AggregateComponent.prototype.hide = function () { this.vm.isVisible(false); };

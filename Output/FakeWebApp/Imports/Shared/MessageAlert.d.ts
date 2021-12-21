@@ -1,13 +1,10 @@
-import { BlockViewModel } from './Html/BlockViewModel';
-import { HtmlComponent } from './Html/HtmlComponent';
-export declare class MessageAlert extends HtmlComponent {
-    constructor(vm?: BlockViewModel);
-    protected readonly vm: BlockViewModel;
-    private readonly alert;
-    private readonly textBlock;
+import { MessageAlertView } from './MessageAlertView';
+export declare class MessageAlert {
+    private readonly view;
     private _message;
-    readonly message: string;
-    readonly hasMessage: boolean;
+    constructor(view: MessageAlertView);
+    get message(): string;
+    get hasMessage(): boolean;
     private readonly _messageChanged;
     readonly messageChanged: import("./Events").DefaultEventHandler<string>;
     clear(): void;

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PageLoader = void 0;
 var ko = require("knockout");
 require("./Styles/default.scss");
 require("@fortawesome/fontawesome-free/css/all.css");
@@ -20,7 +21,7 @@ require("@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff");
 require("@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2");
 require("tslib");
 var SubmitBindingHandler_1 = require("./SubmitBindingHandler");
-var ModalBindingHandler_1 = require("./ModalBindingHandler");
+var ModalBindingHandler_1 = require("./Modal/ModalBindingHandler");
 var UrlBuilder_1 = require("./UrlBuilder");
 var ConsoleLog_1 = require("./ConsoleLog");
 var DropdownBindingHandler_1 = require("./DropdownBindingHandler");
@@ -28,50 +29,6 @@ var DelegatedEventBindingHandler_1 = require("./DelegatedEventBindingHandler");
 var PageLoader = /** @class */ (function () {
     function PageLoader() {
     }
-    PageLoader.prototype.load = function () {
-        //let defaultConfigLoader = {
-        //    getConfig: (name: string, callback) => {
-        //        if (name.indexOf('/') > -1) {
-        //            callback({
-        //                template: { templateUrl: name },
-        //                synchronous: true
-        //            });
-        //        }
-        //        else {
-        //            callback(null);
-        //        }
-        //    }
-        //};
-        //let defaultComponentLoader = {
-        //    loadComponent: (name: string, config, callback) => {
-        //        let templateConfig = config.template;
-        //        if (templateConfig.templateUrl) {
-        //            this.loadFromTemplateUrl(templateConfig.templateUrl, callback, templateConfig.errorMarkup);
-        //        }
-        //        else if (templateConfig.containerID) {
-        //            let container = document.getElementById(templateConfig.containerID);
-        //            callback({
-        //                template: container && container.childNodes,
-        //                createViewModel: this.createViewModel
-        //            });
-        //        }
-        //        else {
-        //            callback(null);
-        //        }
-        //    }
-        //};
-        //ko.components.loaders.unshift(defaultConfigLoader);
-        //ko.components.loaders.unshift(defaultComponentLoader);
-        //new ComponentTemplate('page-frame', template).register();
-        //ko.options.deferUpdates = true;
-        //ko.bindingHandlers.submit = new SubmitBindingHandler();
-        //ko.bindingHandlers.modal = new ModalBindingHandler();
-        //ko.bindingHandlers.dropdown = new DropdownBindingHandler();
-        //ko.bindingHandlers.delegatedEvent = new DelegatedEventBindingHandler();
-        //let page = container.resolve('Page');
-        //let pageFrameVM = container.resolve(PageFrameViewModel);
-        //ko.applyBindings(pageFrameVM);
-    };
     PageLoader.prototype.loadPage = function (pageVM) {
         var _this = this;
         var defaultConfigLoader = {
@@ -94,9 +51,9 @@ var PageLoader = /** @class */ (function () {
                     _this.loadFromTemplateUrl(templateConfig.templateUrl, callback, templateConfig.errorMarkup);
                 }
                 else if (templateConfig.containerID) {
-                    var container_1 = document.getElementById(templateConfig.containerID);
+                    var container = document.getElementById(templateConfig.containerID);
                     callback({
-                        template: container_1 && container_1.childNodes,
+                        template: container && container.childNodes,
                         createViewModel: _this.createViewModel
                     });
                 }
@@ -107,7 +64,6 @@ var PageLoader = /** @class */ (function () {
         };
         ko.components.loaders.unshift(defaultConfigLoader);
         ko.components.loaders.unshift(defaultComponentLoader);
-        //new ComponentTemplate('page-frame', template).register();
         ko.options.deferUpdates = true;
         ko.bindingHandlers.submit = new SubmitBindingHandler_1.SubmitBindingHandler();
         ko.bindingHandlers.modal = new ModalBindingHandler_1.ModalBindingHandler();
@@ -133,9 +89,9 @@ var PageLoader = /** @class */ (function () {
         oReq.onreadystatechange = function () {
             if (oReq.readyState == 4) {
                 if (oReq.status === 200) {
-                    var template_1 = ko.utils.parseHtmlFragment(oReq.responseText);
+                    var template = ko.utils.parseHtmlFragment(oReq.responseText);
                     callback({
-                        template: template_1,
+                        template: template,
                         createViewModel: _this.createViewModel
                     });
                 }

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TextBlock = void 0;
 var tslib_1 = require("tslib");
 var HtmlComponent_1 = require("./HtmlComponent");
 var TextBlockViewModel_1 = require("./TextBlockViewModel");
@@ -13,7 +14,11 @@ var TextBlock = /** @class */ (function (_super) {
         return _this;
     }
     TextBlock.prototype.setText = function (text) {
+        this.text = text;
         this.vm.text(text);
+    };
+    TextBlock.prototype.setTitleFromText = function () {
+        this.vm.title(this.text);
     };
     return TextBlock;
 }(HtmlComponent_1.HtmlComponent));

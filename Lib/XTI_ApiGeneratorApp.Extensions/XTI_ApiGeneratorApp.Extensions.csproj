@@ -4,6 +4,7 @@
 	  <TargetFramework>net6.0</TargetFramework>
 	  <Nullable>enable</Nullable>
 	  <ImplicitUsings>enable</ImplicitUsings>
+	  <RepositoryUrl>https://github.com/JasonBenfield/XTI_ApiGenerator</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XTI_WebApp.ControllerGenerator\XTI_WebApp.ControllerGenerator.csproj" />
-    <ProjectReference Include="..\XTI_WebApp.ClientGenerator.CSharp\XTI_WebApp.ClientGenerator.CSharp.csproj" />
-    <ProjectReference Include="..\XTI_WebApp.ClientGenerator.Typescript\XTI_WebApp.ClientGenerator.Typescript.csproj" />
+    <ProjectReference Include="..\..\Internal\XTI_WebApp.ControllerGenerator\XTI_WebApp.ControllerGenerator.csproj" />
+    <ProjectReference Include="..\..\Internal\XTI_WebApp.ClientGenerator.CSharp\XTI_WebApp.ClientGenerator.CSharp.csproj" />
+    <ProjectReference Include="..\..\Internal\XTI_WebApp.ClientGenerator.Typescript\XTI_WebApp.ClientGenerator.Typescript.csproj" />
   </ItemGroup>
 
 </Project>

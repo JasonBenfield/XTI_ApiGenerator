@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ButtonCommandItem = void 0;
 var tslib_1 = require("tslib");
 var ButtonViewModel_1 = require("../Html/ButtonViewModel");
 var Button_1 = require("../Html/Button");
@@ -15,7 +16,7 @@ var ButtonCommandItem = /** @class */ (function (_super) {
         _this.executeRequested = _this.clicked;
         _this.icon = new FaIcon_1.FaIcon().addToContainer(_this)
             .configure(function (icon) {
-            icon.setMargin(MarginCss_1.MarginCss.xs(function (m) { return m.end(1); }));
+            icon.setMargin(MarginCss_1.MarginCss.end(1));
         });
         _this.textSpan = new TextSpan_1.TextSpan().addToContainer(_this);
         _this.active = '';
@@ -31,7 +32,7 @@ var ButtonCommandItem = /** @class */ (function (_super) {
     };
     ButtonCommandItem.prototype.positionIconRight = function () {
         this.icon.pullRight();
-        this.icon.setMargin(MarginCss_1.MarginCss.xs(function (m) { return m.start(1); }));
+        this.icon.setMargin(MarginCss_1.MarginCss.start(1));
     };
     ButtonCommandItem.prototype.setText = function (text) {
         this.textSpan.setText(text);

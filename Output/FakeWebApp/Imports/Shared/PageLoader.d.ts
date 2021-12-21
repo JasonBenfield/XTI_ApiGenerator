@@ -18,7 +18,6 @@ import "@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2";
 import 'tslib';
 import { PageViewModel } from './PageViewModel';
 export declare class PageLoader {
-    load(): void;
     loadPage(pageVM: PageViewModel): void;
     private createViewModel;
     private loadFromTemplateUrl;

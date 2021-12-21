@@ -1,32 +1,32 @@
 import { CssClass } from "./CssClass";
 export declare type MarginAmount = 0 | 1 | 2 | 3 | 4 | 5 | 'auto';
-export declare class MarginCssForBreakpoint {
-    private readonly breakpoint;
-    private readonly amounts;
-    constructor(breakpoint: string);
-    start(amount?: MarginAmount): void;
-    end(amount?: MarginAmount): void;
-    top(amount?: MarginAmount): void;
-    bottom(amount?: MarginAmount): void;
-    all(amount?: MarginAmount): void;
-    cssClass(): CssClass;
-    private getCss;
-    toString(): CssClass;
+export interface MarginAmounts {
+    bottom?: MarginAmount;
+    top?: MarginAmount;
+    start?: MarginAmount;
+    end?: MarginAmount;
 }
 export declare class MarginCss {
-    static xs(config: (margin: MarginCssForBreakpoint) => void): MarginCss;
-    static sm(config: (margin: MarginCssForBreakpoint) => void): MarginCss;
-    static md(config: (margin: MarginCssForBreakpoint) => void): MarginCss;
-    static lg(config: (margin: MarginCssForBreakpoint) => void): MarginCss;
-    static xl(config: (margin: MarginCssForBreakpoint) => void): MarginCss;
-    static xxl(config: (margin: MarginCssForBreakpoint) => void): MarginCss;
-    private breakpoints;
-    xs(config: (margin: MarginCssForBreakpoint) => void): this;
-    sm(config: (margin: MarginCssForBreakpoint) => void): this;
-    md(config: (margin: MarginCssForBreakpoint) => void): this;
-    lg(config: (margin: MarginCssForBreakpoint) => void): this;
-    xl(config: (margin: MarginCssForBreakpoint) => void): this;
-    xxl(config: (margin: MarginCssForBreakpoint) => void): this;
+    static bottom(amount: MarginAmount): MarginCss;
+    static top(amount: MarginAmount): MarginCss;
+    static start(amount: MarginAmount): MarginCss;
+    static end(amount: MarginAmount): MarginCss;
+    static xs(amounts: MarginAmounts | MarginAmount): MarginCss;
+    static sm(amounts: MarginAmounts | MarginAmount): MarginCss;
+    static md(amounts: MarginAmounts | MarginAmount): MarginCss;
+    static lg(amounts: MarginAmounts | MarginAmount): MarginCss;
+    static xl(amounts: MarginAmounts | MarginAmount): MarginCss;
+    static xxl(amounts: MarginAmounts | MarginAmount): MarginCss;
+    private readonly css;
+    xs(amounts: MarginAmounts | MarginAmount): this;
+    sm(amounts: MarginAmounts | MarginAmount): this;
+    md(amounts: MarginAmounts | MarginAmount): this;
+    lg(amounts: MarginAmounts | MarginAmount): this;
+    xl(amounts: MarginAmounts | MarginAmount): this;
+    xxl(amounts: MarginAmounts | MarginAmount): this;
+    private addCssForBreakpoint;
+    private isMarginAmount;
+    private getCss;
     cssClass(): CssClass;
     toString(): string;
 }

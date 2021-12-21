@@ -1,7 +1,9 @@
-import { PageViewModel } from '../PageViewModel';
-import { Page } from '../Page';
-export declare class UserPage extends Page {
-    constructor(vm: PageViewModel);
-    private goToReturnUrl;
+import { AppApi } from '../AppApi';
+import { PageFrameView } from '../PageFrameView';
+export declare class UserPage {
+    private readonly view;
+    private readonly api;
     private readonly alert;
+    constructor(page: PageFrameView, api: AppApi);
+    private goToReturnUrl;
 }

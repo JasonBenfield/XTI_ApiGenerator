@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var BaseForm_1 = require("./BaseForm");
+exports.ComplexFieldLayout = void 0;
+var BaseFormView_1 = require("./BaseFormView");
 var ComplexFieldLayout = /** @class */ (function () {
     function ComplexFieldLayout(complexField) {
         this.complexField = complexField;
@@ -9,7 +10,7 @@ var ComplexFieldLayout = /** @class */ (function () {
         this.executeLayout(this.complexField);
     };
     ComplexFieldLayout.prototype.executeLayout = function (complexField) {
-        if (complexField instanceof BaseForm_1.BaseForm) {
+        if (complexField instanceof BaseFormView_1.BaseFormView) {
             complexField.forEachFormGroup(function (fg) {
                 fg.addToContainer(complexField);
             });

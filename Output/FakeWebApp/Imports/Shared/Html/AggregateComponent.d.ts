@@ -1,9 +1,12 @@
-export declare class AggregateComponent implements IAggregateComponent {
+export declare class AggregateComponent implements IAggregateComponent, IComponent {
     private readonly vm;
     constructor(vm: IAggregateComponentViewModel);
+    setName(name: string): void;
     private readonly items;
     configure(action: (c: this) => void): this;
-    addItemsTo(other: IAggregateComponent): void;
+    addToContainer(container: IAggregateComponent): this;
+    insertIntoContainer(container: IAggregateComponent, index: number): this;
+    removeFromContainer(container: IAggregateComponent): this;
     clear(): void;
     prependItem<TItem extends IComponent, TItemVM extends IComponentViewModel>(itemVM: TItemVM, create: (vm: TItemVM) => TItem): TItem;
     insertItemBefore<TItem extends IComponent>(otherItem: IComponent, item: TItem): TItem;

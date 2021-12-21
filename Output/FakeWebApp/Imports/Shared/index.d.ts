@@ -29,12 +29,14 @@ declare let pageContext: PageContext;
 interface IPageViewModel {
 }
 
-interface IPage extends IAggregateComponent {
+interface IPageFrame extends IAggregateComponent {
     load();
 }
 
 declare module 'xtistart' {
-    export function startup(page: IPage);
+    export class Startup {
+        build();
+    }
 }
 
 interface EventCallback<TArgs> {
@@ -94,10 +96,6 @@ interface IUserGroup {
     readonly Index: IAppApiView<IUserStartRequest>;
 }
 
-interface ILogoutUrl {
-    value(): string;
-}
-
 interface IErrorList {
     add(error: IErrorModel);
     merge(errors: IErrorList);
@@ -147,6 +145,7 @@ interface IHtmlContainerComponentViewModel extends IHtmlComponentViewModel {
 }
 
 interface IAggregateComponent {
+    setName(name: string);
     addContent<TItem extends IComponent>(item: TItem): TItem;
     insertContent<TItem extends IComponent>(index: number, item: TItem): TItem;
     addItem<TItemVM extends IComponentViewModel, TItem extends IComponent>(
@@ -164,12 +163,15 @@ interface IAggregateComponent {
 }
 
 interface IAggregateComponentViewModel extends IComponentViewModel {
+    readonly name: ko.Observable<string>;
     readonly items: ko.ObservableArray<IComponentViewModel>;
     readonly isVisible: ko.Observable<boolean>;
 }
 
-interface IList {
-    addListItem<TListItem extends IListItem>(itemVM: IListItemViewModel, item: TListItem): TListItem;
+interface IListView {
+    readonly itemClicked: IEventHandler<IListItemView>;
+    removeFromListItem(itemVM: IListItemViewModel, item: IListItemView);
+    addFromListItem(itemVM: IListItemViewModel, item: IListItemView);
 }
 
 interface IListViewModel extends IHtmlComponentViewModel {
@@ -183,14 +185,24 @@ interface IListItemViewModel extends IHtmlComponentViewModel {
     readonly isClickable: boolean;
 }
 
-interface IListItem {
+interface IListItemView {
     readonly content: IAggregateComponent;
+
+    getData<T>(): T;
+
+    setData(data: any);
 
     addCssName(name: string);
 
     addContent<TItem extends IComponent>(item: TItem): TItem;
 
-    addToList(list: IList): this;
+    addToList(list: IListView): this;
+
+    removeFromList(list: IListView): this;
+
+    show();
+
+    hide();
 }
 
 type ColumnCssSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 'auto' | 'fill';
@@ -204,9 +216,12 @@ interface IColumnCss {
     xxl(columnSize: ColumnCssSize);
 }
 
+interface ITextCss {
+}
+
 interface IColumn {
     setColumnCss(columnCss: IColumnCss);
-    truncate();
+    setTextCss(textCss: ITextCss);
 }
 
 interface IFormGroup extends IComponent {

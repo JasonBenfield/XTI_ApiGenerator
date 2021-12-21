@@ -6,5 +6,4 @@ export declare class LabelColumn extends Label {
     protected readonly vm: LabelViewModel;
     private columnCss;
     setColumnCss(columnCss: ColumnCss): void;
-    truncate(): void;
 }

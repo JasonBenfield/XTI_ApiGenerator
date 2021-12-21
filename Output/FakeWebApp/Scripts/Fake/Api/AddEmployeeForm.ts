@@ -1,12 +1,14 @@
 // Generated code
 import { BaseForm } from 'XtiShared/Forms/BaseForm';
-import { FormComponentViewModel } from 'XtiShared/Html/FormComponentViewModel';
+import { AddEmployeeFormView } from './AddEmployeeFormView';
 import { DropDownFieldItem } from "XtiShared/Forms/DropDownFieldItem";
 import { AddressInput } from './AddressInput';
 
 export class AddEmployeeForm extends BaseForm {
-	constructor(vm: FormComponentViewModel = new FormComponentViewModel()) {
-		super('AddEmployeeForm', vm);
+	protected readonly view: AddEmployeeFormView;
+	
+	constructor(view: AddEmployeeFormView) {
+		super('AddEmployeeForm', view);
 		this.EmployeeName.setCaption('Employee Name');
 		this.EmployeeName.setMaxLength(100);
 		this.BirthDate.setCaption('Birth Date');
@@ -24,9 +26,9 @@ export class AddEmployeeForm extends BaseForm {
 		this.SSN.protect();
 		this.HireDate.setCaption('Hire Date');
 		this.HireDate.setItems(
-			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 10, 5, 0, 0, 0)), 'Yesterday'),
-			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 11, 5, 0, 0, 0)), 'Today'),
-			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 12, 5, 0, 0, 0)), 'Tomorrow')
+			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 14, 5, 0, 0, 0)), 'Yesterday'),
+			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 15, 5, 0, 0, 0)), 'Today'),
+			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 16, 5, 0, 0, 0)), 'Tomorrow')
 		);
 		this.IsTemp.setCaption('Is Temp');
 		this.IsTemp.setItems(
@@ -35,12 +37,12 @@ export class AddEmployeeForm extends BaseForm {
 		);
 		this.EmployeeID.setCaption('Employee ID');
 	}
-	readonly EmployeeName = this.addTextInputFormGroup('EmployeeName');
-	readonly BirthDate = this.addDateInputFormGroup('BirthDate');
-	readonly Department = this.addNumberDropDownFormGroup('Department');
-	readonly Address = this.addFormGroup(new AddressInput(this.getName(), 'Address'));
-	readonly SSN = this.addNumberInputFormGroup('SSN');
-	readonly HireDate = this.addDateDropDownFormGroup('HireDate');
-	readonly IsTemp = this.addBooleanDropDownFormGroup('IsTemp');
-	readonly EmployeeID = this.addHiddenNumberFormGroup('EmployeeID');
+	readonly EmployeeName = this.addTextInputFormGroup('EmployeeName', this.view.EmployeeName);
+	readonly BirthDate = this.addDateInputFormGroup('BirthDate', this.view.BirthDate);
+	readonly Department = this.addNumberDropDownFormGroup('Department', this.view.Department);
+	readonly Address = this.addFormGroup(new AddressInput(this.getName(), 'Address', this.view.Address));
+	readonly SSN = this.addNumberInputFormGroup('SSN', this.view.SSN);
+	readonly HireDate = this.addDateDropDownFormGroup('HireDate', this.view.HireDate);
+	readonly IsTemp = this.addBooleanDropDownFormGroup('IsTemp', this.view.IsTemp);
+	readonly EmployeeID = this.addHiddenNumberFormGroup('EmployeeID', this.view.EmployeeID);
 }

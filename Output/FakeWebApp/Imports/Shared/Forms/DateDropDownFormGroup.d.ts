@@ -1,9 +1,9 @@
-import { BlockViewModel } from "../Html/BlockViewModel";
 import { DateConstraintCollection } from "./ConstraintCollection";
 import { DropDownFormGroup } from "./DropDownFormGroup";
+import { DropDownFormGroupView } from "./DropDownFormGroupView";
 import { ErrorList } from "./ErrorList";
 export declare class DateDropDownFormGroup extends DropDownFormGroup<Date> {
-    constructor(prefix: string, name: string, vm?: BlockViewModel);
     readonly constraints: DateConstraintCollection;
+    constructor(prefix: string, name: string, view: DropDownFormGroupView<Date>);
     protected validateConstraints(fieldErrors: ErrorList): void;
 }
