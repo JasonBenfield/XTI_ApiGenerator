@@ -17,6 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Internal\XTI_WebApp.CodeGeneration.CSharp\XTI_WebApp.CodeGeneration.CSharp.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\..\Internal\XTI_WebApp.CodeGeneration\XTI_WebApp.CodeGeneration.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\..\Internal\XTI_WebApp.ControllerGenerator\XTI_WebApp.ControllerGenerator.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\..\Internal\XTI_WebApp.ClientGenerator.CSharp\XTI_WebApp.ClientGenerator.CSharp.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\..\Internal\XTI_WebApp.ClientGenerator.Typescript\XTI_WebApp.ClientGenerator.Typescript.csproj" PrivateAssets="all" />
