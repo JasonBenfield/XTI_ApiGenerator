@@ -1,7 +1,7 @@
 // Generated code
-import { BaseForm } from 'XtiShared/Forms/BaseForm';
+import { BaseForm } from '@jasonbenfield/sharedwebapp/Forms/BaseForm';
 import { AddEmployeeFormView } from './AddEmployeeFormView';
-import { DropDownFieldItem } from "XtiShared/Forms/DropDownFieldItem";
+import { DropDownFieldItem } from "@jasonbenfield/sharedwebapp/Forms/DropDownFieldItem";
 import { AddressInput } from './AddressInput';
 
 export class AddEmployeeForm extends BaseForm {
@@ -26,9 +26,9 @@ export class AddEmployeeForm extends BaseForm {
 		this.SSN.protect();
 		this.HireDate.setCaption('Hire Date');
 		this.HireDate.setItems(
-			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 14, 5, 0, 0, 0)), 'Yesterday'),
-			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 15, 5, 0, 0, 0)), 'Today'),
-			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 16, 5, 0, 0, 0)), 'Tomorrow')
+			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 30, 5, 0, 0, 0)), 'Yesterday'),
+			new DropDownFieldItem(new Date(Date.UTC(2021, 11, 31, 5, 0, 0, 0)), 'Today'),
+			new DropDownFieldItem(new Date(Date.UTC(2022, 0, 1, 5, 0, 0, 0)), 'Tomorrow')
 		);
 		this.IsTemp.setCaption('Is Temp');
 		this.IsTemp.setItems(

@@ -1,8 +1,8 @@
 // Generated Code
 namespace FakeWebAppClient;
-public sealed class EmployeeType : NumericValue
+public sealed class EmployeeType : ClientNumericValue
 {
-    public sealed class EmployeeTypes : NumericValues<EmployeeType>
+    public sealed class EmployeeTypes : ClientNumericValues<EmployeeType>
     {
         internal EmployeeTypes()
         {

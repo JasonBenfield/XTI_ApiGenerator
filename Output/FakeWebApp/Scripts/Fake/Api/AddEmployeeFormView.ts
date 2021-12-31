@@ -1,5 +1,5 @@
 // Generated code
-import { BaseFormView } from 'XtiShared/Forms/BaseFormView';
+import { BaseFormView } from '@jasonbenfield/sharedwebapp/Forms/BaseFormView';
 import { AddressInputView } from './AddressInputView';
 
 export class AddEmployeeFormView extends BaseFormView {

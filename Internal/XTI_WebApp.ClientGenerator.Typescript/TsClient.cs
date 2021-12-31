@@ -22,7 +22,7 @@ public sealed class TsClient : CodeGenerator
     public async Task Output(AppApiTemplate appTemplate)
     {
         await generateApp(appTemplate);
-        var formTemplates = appTemplate.FormTemplates();
+        var formTemplates = appTemplate.FormTemplates(ApiCodeGenerators.TypeScript);
         var complexFieldTemplates = formTemplates.SelectMany(ft => ft.Form.ComplexFieldTemplates).Distinct();
         foreach (var complexFieldTemplate in complexFieldTemplates)
         {
@@ -39,7 +39,7 @@ public sealed class TsClient : CodeGenerator
             await generateGroup(group);
         }
         await generateEntities(appTemplate);
-        foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
+        foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.TypeScript))
         {
             await generateNumericValue(numericValueTemplate);
         }
@@ -356,8 +356,8 @@ public sealed class TsClient : CodeGenerator
         var appClassName = $"{appTemplate.Name}AppApi";
         var tsFile = new TypeScriptFile(appClassName, createStream);
         tsFile.AddLine();
-        tsFile.AddLine("import { AppApi } from \"@jasonbenfield/sharedwebapp/AppApi\";");
-        tsFile.AddLine("import { AppApiEvents } from \"@jasonbenfield/sharedwebapp/AppApiEvents\";");
+        tsFile.AddLine("import { AppApi } from \"@jasonbenfield/sharedwebapp/Api/AppApi\";");
+        tsFile.AddLine("import { AppApiEvents } from \"@jasonbenfield/sharedwebapp/Api/AppApiEvents\";");
         foreach (var groupTemplate in appTemplate.GroupTemplates)
         {
             var groupClassName = getGroupClassName(groupTemplate);
@@ -391,7 +391,7 @@ public sealed class TsClient : CodeGenerator
     {
         var tsFile = new TypeScriptFile($"{appTemplate.Name}Entities.d.ts", createStream);
         tsFile.AddLine();
-        foreach (var objectTemplate in appTemplate.ObjectTemplates())
+        foreach (var objectTemplate in appTemplate.ObjectTemplates(ApiCodeGenerators.TypeScript))
         {
             tsFile.AddLine($"interface I{objectTemplate.DataType.Name} {{");
             tsFile.Indent();
@@ -403,7 +403,7 @@ public sealed class TsClient : CodeGenerator
             tsFile.Outdent();
             tsFile.AddLine("}");
         }
-        foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
+        foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.TypeScript))
         {
             tsFile.AddLine($"interface I{numericValueTemplate.DataType.Name} {{");
             tsFile.Indent();
@@ -420,11 +420,11 @@ public sealed class TsClient : CodeGenerator
         var groupClassName = getGroupClassName(group);
         var tsFile = new TypeScriptFile(groupClassName, createStream);
         tsFile.AddLine();
-        tsFile.AddLine("import { AppApiGroup } from \"@jasonbenfield/sharedwebapp/AppApiGroup\";");
-        tsFile.AddLine("import { AppApiAction } from \"@jasonbenfield/sharedwebapp/AppApiAction\";");
-        tsFile.AddLine("import { AppApiView } from \"@jasonbenfield/sharedwebapp/AppApiView\";");
-        tsFile.AddLine("import { AppApiEvents } from \"@jasonbenfield/sharedwebapp/AppApiEvents\";");
-        tsFile.AddLine("import { AppResourceUrl } from \"@jasonbenfield/sharedwebapp/AppResourceUrl\";");
+        tsFile.AddLine("import { AppApiGroup } from \"@jasonbenfield/sharedwebapp/Api/AppApiGroup\";");
+        tsFile.AddLine("import { AppApiAction } from \"@jasonbenfield/sharedwebapp/Api/AppApiAction\";");
+        tsFile.AddLine("import { AppApiView } from \"@jasonbenfield/sharedwebapp/Api/AppApiView\";");
+        tsFile.AddLine("import { AppApiEvents } from \"@jasonbenfield/sharedwebapp/Api/AppApiEvents\";");
+        tsFile.AddLine("import { AppResourceUrl } from \"@jasonbenfield/sharedwebapp/Api/AppResourceUrl\";");
         foreach (var form in group.FormTemplates())
         {
             tsFile.AddLine($"import {{ {form.Form.TypeName} }} from \"./{form.Form.TypeName}\";");

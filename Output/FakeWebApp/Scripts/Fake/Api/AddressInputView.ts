@@ -1,5 +1,5 @@
 // Generated code
-import { ComplexFieldFormGroupView } from 'XtiShared/Forms/ComplexFieldFormGroupView';
+import { ComplexFieldFormGroupView } from '@jasonbenfield/sharedwebapp/Forms/ComplexFieldFormGroupView';
 
 export class AddressInputView extends ComplexFieldFormGroupView {
 	readonly ID1 = this.addInputFormGroup();

@@ -28,7 +28,7 @@ public sealed class CsControllers : CodeGenerator
             var cSharpFile = new CSharpFile(controller, createStream, controllerClassName);
             await cSharpFile.Output();
         }
-        var namespaces = appTemplate.ObjectTemplates()
+        var namespaces = appTemplate.ObjectTemplates(ApiCodeGenerators.Dotnet)
             .Select(o => o.DataType.Namespace ?? "")
             .Union
             (

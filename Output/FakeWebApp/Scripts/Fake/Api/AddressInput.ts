@@ -1,5 +1,5 @@
 // Generated code
-import { ComplexFieldFormGroup } from 'XtiShared/Forms/ComplexFieldFormGroup';
+import { ComplexFieldFormGroup } from '@jasonbenfield/sharedwebapp/Forms/ComplexFieldFormGroup';
 import { AddressInputView } from './AddressInputView';
 
 export class AddressInput extends ComplexFieldFormGroup {

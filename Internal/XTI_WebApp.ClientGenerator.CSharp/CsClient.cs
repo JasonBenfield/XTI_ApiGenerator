@@ -24,30 +24,14 @@ public sealed class CsClient : CodeGenerator
         this.createStream = createStream;
     }
 
-    private static readonly string[] ModelsToOmit = new[]
-    {
-            "LoginCredentials",
-            "LoginModel",
-            "LoginResult",
-            "EmptyRequest"
-        };
-
     public async Task Output(AppApiTemplate appTemplate)
     {
-        var objTemplates = appTemplate.ObjectTemplates()
-            .Where
-            (
-                obj =>
-                    !ModelsToOmit.Any
-                    (
-                        m => obj.DataType.Name.Equals(m, StringComparison.OrdinalIgnoreCase)
-                    )
-            );
+        var objTemplates = appTemplate.ObjectTemplates(ApiCodeGenerators.Dotnet);
         foreach (var objTemplate in objTemplates)
         {
             await new ApiObjectClass(ns, createStream, objTemplate).Output();
         }
-        var formTemplates = appTemplate.FormTemplates();
+        var formTemplates = appTemplate.FormTemplates(ApiCodeGenerators.Dotnet);
         var complexFieldTemplates = formTemplates.SelectMany(ft => ft.Form.ComplexFieldTemplates).Distinct();
         foreach (var complexFieldTemplate in complexFieldTemplates)
         {
@@ -61,7 +45,7 @@ public sealed class CsClient : CodeGenerator
         {
             await new ApiGroupClass(ns, createStream, groupTemplate).Output();
         }
-        foreach (var numericValueTemplate in appTemplate.NumericValueTemplates())
+        foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.Dotnet))
         {
             await new NumericValueClass(ns, createStream, numericValueTemplate).Output();
         }
