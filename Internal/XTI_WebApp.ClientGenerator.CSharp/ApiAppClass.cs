@@ -89,47 +89,13 @@ public sealed class ApiAppClass
 
     private static string getGroupClassName(AppApiGroupTemplate groupTemplate) => $"{groupTemplate.Name}Group";
 
-    private static SyntaxList<UsingDirectiveSyntax> appUsings()
-    {
-        var usings = new List<UsingDirectiveSyntax>();
-        usings.AddRange
-        (
-            new UsingDirectiveSyntax[]
-            {
-                    UsingDirective(IdentifierName("XTI_WebAppClient"))
-                        .WithUsingKeyword
-                        (
-                            Token
-                            (
-                                TriviaList(Comment("// Generated Code")),
-                                SyntaxKind.UsingKeyword,
-                                TriviaList()
-                            )
-                        ),
-                    UsingDirective
-                    (
-                        QualifiedName
-                        (
-                            QualifiedName
-                            (
-                                IdentifierName("System"),
-                                IdentifierName("Net")
-                            ),
-                            IdentifierName("Http")
-                        )
-                    )
-            }
-        );
-        return List(usings);
-    }
-
     private string getAppClassName() => $"{template.Name}AppClient";
 
     private MemberDeclarationSyntax[] appMembers()
     {
         var members = new List<MemberDeclarationSyntax>();
-        members.Add(appCtor());
         members.Add(defaultVersionDeclaration());
+        members.Add(appCtor());
         foreach (var group in template.GroupTemplates)
         {
             members.Add
@@ -332,6 +298,29 @@ public sealed class ApiAppClass
                     )
                 )
             );
+            statements.Add
+            (
+                ExpressionStatement
+                (
+                    InvocationExpression
+                    (
+                        IdentifierName("SetJsonSerializerOptions")
+                    )
+                    .WithArgumentList
+                    (
+                        ArgumentList
+                        (
+                            SeparatedList
+                            (
+                                new[]
+                                {
+                                    Argument(IdentifierName(group.Name))
+                                }
+                            )
+                        )
+                    )
+                )
+            );
         }
         return statements.ToArray();
     }
@@ -350,9 +339,9 @@ public sealed class ApiAppClass
         (
             new SyntaxNodeOrToken[]
             {
-                    Parameter(Identifier("httpClientFactory"))
-                        .WithType(IdentifierName("IHttpClientFactory")),
-                    Token(SyntaxKind.CommaToken),
+                Parameter(Identifier("httpClientFactory"))
+                    .WithType(IdentifierName("IHttpClientFactory")),
+                Token(SyntaxKind.CommaToken),
             }
         );
         if (template.IsAuthenticator())
@@ -361,9 +350,9 @@ public sealed class ApiAppClass
             (
                 new SyntaxNodeOrToken[]
                 {
-                        Parameter(Identifier("tokenFactory"))
-                            .WithType(IdentifierName("IXtiTokenFactory")),
-                        Token(SyntaxKind.CommaToken)
+                    Parameter(Identifier("tokenFactory"))
+                        .WithType(IdentifierName("IXtiTokenFactory")),
+                    Token(SyntaxKind.CommaToken)
                 }
             );
         }
@@ -373,9 +362,9 @@ public sealed class ApiAppClass
             (
                 new SyntaxNodeOrToken[]
                 {
-                        Parameter(Identifier("xtiToken"))
-                            .WithType(IdentifierName("IXtiToken")),
-                        Token(SyntaxKind.CommaToken)
+                    Parameter(Identifier("xtiToken"))
+                        .WithType(IdentifierName("IXtiToken")),
+                    Token(SyntaxKind.CommaToken)
                 }
             );
         }
@@ -383,18 +372,18 @@ public sealed class ApiAppClass
         (
             new SyntaxNodeOrToken[]
             {
-                    Parameter(Identifier("baseUrl"))
-                        .WithType(PredefinedType(Token(SyntaxKind.StringKeyword))),
-                    Token(SyntaxKind.CommaToken),
-                    Parameter(Identifier("version"))
-                        .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
-                        .WithDefault
+                Parameter(Identifier("baseUrl"))
+                    .WithType(PredefinedType(Token(SyntaxKind.StringKeyword))),
+                Token(SyntaxKind.CommaToken),
+                Parameter(Identifier("version"))
+                    .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
+                    .WithDefault
+                    (
+                        EqualsValueClause
                         (
-                            EqualsValueClause
-                            (
-                                IdentifierName("DefaultVersion")
-                            )
+                            IdentifierName("DefaultVersion")
                         )
+                    )
             }
         );
         return args.ToArray();
@@ -407,46 +396,46 @@ public sealed class ApiAppClass
         (
             new SyntaxNodeOrToken[]
             {
-                    Argument(IdentifierName("httpClientFactory")),
-                    Token(SyntaxKind.CommaToken),
-                    Argument(IdentifierName("baseUrl")),
-                    Token(SyntaxKind.CommaToken),
-                    Argument
+                Argument(IdentifierName("httpClientFactory")),
+                Token(SyntaxKind.CommaToken),
+                Argument(IdentifierName("baseUrl")),
+                Token(SyntaxKind.CommaToken),
+                Argument
+                (
+                    LiteralExpression
                     (
-                        LiteralExpression
-                        (
-                            SyntaxKind.StringLiteralExpression,
-                            Literal(template.Name)
-                        )
-                    ),
-                    Token(SyntaxKind.CommaToken),
-                    Argument
+                        SyntaxKind.StringLiteralExpression,
+                        Literal(template.Name)
+                    )
+                ),
+                Token(SyntaxKind.CommaToken),
+                Argument
+                (
+                    ConditionalExpression
                     (
-                        ConditionalExpression
+                        InvocationExpression
                         (
-                            InvocationExpression
+                            MemberAccessExpression
                             (
-                                MemberAccessExpression
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                PredefinedType(Token(SyntaxKind.StringKeyword)),
+                                IdentifierName("IsNullOrWhiteSpace")
+                            )
+                        )
+                        .WithArgumentList
+                        (
+                            ArgumentList
+                            (
+                                SingletonSeparatedList
                                 (
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    PredefinedType(Token(SyntaxKind.StringKeyword)),
-                                    IdentifierName("IsNullOrWhiteSpace")
+                                    Argument(IdentifierName("version"))
                                 )
                             )
-                            .WithArgumentList
-                            (
-                                ArgumentList
-                                (
-                                    SingletonSeparatedList
-                                    (
-                                        Argument(IdentifierName("version"))
-                                    )
-                                )
-                            ),
-                            IdentifierName("DefaultVersion"),
-                            IdentifierName("version")
-                        )
+                        ),
+                        IdentifierName("DefaultVersion"),
+                        IdentifierName("version")
                     )
+                )
             }
         );
         return args.ToArray();

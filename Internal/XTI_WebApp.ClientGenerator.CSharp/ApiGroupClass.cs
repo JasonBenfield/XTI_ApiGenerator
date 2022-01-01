@@ -187,15 +187,15 @@ public sealed class ApiGroupClass
         (
             new SyntaxNodeOrToken[]
             {
-                        Argument
-                        (
-                            LiteralExpression
-                            (
-                                SyntaxKind.StringLiteralExpression,
-                                Literal(actionTemplate.Name)
-                            )
-                        ),
-                        Token(SyntaxKind.CommaToken)
+                Argument
+                (
+                    LiteralExpression
+                    (
+                        SyntaxKind.StringLiteralExpression,
+                        Literal(actionTemplate.Name)
+                    )
+                ),
+                Token(SyntaxKind.CommaToken)
             }
         );
         if (includeModifier)
@@ -204,8 +204,8 @@ public sealed class ApiGroupClass
             (
                 new SyntaxNodeOrToken[]
                 {
-                        Argument(IdentifierName("modifier")),
-                        Token(SyntaxKind.CommaToken)
+                    Argument(IdentifierName("modifier")),
+                    Token(SyntaxKind.CommaToken)
                 }
             );
         }

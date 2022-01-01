@@ -69,7 +69,7 @@ public sealed class NumericValueClass
                                             (
                                                 SimpleBaseType
                                                 (
-                                                    IdentifierName("NumericValue")
+                                                    IdentifierName("ClientNumericValue")
                                                 )
                                             )
                                         )
@@ -102,7 +102,7 @@ public sealed class NumericValueClass
                                                                     (
                                                                         GenericName
                                                                         (
-                                                                            Identifier("NumericValues")
+                                                                            Identifier("ClientNumericValues")
                                                                         )
                                                                         .WithTypeArgumentList
                                                                         (
