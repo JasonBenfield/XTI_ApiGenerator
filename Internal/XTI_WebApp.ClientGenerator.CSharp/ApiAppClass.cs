@@ -290,7 +290,7 @@ public sealed class ApiAppClass
                                                 Token(SyntaxKind.CommaToken),
                                                 Argument(IdentifierName("xtiToken")),
                                                 Token(SyntaxKind.CommaToken),
-                                                Argument(IdentifierName("url"))
+                                                Argument(IdentifierName("clientUrl"))
                                         }
                                     )
                                 )
@@ -372,8 +372,8 @@ public sealed class ApiAppClass
         (
             new SyntaxNodeOrToken[]
             {
-                Parameter(Identifier("baseUrl"))
-                    .WithType(PredefinedType(Token(SyntaxKind.StringKeyword))),
+                Parameter(Identifier("clientUrl"))
+                    .WithType(IdentifierName("AppClientUrl")),
                 Token(SyntaxKind.CommaToken),
                 Parameter(Identifier("version"))
                     .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
@@ -398,7 +398,7 @@ public sealed class ApiAppClass
             {
                 Argument(IdentifierName("httpClientFactory")),
                 Token(SyntaxKind.CommaToken),
-                Argument(IdentifierName("baseUrl")),
+                Argument(IdentifierName("clientUrl")),
                 Token(SyntaxKind.CommaToken),
                 Argument
                 (

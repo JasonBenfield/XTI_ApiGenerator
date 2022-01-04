@@ -291,8 +291,8 @@ public sealed class ApiGroupClass
                                 Parameter(Identifier("xtiToken"))
                                     .WithType(IdentifierName("IXtiToken")),
                                 Token(SyntaxKind.CommaToken),
-                                Parameter(Identifier("baseUrl"))
-                                    .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
+                                Parameter(Identifier("clientUrl"))
+                                    .WithType(IdentifierName("AppClientUrl"))
                         }
                     )
                 )
@@ -312,7 +312,7 @@ public sealed class ApiGroupClass
                                     Token(SyntaxKind.CommaToken),
                                     Argument(IdentifierName("xtiToken")),
                                     Token(SyntaxKind.CommaToken),
-                                    Argument(IdentifierName("baseUrl")),
+                                    Argument(IdentifierName("clientUrl")),
                                     Token(SyntaxKind.CommaToken),
                                     Argument
                                     (

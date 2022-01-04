@@ -366,11 +366,11 @@ public sealed class TsClient : CodeGenerator
         tsFile.AddLine();
         tsFile.AddLine($"\r\nexport class {appClassName} extends AppApi {{");
         tsFile.Indent();
-        tsFile.AddLine($"public static readonly DefaultVersion = '{versionKey.Value}';");
-        tsFile.AddLine();
-        tsFile.AddLine($"constructor(events: AppApiEvents, baseUrl: string, version: string = '') {{");
+        //tsFile.AddLine($"public static readonly DefaultVersion = '{versionKey.Value}';");
+        //tsFile.AddLine();
+        tsFile.AddLine($"constructor(events: AppApiEvents) {{");
         tsFile.Indent();
-        tsFile.AddLine($"super(events, baseUrl, '{appTemplate.Name}', version || {appClassName}.DefaultVersion);");
+        tsFile.AddLine($"super(events, '{appTemplate.Name}');");
         foreach (var groupTemplate in appTemplate.GroupTemplates)
         {
             tsFile.AddLine($"this.{groupTemplate.Name} = this.addGroup((evts, resourceUrl) => new {groupTemplate.Name}Group(evts, resourceUrl));");
