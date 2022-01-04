@@ -9,10 +9,8 @@ import { ProductGroup } from "./ProductGroup";
 
 
 export class FakeAppApi extends AppApi {
-	public static readonly DefaultVersion = 'V0';
-	
-	constructor(events: AppApiEvents, baseUrl: string, version: string = '') {
-		super(events, baseUrl, 'Fake', version || FakeAppApi.DefaultVersion);
+	constructor(events: AppApiEvents) {
+		super(events, 'Fake');
 		this.User = this.addGroup((evts, resourceUrl) => new UserGroup(evts, resourceUrl));
 		this.UserCache = this.addGroup((evts, resourceUrl) => new UserCacheGroup(evts, resourceUrl));
 		this.Employee = this.addGroup((evts, resourceUrl) => new EmployeeGroup(evts, resourceUrl));

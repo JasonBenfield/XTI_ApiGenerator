@@ -3,16 +3,16 @@ namespace FakeWebAppClient;
 public sealed partial class FakeAppClient : AppClient
 {
     public const string DefaultVersion = "V0";
-    public FakeAppClient(IHttpClientFactory httpClientFactory, IXtiToken xtiToken, string baseUrl, string version = DefaultVersion) : base(httpClientFactory, baseUrl, "Fake", string.IsNullOrWhiteSpace(version) ? DefaultVersion : version)
+    public FakeAppClient(IHttpClientFactory httpClientFactory, IXtiToken xtiToken, AppClientUrl clientUrl, string version = DefaultVersion) : base(httpClientFactory, clientUrl, "Fake", string.IsNullOrWhiteSpace(version) ? DefaultVersion : version)
     {
         this.xtiToken = xtiToken;
-        User = new UserGroup(httpClientFactory, xtiToken, url);
+        User = new UserGroup(httpClientFactory, xtiToken, clientUrl);
         SetJsonSerializerOptions(User);
-        UserCache = new UserCacheGroup(httpClientFactory, xtiToken, url);
+        UserCache = new UserCacheGroup(httpClientFactory, xtiToken, clientUrl);
         SetJsonSerializerOptions(UserCache);
-        Employee = new EmployeeGroup(httpClientFactory, xtiToken, url);
+        Employee = new EmployeeGroup(httpClientFactory, xtiToken, clientUrl);
         SetJsonSerializerOptions(Employee);
-        Product = new ProductGroup(httpClientFactory, xtiToken, url);
+        Product = new ProductGroup(httpClientFactory, xtiToken, clientUrl);
         SetJsonSerializerOptions(Product);
     }
 
