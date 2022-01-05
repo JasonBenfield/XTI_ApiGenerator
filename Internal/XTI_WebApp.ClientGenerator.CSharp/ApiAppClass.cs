@@ -58,9 +58,9 @@ public sealed class ApiAppClass
                                         (
                                             new[]
                                             {
-                                                    Token(SyntaxKind.PublicKeyword),
-                                                    Token(SyntaxKind.SealedKeyword),
-                                                    Token(SyntaxKind.PartialKeyword)
+                                                Token(SyntaxKind.PublicKeyword),
+                                                Token(SyntaxKind.SealedKeyword),
+                                                Token(SyntaxKind.PartialKeyword)
                                             }
                                         )
                                     )
@@ -277,47 +277,61 @@ public sealed class ApiAppClass
                     (
                         SyntaxKind.SimpleAssignmentExpression,
                         IdentifierName(group.Name),
-                        ObjectCreationExpression(IdentifierName(getGroupClassName(group)))
-                            .WithArgumentList
+                        InvocationExpression
+                        (
+                            IdentifierName("GetGroup")
+                        )
+                        .WithArgumentList
+                        (
+                            ArgumentList
                             (
-                                ArgumentList
+                                SingletonSeparatedList
                                 (
-                                    SeparatedList<ArgumentSyntax>
+                                    Argument
                                     (
-                                        new SyntaxNodeOrToken[]
-                                        {
-                                                Argument(IdentifierName("httpClientFactory")),
-                                                Token(SyntaxKind.CommaToken),
-                                                Argument(IdentifierName("xtiToken")),
-                                                Token(SyntaxKind.CommaToken),
-                                                Argument(IdentifierName("clientUrl"))
-                                        }
+                                        ParenthesizedLambdaExpression()
+                                            .WithParameterList
+                                            (
+                                                ParameterList
+                                                (
+                                                    SeparatedList<ParameterSyntax>
+                                                    (
+                                                        new SyntaxNodeOrToken[]
+                                                        {
+                                                            Parameter(Identifier("_clientFactory")),
+                                                            Token(SyntaxKind.CommaToken),
+                                                            Parameter(Identifier("_token")),
+                                                            Token(SyntaxKind.CommaToken),
+                                                            Parameter(Identifier("_url"))
+                                                        }
+                                                    )
+                                                )
+                                            )
+                                            .WithExpressionBody
+                                            (
+                                                ObjectCreationExpression(IdentifierName(getGroupClassName(group)))
+                                                    .WithArgumentList
+                                                    (
+                                                        ArgumentList
+                                                        (
+                                                            SeparatedList<ArgumentSyntax>
+                                                            (
+                                                                new SyntaxNodeOrToken[]
+                                                                {
+                                                                    Argument(IdentifierName("_clientFactory")),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    Argument(IdentifierName("_token")),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    Argument(IdentifierName("_url"))
+                                                                }
+                                                            )
+                                                        )
+                                                    )
+                                            )
+                                        )
                                     )
                                 )
                             )
-                    )
-                )
-            );
-            statements.Add
-            (
-                ExpressionStatement
-                (
-                    InvocationExpression
-                    (
-                        IdentifierName("SetJsonSerializerOptions")
-                    )
-                    .WithArgumentList
-                    (
-                        ArgumentList
-                        (
-                            SeparatedList
-                            (
-                                new[]
-                                {
-                                    Argument(IdentifierName(group.Name))
-                                }
-                            )
-                        )
                     )
                 )
             );

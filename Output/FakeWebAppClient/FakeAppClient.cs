@@ -6,14 +6,10 @@ public sealed partial class FakeAppClient : AppClient
     public FakeAppClient(IHttpClientFactory httpClientFactory, IXtiToken xtiToken, AppClientUrl clientUrl, string version = DefaultVersion) : base(httpClientFactory, clientUrl, "Fake", string.IsNullOrWhiteSpace(version) ? DefaultVersion : version)
     {
         this.xtiToken = xtiToken;
-        User = new UserGroup(httpClientFactory, xtiToken, clientUrl);
-        SetJsonSerializerOptions(User);
-        UserCache = new UserCacheGroup(httpClientFactory, xtiToken, clientUrl);
-        SetJsonSerializerOptions(UserCache);
-        Employee = new EmployeeGroup(httpClientFactory, xtiToken, clientUrl);
-        SetJsonSerializerOptions(Employee);
-        Product = new ProductGroup(httpClientFactory, xtiToken, clientUrl);
-        SetJsonSerializerOptions(Product);
+        User = GetGroup((_clientFactory, _token, _url) => new UserGroup(_clientFactory, _token, _url));
+        UserCache = GetGroup((_clientFactory, _token, _url) => new UserCacheGroup(_clientFactory, _token, _url));
+        Employee = GetGroup((_clientFactory, _token, _url) => new EmployeeGroup(_clientFactory, _token, _url));
+        Product = GetGroup((_clientFactory, _token, _url) => new ProductGroup(_clientFactory, _token, _url));
     }
 
     public UserGroup User { get; }
