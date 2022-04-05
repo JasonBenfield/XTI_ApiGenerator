@@ -2,7 +2,7 @@
 namespace FakeWebAppClient;
 public sealed partial class EmployeeGroup : AppClientGroup
 {
-    public EmployeeGroup(IHttpClientFactory httpClientFactory, IXtiToken xtiToken, AppClientUrl clientUrl) : base(httpClientFactory, xtiToken, clientUrl, "Employee")
+    public EmployeeGroup(IHttpClientFactory httpClientFactory, XtiTokenAccessor xtiTokenAccessor, AppClientUrl clientUrl) : base(httpClientFactory, xtiTokenAccessor, clientUrl, "Employee")
     {
     }
 

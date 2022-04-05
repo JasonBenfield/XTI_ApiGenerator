@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using XTI_App.Abstractions;
+﻿using XTI_App.Abstractions;
 using XTI_App.Api;
 using XTI_WebApp.ClientGenerator.CSharp;
 using XTI_WebApp.ClientGenerator.Typescript;
@@ -12,9 +11,9 @@ public sealed class ApiGenerator
     private readonly AppVersionKey versionKey;
     private readonly OutputOptions options;
 
-    public ApiGenerator(IOptions<OutputOptions> options)
+    public ApiGenerator(OutputOptions options)
     {
-        this.options = options.Value;
+        this.options = options;
         versionKey = AppVersionKey.Parse(this.options.DefaultVersion);
     }
 

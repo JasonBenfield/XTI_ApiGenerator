@@ -49,11 +49,13 @@ public sealed class CsClient : CodeGenerator
         {
             await new NumericValueClass(ns, createStream, numericValueTemplate).Output();
         }
+        await new AppVersionClass(ns, createStream, appTemplate, versionKey).Output();
         await new ApiAppClass(ns, createStream, appTemplate, versionKey).Output();
         var namespaces = new[]
         {
             "XTI_WebAppClient",
-            "XTI_WebAppClient.Forms"
+            "XTI_WebAppClient.Forms",
+            "Microsoft.Extensions.Hosting"
         };
         await new GlobalUsingsClass(createStream, namespaces).Output();
     }
