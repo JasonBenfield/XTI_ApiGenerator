@@ -94,7 +94,6 @@ public sealed class ApiAppClass
     private MemberDeclarationSyntax[] appMembers()
     {
         var members = new List<MemberDeclarationSyntax>();
-        members.Add(defaultVersionDeclaration());
         members.Add(appCtor());
         foreach (var group in template.GroupTemplates)
         {
@@ -214,59 +213,6 @@ public sealed class ApiAppClass
     private StatementSyntax[] appCtorBodyStatements()
     {
         var statements = new List<StatementSyntax>();
-        if (template.IsAuthenticator())
-        {
-            statements.Add
-            (
-                ExpressionStatement
-                (
-                    AssignmentExpression
-                    (
-                        SyntaxKind.SimpleAssignmentExpression,
-                        IdentifierName("xtiToken"),
-                        InvocationExpression
-                        (
-                            MemberAccessExpression
-                            (
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName("tokenFactory"),
-                                IdentifierName("Create")
-                            )
-                        )
-                        .WithArgumentList
-                        (
-                            ArgumentList
-                            (
-                                SingletonSeparatedList
-                                (
-                                    Argument(ThisExpression())
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-        }
-        else
-        {
-            statements.Add
-            (
-                ExpressionStatement
-                (
-                    AssignmentExpression
-                    (
-                        SyntaxKind.SimpleAssignmentExpression,
-                        MemberAccessExpression
-                        (
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            ThisExpression(),
-                            IdentifierName("xtiToken")
-                        ),
-                        IdentifierName("xtiToken")
-                    )
-                )
-            );
-        }
         foreach (var group in template.GroupTemplates)
         {
             statements.Add
@@ -300,7 +246,7 @@ public sealed class ApiAppClass
                                                         {
                                                             Parameter(Identifier("_clientFactory")),
                                                             Token(SyntaxKind.CommaToken),
-                                                            Parameter(Identifier("_token")),
+                                                            Parameter(Identifier("_tokenAccessor")),
                                                             Token(SyntaxKind.CommaToken),
                                                             Parameter(Identifier("_url"))
                                                         }
@@ -320,7 +266,7 @@ public sealed class ApiAppClass
                                                                 {
                                                                     Argument(IdentifierName("_clientFactory")),
                                                                     Token(SyntaxKind.CommaToken),
-                                                                    Argument(IdentifierName("_token")),
+                                                                    Argument(IdentifierName("_tokenAccessor")),
                                                                     Token(SyntaxKind.CommaToken),
                                                                     Argument(IdentifierName("_url"))
                                                                 }
@@ -356,48 +302,14 @@ public sealed class ApiAppClass
                 Parameter(Identifier("httpClientFactory"))
                     .WithType(IdentifierName("IHttpClientFactory")),
                 Token(SyntaxKind.CommaToken),
-            }
-        );
-        if (template.IsAuthenticator())
-        {
-            args.AddRange
-            (
-                new SyntaxNodeOrToken[]
-                {
-                    Parameter(Identifier("tokenFactory"))
-                        .WithType(IdentifierName("IXtiTokenFactory")),
-                    Token(SyntaxKind.CommaToken)
-                }
-            );
-        }
-        else
-        {
-            args.AddRange
-            (
-                new SyntaxNodeOrToken[]
-                {
-                    Parameter(Identifier("xtiToken"))
-                        .WithType(IdentifierName("IXtiToken")),
-                    Token(SyntaxKind.CommaToken)
-                }
-            );
-        }
-        args.AddRange
-        (
-            new SyntaxNodeOrToken[]
-            {
+                Parameter(Identifier("xtiTokenAccessor"))
+                    .WithType(IdentifierName("XtiTokenAccessor")),
+                Token(SyntaxKind.CommaToken),
                 Parameter(Identifier("clientUrl"))
                     .WithType(IdentifierName("AppClientUrl")),
                 Token(SyntaxKind.CommaToken),
                 Parameter(Identifier("version"))
-                    .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
-                    .WithDefault
-                    (
-                        EqualsValueClause
-                        (
-                            IdentifierName("DefaultVersion")
-                        )
-                    )
+                    .WithType(IdentifierName($"{template.Name}AppClientVersion"))
             }
         );
         return args.ToArray();
@@ -412,6 +324,8 @@ public sealed class ApiAppClass
             {
                 Argument(IdentifierName("httpClientFactory")),
                 Token(SyntaxKind.CommaToken),
+                Argument(IdentifierName("xtiTokenAccessor")),
+                Token(SyntaxKind.CommaToken),
                 Argument(IdentifierName("clientUrl")),
                 Token(SyntaxKind.CommaToken),
                 Argument
@@ -425,29 +339,11 @@ public sealed class ApiAppClass
                 Token(SyntaxKind.CommaToken),
                 Argument
                 (
-                    ConditionalExpression
+                    MemberAccessExpression
                     (
-                        InvocationExpression
-                        (
-                            MemberAccessExpression
-                            (
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                PredefinedType(Token(SyntaxKind.StringKeyword)),
-                                IdentifierName("IsNullOrWhiteSpace")
-                            )
-                        )
-                        .WithArgumentList
-                        (
-                            ArgumentList
-                            (
-                                SingletonSeparatedList
-                                (
-                                    Argument(IdentifierName("version"))
-                                )
-                            )
-                        ),
-                        IdentifierName("DefaultVersion"),
-                        IdentifierName("version")
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("version"),
+                        IdentifierName("Value")
                     )
                 )
             }

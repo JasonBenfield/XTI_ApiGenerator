@@ -288,8 +288,8 @@ public sealed class ApiGroupClass
                                 Parameter(Identifier("httpClientFactory"))
                                     .WithType(IdentifierName("IHttpClientFactory")),
                                 Token(SyntaxKind.CommaToken),
-                                Parameter(Identifier("xtiToken"))
-                                    .WithType(IdentifierName("IXtiToken")),
+                                Parameter(Identifier("xtiTokenAccessor"))
+                                    .WithType(IdentifierName("XtiTokenAccessor")),
                                 Token(SyntaxKind.CommaToken),
                                 Parameter(Identifier("clientUrl"))
                                     .WithType(IdentifierName("AppClientUrl"))
@@ -310,7 +310,7 @@ public sealed class ApiGroupClass
                             {
                                     Argument(IdentifierName("httpClientFactory")),
                                     Token(SyntaxKind.CommaToken),
-                                    Argument(IdentifierName("xtiToken")),
+                                    Argument(IdentifierName("xtiTokenAccessor")),
                                     Token(SyntaxKind.CommaToken),
                                     Argument(IdentifierName("clientUrl")),
                                     Token(SyntaxKind.CommaToken),

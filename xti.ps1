@@ -7,16 +7,16 @@ $script:apiConfig = [PSCustomObject]@{
     AppType = "Package"
 }
 
-function Api-NewVersion {
+function Xti-NewVersion {
     param(
         [Parameter(Position=0)]
         [ValidateSet("major", "minor", "patch")]
         $VersionType = "minor"
     )
-    $script:apiConfig | New-XtiVersion @PsBoundParameters
+    $script:apiConfig | New-BaseXtiVersion @PsBoundParameters
 }
 
-function Api-NewIssue {
+function Xti-NewIssue {
     param(
         [Parameter(Mandatory, Position=0)]
         [string] $IssueTitle,
@@ -24,27 +24,29 @@ function Api-NewIssue {
         [string] $Body = "",
         [switch] $Start
     )
-    $script:apiConfig | New-XtiIssue @PsBoundParameters
+    $script:apiConfig | New-BaseXtiIssue @PsBoundParameters
 }
 
-function Api-StartIssue {
+function Xti-StartIssue {
     param(
         [Parameter(Position=0)]
         [long]$IssueNumber = 0
     )
-    $script:apiConfig | Xti-StartIssue @PsBoundParameters
+    $script:apiConfig | BaseXti-StartIssue @PsBoundParameters
 }
 
-function Api-CompleteIssue {
+function Xti-CompleteIssue {
     param(
     )
-    $script:apiConfig | Xti-CompleteIssue @PsBoundParameters
+    $script:apiConfig | BaseXti-CompleteIssue @PsBoundParameters
 }
 
-function Api-Publish {
+function Xti-Publish {
     param(
         [ValidateSet("Development", "Production", "Staging", "Test")]
-        $EnvName = "Development"
+        $EnvName = "Development",
+        [ValidateSet("Default", "DB")]
+        $HubAdministrationType = "Default"
     )
-    $script:apiConfig | Xti-Publish @PsBoundParameters
+    $script:apiConfig | BaseXti-Publish @PsBoundParameters
 }

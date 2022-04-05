@@ -2,14 +2,12 @@
 namespace FakeWebAppClient;
 public sealed partial class FakeAppClient : AppClient
 {
-    public const string DefaultVersion = "V0";
-    public FakeAppClient(IHttpClientFactory httpClientFactory, IXtiToken xtiToken, AppClientUrl clientUrl, string version = DefaultVersion) : base(httpClientFactory, clientUrl, "Fake", string.IsNullOrWhiteSpace(version) ? DefaultVersion : version)
+    public FakeAppClient(IHttpClientFactory httpClientFactory, XtiTokenAccessor xtiTokenAccessor, AppClientUrl clientUrl, FakeAppClientVersion version) : base(httpClientFactory, xtiTokenAccessor, clientUrl, "Fake", version.Value)
     {
-        this.xtiToken = xtiToken;
-        User = GetGroup((_clientFactory, _token, _url) => new UserGroup(_clientFactory, _token, _url));
-        UserCache = GetGroup((_clientFactory, _token, _url) => new UserCacheGroup(_clientFactory, _token, _url));
-        Employee = GetGroup((_clientFactory, _token, _url) => new EmployeeGroup(_clientFactory, _token, _url));
-        Product = GetGroup((_clientFactory, _token, _url) => new ProductGroup(_clientFactory, _token, _url));
+        User = GetGroup((_clientFactory, _tokenAccessor, _url) => new UserGroup(_clientFactory, _tokenAccessor, _url));
+        UserCache = GetGroup((_clientFactory, _tokenAccessor, _url) => new UserCacheGroup(_clientFactory, _tokenAccessor, _url));
+        Employee = GetGroup((_clientFactory, _tokenAccessor, _url) => new EmployeeGroup(_clientFactory, _tokenAccessor, _url));
+        Product = GetGroup((_clientFactory, _tokenAccessor, _url) => new ProductGroup(_clientFactory, _tokenAccessor, _url));
     }
 
     public UserGroup User { get; }

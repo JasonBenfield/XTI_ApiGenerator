@@ -2,7 +2,7 @@
 namespace FakeWebAppClient;
 public sealed partial class UserGroup : AppClientGroup
 {
-    public UserGroup(IHttpClientFactory httpClientFactory, IXtiToken xtiToken, AppClientUrl clientUrl) : base(httpClientFactory, xtiToken, clientUrl, "User")
+    public UserGroup(IHttpClientFactory httpClientFactory, XtiTokenAccessor xtiTokenAccessor, AppClientUrl clientUrl) : base(httpClientFactory, xtiTokenAccessor, clientUrl, "User")
     {
     }
 }
