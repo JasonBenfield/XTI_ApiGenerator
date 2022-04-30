@@ -58,31 +58,6 @@ public sealed class ComplexFieldClass
             );
     }
 
-    private IEnumerable<UsingDirectiveSyntax> usings()
-    {
-        return new[]
-        {
-                UsingDirective
-                (
-                    QualifiedName
-                    (
-                        IdentifierName("XTI_WebAppClient"),
-                        IdentifierName("Forms")
-                    )
-                )
-                .WithUsingKeyword
-                (
-                    Token
-                    (
-                        TriviaList(Comment("// Generated code")),
-                        SyntaxKind.UsingKeyword,
-                        TriviaList()
-                    )
-                ),
-                UsingDirective(IdentifierName("System"))
-            };
-    }
-
     private MemberDeclarationSyntax classDeclaration()
     {
         return ClassDeclaration(template.TypeName)
@@ -92,9 +67,9 @@ public sealed class ComplexFieldClass
                 (
                     new[]
                     {
-                            Token(SyntaxKind.PublicKeyword),
-                            Token(SyntaxKind.SealedKeyword),
-                            Token(SyntaxKind.PartialKeyword)
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.SealedKeyword),
+                        Token(SyntaxKind.PartialKeyword)
                     }
                 )
             )

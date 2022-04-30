@@ -43,6 +43,7 @@ public sealed class CsClient : CodeGenerator
         }
         foreach (var groupTemplate in appTemplate.GroupTemplates)
         {
+            await new ApiGroupActionsClass(ns, createStream, groupTemplate).Output();
             await new ApiGroupClass(ns, createStream, groupTemplate).Output();
         }
         foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.Dotnet))
@@ -50,7 +51,8 @@ public sealed class CsClient : CodeGenerator
             await new NumericValueClass(ns, createStream, numericValueTemplate).Output();
         }
         await new AppVersionClass(ns, createStream, appTemplate, versionKey).Output();
-        await new ApiAppClass(ns, createStream, appTemplate, versionKey).Output();
+        await new RolesClass(ns, createStream, appTemplate).Output();
+        await new ApiAppClass(ns, createStream, appTemplate).Output();
         var namespaces = new[]
         {
             "XTI_WebAppClient",

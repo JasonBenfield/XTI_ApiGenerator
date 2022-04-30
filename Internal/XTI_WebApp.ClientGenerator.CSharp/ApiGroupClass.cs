@@ -12,12 +12,14 @@ public sealed class ApiGroupClass
     private readonly string ns;
     private readonly Func<string, Stream> createStream;
     private readonly AppApiGroupTemplate template;
+    private readonly AppApiActionTemplate[] actionsForGetMethod;
 
     public ApiGroupClass(string ns, Func<string, Stream> createStream, AppApiGroupTemplate template)
     {
         this.ns = ns;
         this.createStream = createStream;
         this.template = template;
+        actionsForGetMethod = template.ActionsForGetMethod();
     }
 
     public async Task Output()
@@ -67,9 +69,9 @@ public sealed class ApiGroupClass
                     (
                         new[]
                         {
-                                Token(SyntaxKind.PublicKeyword),
-                                Token(SyntaxKind.SealedKeyword),
-                                Token(SyntaxKind.PartialKeyword)
+                            Token(SyntaxKind.PublicKeyword),
+                            Token(SyntaxKind.SealedKeyword),
+                            Token(SyntaxKind.PartialKeyword)
                         }
                     )
                 )
@@ -98,13 +100,39 @@ public sealed class ApiGroupClass
     {
         var members = new List<MemberDeclarationSyntax>();
         members.Add(groupCtor());
+        if (actionsForGetMethod.Any())
+        {
+            members.Add
+            (
+                PropertyDeclaration
+                (
+                    IdentifierName($"{template.Name}Actions"),
+                    Identifier("Actions")
+                )
+                .WithModifiers
+                (
+                    TokenList(Token(SyntaxKind.PublicKeyword))
+                )
+                .WithAccessorList
+                (
+                    AccessorList
+                    (
+                        SingletonList
+                        (
+                            AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                        )
+                    )
+                )
+            );
+        }
         foreach (var action in template.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView() && !a.IsPartialView()))
         {
             members.AddRange
             (
                 new[]
                 {
-                        actionDeclaration(action)
+                    actionDeclaration(action)
                 }
             );
         }
@@ -157,9 +185,9 @@ public sealed class ApiGroupClass
                             (
                                 new SyntaxNodeOrToken[]
                                 {
-                                        new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value(),
-                                        Token(SyntaxKind.CommaToken),
-                                        new TypeSyntaxFromValueTemplate(action.ModelTemplate).Value()
+                                    new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value(),
+                                    Token(SyntaxKind.CommaToken),
+                                    new TypeSyntaxFromValueTemplate(action.ModelTemplate).Value()
                                 }
                             )
                         )
@@ -215,15 +243,15 @@ public sealed class ApiGroupClass
             (
                 new SyntaxNodeOrToken[]
                 {
-                        Argument
+                    Argument
+                    (
+                        LiteralExpression
                         (
-                            LiteralExpression
-                            (
-                                SyntaxKind.StringLiteralExpression,
-                                Literal("")
-                            )
-                        ),
-                        Token(SyntaxKind.CommaToken)
+                            SyntaxKind.StringLiteralExpression,
+                            Literal("")
+                        )
+                    ),
+                    Token(SyntaxKind.CommaToken)
                 }
             );
         }
@@ -285,14 +313,14 @@ public sealed class ApiGroupClass
                     (
                         new SyntaxNodeOrToken[]
                         {
-                                Parameter(Identifier("httpClientFactory"))
-                                    .WithType(IdentifierName("IHttpClientFactory")),
-                                Token(SyntaxKind.CommaToken),
-                                Parameter(Identifier("xtiTokenAccessor"))
-                                    .WithType(IdentifierName("XtiTokenAccessor")),
-                                Token(SyntaxKind.CommaToken),
-                                Parameter(Identifier("clientUrl"))
-                                    .WithType(IdentifierName("AppClientUrl"))
+                            Parameter(Identifier("httpClientFactory"))
+                                .WithType(IdentifierName("IHttpClientFactory")),
+                            Token(SyntaxKind.CommaToken),
+                            Parameter(Identifier("xtiTokenAccessor"))
+                                .WithType(IdentifierName("XtiTokenAccessor")),
+                            Token(SyntaxKind.CommaToken),
+                            Parameter(Identifier("clientUrl"))
+                                .WithType(IdentifierName("AppClientUrl"))
                         }
                     )
                 )
@@ -308,20 +336,20 @@ public sealed class ApiGroupClass
                         (
                             new SyntaxNodeOrToken[]
                             {
-                                    Argument(IdentifierName("httpClientFactory")),
-                                    Token(SyntaxKind.CommaToken),
-                                    Argument(IdentifierName("xtiTokenAccessor")),
-                                    Token(SyntaxKind.CommaToken),
-                                    Argument(IdentifierName("clientUrl")),
-                                    Token(SyntaxKind.CommaToken),
-                                    Argument
+                                Argument(IdentifierName("httpClientFactory")),
+                                Token(SyntaxKind.CommaToken),
+                                Argument(IdentifierName("xtiTokenAccessor")),
+                                Token(SyntaxKind.CommaToken),
+                                Argument(IdentifierName("clientUrl")),
+                                Token(SyntaxKind.CommaToken),
+                                Argument
+                                (
+                                    LiteralExpression
                                     (
-                                        LiteralExpression
-                                        (
-                                            SyntaxKind.StringLiteralExpression,
-                                            Literal(template.Name)
-                                        )
+                                        SyntaxKind.StringLiteralExpression,
+                                        Literal(template.Name)
                                     )
+                                )
                             }
                         )
                     )
@@ -329,8 +357,42 @@ public sealed class ApiGroupClass
             )
             .WithBody
             (
-                Block()
+                Block(ctorBody())
             );
+    }
+
+    private IEnumerable<StatementSyntax> ctorBody()
+    {
+        var statements = new List<StatementSyntax>();
+        if (actionsForGetMethod.Any())
+        {
+            statements.Add
+            (
+                ExpressionStatement
+                (
+                    AssignmentExpression
+                    (
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName("Actions"),
+                        ObjectCreationExpression(IdentifierName($"{template.Name}Actions"))
+                        .WithArgumentList
+                        (
+                            ArgumentList
+                            (
+                                SeparatedList<ArgumentSyntax>
+                                (
+                                    new SyntaxNodeOrToken[]
+                                    {
+                                        Argument(IdentifierName("clientUrl"))
+                                    }
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        }
+        return statements;
     }
 
     private static BaseTypeSyntax[] groupBaseList()
@@ -338,62 +400,6 @@ public sealed class ApiGroupClass
         var baseTypes = new List<BaseTypeSyntax>();
         baseTypes.Add(SimpleBaseType(IdentifierName("AppClientGroup")));
         return baseTypes.ToArray();
-    }
-
-    private static SyntaxList<UsingDirectiveSyntax> groupUsings()
-    {
-        return List
-        (
-            new UsingDirectiveSyntax[]
-            {
-                    UsingDirective(IdentifierName("XTI_WebAppClient"))
-                        .WithUsingKeyword
-                        (
-                            Token
-                            (
-                                TriviaList(Comment("// Generated Code")),
-                                SyntaxKind.UsingKeyword,
-                                TriviaList()
-                            )
-                        ),
-                        UsingDirective
-                        (
-                            QualifiedName
-                            (
-                                QualifiedName
-                                (
-                                    IdentifierName("System"),
-                                    IdentifierName("Net")
-                                ),
-                                IdentifierName("Http")
-                            )
-                        ),
-                        UsingDirective
-                        (
-                            QualifiedName
-                            (
-                                QualifiedName
-                                (
-                                    IdentifierName("System"),
-                                    IdentifierName("Threading")
-                                ),
-                                IdentifierName("Tasks")
-                            )
-                        ),
-                        UsingDirective
-                        (
-                            QualifiedName
-                            (
-                                QualifiedName
-                                (
-                                    IdentifierName("System"),
-                                    IdentifierName("Collections")
-                                ),
-                                IdentifierName("Generic")
-                            )
-                        )
-            }
-        );
     }
 
     private string getGroupClassName() => $"{template.Name}Group";

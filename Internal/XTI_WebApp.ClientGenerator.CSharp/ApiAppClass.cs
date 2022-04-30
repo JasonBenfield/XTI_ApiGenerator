@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using XTI_App.Abstractions;
 using XTI_App.Api;
 using XTI_WebApp.CodeGeneration.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -13,14 +12,12 @@ public sealed class ApiAppClass
     private readonly string ns;
     private readonly Func<string, Stream> createStream;
     private readonly AppApiTemplate template;
-    private readonly AppVersionKey versionKey;
 
-    public ApiAppClass(string ns, Func<string, Stream> createStream, AppApiTemplate template, AppVersionKey versionKey)
+    public ApiAppClass(string ns, Func<string, Stream> createStream, AppApiTemplate template)
     {
         this.ns = ns;
         this.createStream = createStream;
         this.template = template;
-        this.versionKey = versionKey;
     }
 
     public async Task Output()
@@ -95,6 +92,45 @@ public sealed class ApiAppClass
     {
         var members = new List<MemberDeclarationSyntax>();
         members.Add(appCtor());
+        members.Add
+        (
+            PropertyDeclaration
+            (
+                IdentifierName
+                (
+                    $"{template.Name}RoleNames"
+                ),
+                Identifier("RoleNames")
+            )
+            .WithModifiers
+            (
+                TokenList(Token(SyntaxKind.PublicKeyword))
+            )
+            .WithAccessorList
+            (
+                AccessorList
+                (
+                    SingletonList
+                    (
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                    )
+                )
+            )
+            .WithInitializer
+            (
+                EqualsValueClause
+                (
+                    MemberAccessExpression
+                    (
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName($"{template.Name}RoleNames"),
+                        IdentifierName("Instance")
+                    )
+                )
+            )
+            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+        );
         foreach (var group in template.GroupTemplates)
         {
             members.Add
@@ -125,46 +161,6 @@ public sealed class ApiAppClass
             );
         }
         return members.ToArray();
-    }
-
-    private MemberDeclarationSyntax defaultVersionDeclaration()
-    {
-        return FieldDeclaration
-        (
-            VariableDeclaration
-            (
-                PredefinedType(Token(SyntaxKind.StringKeyword))
-            )
-            .WithVariables
-            (
-                SingletonSeparatedList
-                (
-                    VariableDeclarator(Identifier("DefaultVersion"))
-                        .WithInitializer
-                        (
-                            EqualsValueClause
-                            (
-                                LiteralExpression
-                                (
-                                    SyntaxKind.StringLiteralExpression,
-                                    Literal(versionKey.Value)
-                                )
-                            )
-                        )
-                )
-            )
-        )
-        .WithModifiers
-        (
-            TokenList
-            (
-                new[]
-                {
-                        Token(SyntaxKind.PublicKeyword),
-                        Token(SyntaxKind.ConstKeyword)
-                }
-            )
-        );
     }
 
     private ConstructorDeclarationSyntax appCtor()

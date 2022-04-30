@@ -10,6 +10,7 @@ public sealed partial class FakeAppClient : AppClient
         Product = GetGroup((_clientFactory, _tokenAccessor, _url) => new ProductGroup(_clientFactory, _tokenAccessor, _url));
     }
 
+    public FakeRoleNames RoleNames { get; } = FakeRoleNames.Instance;
     public UserGroup User { get; }
 
     public UserCacheGroup UserCache { get; }
