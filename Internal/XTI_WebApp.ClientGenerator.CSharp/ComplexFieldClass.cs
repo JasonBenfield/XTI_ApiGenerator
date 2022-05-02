@@ -103,9 +103,8 @@ public sealed class ComplexFieldClass
         return members;
     }
 
-    private MemberDeclarationSyntax constructor()
-    {
-        return ConstructorDeclaration(Identifier(template.TypeName))
+    private MemberDeclarationSyntax constructor()=>
+        ConstructorDeclaration(Identifier(template.TypeName))
             .WithModifiers
             (
                 TokenList(Token(SyntaxKind.PublicKeyword))
@@ -138,7 +137,6 @@ public sealed class ComplexFieldClass
             (
                 Block(constructorBody())
             );
-    }
 
     private IEnumerable<SyntaxNodeOrToken> constructorArgs()
     {

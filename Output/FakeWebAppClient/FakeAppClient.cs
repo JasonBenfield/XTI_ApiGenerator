@@ -11,6 +11,7 @@ public sealed partial class FakeAppClient : AppClient
     }
 
     public FakeRoleNames RoleNames { get; } = FakeRoleNames.Instance;
+    public string AppName { get; } = "Fake";
     public UserGroup User { get; }
 
     public UserCacheGroup UserCache { get; }

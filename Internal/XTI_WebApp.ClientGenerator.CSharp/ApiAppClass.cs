@@ -131,6 +131,37 @@ public sealed class ApiAppClass
             )
             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
         );
+        members.Add
+        (
+            PropertyDeclaration
+            (
+                PredefinedType(Token(SyntaxKind.StringKeyword)),
+                Identifier("AppName")
+            )
+            .WithModifiers
+            (
+                TokenList(Token(SyntaxKind.PublicKeyword))
+            )
+            .WithAccessorList
+            (
+                AccessorList
+                (
+                    SingletonList
+                    (
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                    )
+                )
+            )
+            .WithInitializer
+            (
+                EqualsValueClause
+                (
+                    LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(template.Name))
+                )
+            )
+            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+        );
         foreach (var group in template.GroupTemplates)
         {
             members.Add

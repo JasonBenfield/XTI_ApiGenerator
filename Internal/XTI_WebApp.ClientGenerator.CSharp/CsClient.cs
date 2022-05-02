@@ -50,6 +50,10 @@ public sealed class CsClient : CodeGenerator
         {
             await new NumericValueClass(ns, createStream, numericValueTemplate).Output();
         }
+        foreach (var enumValueTemplate in appTemplate.EnumValueTemplates(ApiCodeGenerators.Dotnet))
+        {
+            await new EnumValueClass(ns, createStream, enumValueTemplate).Output();
+        }
         await new AppVersionClass(ns, createStream, appTemplate, versionKey).Output();
         await new RolesClass(ns, createStream, appTemplate).Output();
         await new ApiAppClass(ns, createStream, appTemplate).Output();

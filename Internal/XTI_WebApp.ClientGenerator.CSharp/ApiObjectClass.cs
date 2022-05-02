@@ -96,10 +96,10 @@ public sealed class ApiObjectClass
                         (
                             new AccessorDeclarationSyntax[]
                             {
-                                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                                    AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                                AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                                AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                             }
                         )
                     )
