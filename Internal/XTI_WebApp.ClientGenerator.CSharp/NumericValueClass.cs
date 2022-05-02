@@ -80,58 +80,58 @@ public sealed class NumericValueClass
                                         (
                                             new MemberDeclarationSyntax[]
                                             {
-                                                    ClassDeclaration($"{template.DataType.Name}s")
-                                                        .WithModifiers
+                                                ClassDeclaration($"{template.DataType.Name}s")
+                                                    .WithModifiers
+                                                    (
+                                                        TokenList
                                                         (
-                                                            TokenList
-                                                            (
-                                                                new []
-                                                                {
-                                                                    Token(SyntaxKind.PublicKeyword),
-                                                                    Token(SyntaxKind.SealedKeyword)
-                                                                }
-                                                            )
+                                                            new []
+                                                            {
+                                                                Token(SyntaxKind.PublicKeyword),
+                                                                Token(SyntaxKind.SealedKeyword)
+                                                            }
                                                         )
-                                                        .WithBaseList
+                                                    )
+                                                    .WithBaseList
+                                                    (
+                                                        BaseList
                                                         (
-                                                            BaseList
+                                                            SingletonSeparatedList<BaseTypeSyntax>
                                                             (
-                                                                SingletonSeparatedList<BaseTypeSyntax>
+                                                                SimpleBaseType
                                                                 (
-                                                                    SimpleBaseType
+                                                                    GenericName
                                                                     (
-                                                                        GenericName
+                                                                        Identifier("ClientNumericValues")
+                                                                    )
+                                                                    .WithTypeArgumentList
+                                                                    (
+                                                                        TypeArgumentList
                                                                         (
-                                                                            Identifier("ClientNumericValues")
-                                                                        )
-                                                                        .WithTypeArgumentList
-                                                                        (
-                                                                            TypeArgumentList
+                                                                            SingletonSeparatedList<TypeSyntax>
                                                                             (
-                                                                                SingletonSeparatedList<TypeSyntax>
-                                                                                (
-                                                                                    IdentifierName(template.DataType.Name)
-                                                                                )
+                                                                                IdentifierName(template.DataType.Name)
                                                                             )
                                                                         )
                                                                     )
                                                                 )
                                                             )
                                                         )
-                                                        .WithMembers
+                                                    )
+                                                    .WithMembers
+                                                    (
+                                                        List
                                                         (
-                                                            List
+                                                            new MemberDeclarationSyntax[]
+                                                            {
+                                                                declareNumericValuesConstructor()
+                                                            }
+                                                            .Union
                                                             (
-                                                                new MemberDeclarationSyntax[]
-                                                                {
-                                                                    declareNumericValuesConstructor()
-                                                                }
-                                                                .Union
-                                                                (
-                                                                    declareProperties()
-                                                                )
+                                                                declareProperties()
                                                             )
-                                                        ),
+                                                        )
+                                                    ),
                                                         FieldDeclaration
                                                         (
                                                             VariableDeclaration
@@ -235,9 +235,8 @@ public sealed class NumericValueClass
                 );
     }
 
-    private MemberDeclarationSyntax declareNumericValuesConstructor()
-    {
-        return ConstructorDeclaration(Identifier($"{template.DataType.Name}s"))
+    private MemberDeclarationSyntax declareNumericValuesConstructor() =>
+        ConstructorDeclaration(Identifier($"{template.DataType.Name}s"))
             .WithModifiers
             (
                 TokenList
@@ -252,7 +251,6 @@ public sealed class NumericValueClass
                     assignNumericValues()
                 )
             );
-    }
 
     private IEnumerable<MemberDeclarationSyntax> declareProperties()
     {
@@ -328,23 +326,23 @@ public sealed class NumericValueClass
                                                 (
                                                     new SyntaxNodeOrToken[]
                                                     {
-                                                            Argument
+                                                        Argument
+                                                        (
+                                                            LiteralExpression
                                                             (
-                                                                LiteralExpression
-                                                                (
-                                                                    SyntaxKind.NumericLiteralExpression,
-                                                                    Literal(numericValue.Value)
-                                                                )
-                                                            ),
-                                                            Token(SyntaxKind.CommaToken),
-                                                            Argument
-                                                            (
-                                                                LiteralExpression
-                                                                (
-                                                                    SyntaxKind.StringLiteralExpression,
-                                                                    Literal(numericValue.DisplayText)
-                                                                )
+                                                                SyntaxKind.NumericLiteralExpression,
+                                                                Literal(numericValue.Value)
                                                             )
+                                                        ),
+                                                        Token(SyntaxKind.CommaToken),
+                                                        Argument
+                                                        (
+                                                            LiteralExpression
+                                                            (
+                                                                SyntaxKind.StringLiteralExpression,
+                                                                Literal(numericValue.DisplayText)
+                                                            )
+                                                        )
                                                     }
                                                 )
                                             )
@@ -360,10 +358,8 @@ public sealed class NumericValueClass
         return statements;
     }
 
-    private static string nameFromDisplayText(XTI_Core.NumericValue numericValue)
-    {
-        return whitespaceRegex.Replace(numericValue.DisplayText, "");
-    }
+    private static string nameFromDisplayText(XTI_Core.NumericValue numericValue)=>
+        whitespaceRegex.Replace(numericValue.DisplayText, "");
 
     private async Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
     {

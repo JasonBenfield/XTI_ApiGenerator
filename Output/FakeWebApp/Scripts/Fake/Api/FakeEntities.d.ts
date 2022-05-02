@@ -18,6 +18,7 @@ interface IEmployee {
 	Departments: number[];
 	CurrentProduct: IProduct;
 	Rates: Record<string,number>;
+	Status: Status;
 }
 interface IProduct {
 	ID: number;

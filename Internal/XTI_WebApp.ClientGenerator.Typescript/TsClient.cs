@@ -43,6 +43,10 @@ public sealed class TsClient : CodeGenerator
         {
             await generateNumericValue(numericValueTemplate);
         }
+        foreach (var enumValueTemplate in appTemplate.EnumValueTemplates(ApiCodeGenerators.TypeScript))
+        {
+            await generateEnumValue(enumValueTemplate);
+        }
     }
 
     private Task generateComplexField(IComplexField complexField, bool isForm)
@@ -546,6 +550,26 @@ public sealed class TsClient : CodeGenerator
         return tsFile.Output();
     }
 
+    private Task generateEnumValue(EnumValueTemplate enumValueTemplate)
+    {
+        var className = enumValueTemplate.DataType.Name;
+        var tsFile = new TypeScriptFile($"{className}.ts", createStream);
+        tsFile.AddLine($"enum {className} {{");
+        tsFile.Indent();
+        var lastValue = enumValueTemplate.EnumValues.Last();
+        foreach(var value in enumValueTemplate.EnumValues)
+        {
+            tsFile.AddLine($"{value.Name} = {(int)value.Value}");
+            if(value != lastValue)
+            {
+                tsFile.Append(",");
+            }
+        }
+        tsFile.Outdent();
+        tsFile.AddLine("}");
+        return tsFile.Output();
+    }
+
     private string getGenericArguments(AppApiActionTemplate action)
     {
         var modelType = getTsType(action.ModelTemplate);
@@ -612,6 +636,10 @@ public sealed class TsClient : CodeGenerator
             tsType = $"Record<{keyType},{valueType}>";
         }
         else if (typeof(Form).IsAssignableFrom(type))
+        {
+            tsType = type.Name;
+        }
+        else if (type?.IsEnum == true)
         {
             tsType = type.Name;
         }
