@@ -19,6 +19,7 @@ interface IEmployee {
 	CurrentProduct: IProduct;
 	Rates: Record<string,number>;
 	Status: Status;
+	TimeEmployed: string;
 }
 interface IProduct {
 	ID: number;

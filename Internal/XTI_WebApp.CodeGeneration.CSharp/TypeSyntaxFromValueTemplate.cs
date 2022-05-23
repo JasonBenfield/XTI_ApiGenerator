@@ -41,7 +41,12 @@ public sealed class TypeSyntaxFromValueTemplate
         if (valueTemplate is SimpleValueTemplate simple)
         {
             TypeSyntax typeSyntax;
-            if (valueTemplate.DataType == typeof(DateTime) || valueTemplate.DataType == typeof(DateTimeOffset))
+            if 
+            (
+                valueTemplate.DataType == typeof(DateTime) || 
+                valueTemplate.DataType == typeof(DateTimeOffset) ||
+                valueTemplate.DataType == typeof(TimeSpan)
+            )
             {
                 typeSyntax = IdentifierName(valueTemplate.DataType.Name);
             }

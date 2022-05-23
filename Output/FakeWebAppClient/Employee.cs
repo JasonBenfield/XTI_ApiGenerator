@@ -12,4 +12,5 @@ public sealed partial class Employee
     public Product CurrentProduct { get; set; } = new Product();
     public IDictionary<string, int> Rates { get; set; } = new Dictionary<string, int>();
     public Status Status { get; set; } = new Status();
+    public TimeSpan TimeEmployed { get; set; }
 }
