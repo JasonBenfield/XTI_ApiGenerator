@@ -590,7 +590,7 @@ public sealed class TsClient : CodeGenerator
     private string getTsType(Type? type)
     {
         string tsType;
-        if (type == typeof(string))
+        if (type == typeof(string) || type == typeof(TimeSpan) || type == typeof(TimeSpan?))
         {
             tsType = "string";
         }
