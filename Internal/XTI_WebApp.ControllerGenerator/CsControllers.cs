@@ -128,8 +128,8 @@ public sealed class CsControllers : CodeGenerator
             (
                 new[]
                 {
-                        Token(SyntaxKind.PublicKeyword),
-                        Token(SyntaxKind.AsyncKeyword)
+                    Token(SyntaxKind.PublicKeyword),
+                    Token(SyntaxKind.AsyncKeyword)
                 }
             )
         )
@@ -190,6 +190,15 @@ public sealed class CsControllers : CodeGenerator
                 )
             )
         );
+        var attributes = getAttributesForAction(group, action);
+        if (attributes.Any())
+        {
+            actionDeclaration = actionDeclaration
+                .WithAttributeLists
+                (
+                    List(attributes)
+                );
+        }
         if (!action.HasEmptyModel())
         {
             actionDeclaration = actionDeclaration
@@ -305,42 +314,13 @@ public sealed class CsControllers : CodeGenerator
                     )
                 );
         }
-        if (action.IsPartialView())
+        var attributes = getAttributesForAction(group, action);
+        if (attributes.Any())
         {
             actionDeclaration = actionDeclaration
                 .WithAttributeLists
                 (
-                    SingletonList
-                    (
-                        AttributeList
-                        (
-                            SingletonSeparatedList
-                            (
-                                Attribute(IdentifierName("ResponseCache"))
-                                    .WithArgumentList
-                                    (
-                                        AttributeArgumentList
-                                        (
-                                            SingletonSeparatedList
-                                            (
-                                                AttributeArgument
-                                                (
-                                                    LiteralExpression
-                                                    (
-                                                        SyntaxKind.StringLiteralExpression,
-                                                        Literal("Default")
-                                                    )
-                                                )
-                                                .WithNameEquals
-                                                (
-                                                    NameEquals(IdentifierName("CacheProfileName"))
-                                                )
-                                            )
-                                        )
-                                    )
-                            )
-                        )
-                    )
+                    List(attributes)
                 );
         }
         return actionDeclaration;
@@ -377,15 +357,9 @@ public sealed class CsControllers : CodeGenerator
         )
         .WithAttributeLists
         (
-            SingletonList
+            List
             (
-                AttributeList
-                (
-                    SingletonSeparatedList
-                    (
-                        Attribute(IdentifierName("HttpPost"))
-                    )
-                )
+                getAttributesForAction(group, action)
             )
         )
         .WithModifiers
@@ -434,6 +408,57 @@ public sealed class CsControllers : CodeGenerator
                     )
                 )
             );
+    }
+
+    private AttributeListSyntax[] getAttributesForAction(AppApiGroupTemplate group, AppApiActionTemplate action)
+    {
+        var attributes = new List<AttributeSyntax>();
+        if (!action.IsRedirect() && !action.IsView() && !action.IsPartialView())
+        {
+            attributes.Add
+            (
+                Attribute(IdentifierName("HttpPost"))
+            );
+        }
+        if (action.IsPartialView())
+        {
+            attributes.Add
+            (
+                Attribute(IdentifierName("ResponseCache"))
+                    .WithArgumentList
+                    (
+                        AttributeArgumentList
+                        (
+                            SingletonSeparatedList
+                            (
+                                AttributeArgument
+                                (
+                                    LiteralExpression
+                                    (
+                                        SyntaxKind.StringLiteralExpression,
+                                        Literal("Default")
+                                    )
+                                )
+                                .WithNameEquals
+                                (
+                                    NameEquals(IdentifierName("CacheProfileName"))
+                                )
+                            )
+                        )
+                    )
+            );
+        }
+        if (group.Access.IsAnonymousAllowed != action.Access.IsAnonymousAllowed)
+        {
+            attributes.Add
+            (
+                Attribute
+                (
+                    IdentifierName(action.Access.IsAnonymousAllowed ? "AllowAnonymous" : "Authorize")
+                )
+            );
+        }
+        return attributes.Select(attr => AttributeList(SingletonSeparatedList(attr))).ToArray();
     }
 
     private InvocationExpressionSyntax executeInvocationExpression(AppApiGroupTemplate group, AppApiActionTemplate action)
@@ -618,21 +643,24 @@ public sealed class CsControllers : CodeGenerator
             ClassDeclaration(controllerName)
             .WithAttributeLists
             (
-                SingletonList
+                List
                 (
-                    AttributeList
-                    (
-                        SingletonSeparatedList
+                    new[]
+                    {
+                        AttributeList
                         (
-                            Attribute
+                            SingletonSeparatedList
                             (
-                                IdentifierName
+                                Attribute
                                 (
-                                    isAnonymousAllowed ? "AllowAnonymous" : "Authorize"
+                                    IdentifierName
+                                    (
+                                        isAnonymousAllowed ? "AllowAnonymous" : "Authorize"
+                                    )
                                 )
                             )
                         )
-                    )
+                    }
                 )
             )
             .WithModifiers
