@@ -87,10 +87,8 @@ public sealed class CsControllers : CodeGenerator
         return code;
     }
 
-    private static string getControllerClassName(AppApiGroupTemplate group)
-    {
-        return $"{group.Name}Controller";
-    }
+    private static string getControllerClassName(AppApiGroupTemplate group) =>
+        $"{group.Name}Controller";
 
     private MethodDeclarationSyntax actionDeclaration(AppApiGroupTemplate group, AppApiActionTemplate action)
     {
@@ -199,21 +197,28 @@ public sealed class CsControllers : CodeGenerator
                     List(attributes)
                 );
         }
+        var parameters = new List<ParameterSyntax>();
         if (!action.HasEmptyModel())
         {
-            actionDeclaration = actionDeclaration
-                .WithParameterList
-                (
-                    ParameterList
-                    (
-                        SingletonSeparatedList
-                        (
-                            Parameter(Identifier("model"))
-                                .WithType(typeSyntax(action.ModelTemplate))
-                        )
-                    )
-                );
+            parameters.Add
+            (
+                Parameter(Identifier("model"))
+                    .WithType(typeSyntax(action.ModelTemplate))
+            );
         }
+        parameters.Add
+        (
+            Parameter(Identifier("ct"))
+                .WithType(IdentifierName("CancellationToken"))
+        );
+        actionDeclaration = actionDeclaration
+            .WithParameterList
+            (
+                ParameterList
+                (
+                    SeparatedList(parameters.ToArray())
+                )
+            );
         return actionDeclaration;
     }
 
@@ -299,21 +304,28 @@ public sealed class CsControllers : CodeGenerator
                 )
             )
         );
+        var parameters = new List<ParameterSyntax>();
         if (!action.HasEmptyModel())
         {
-            actionDeclaration = actionDeclaration
-                .WithParameterList
-                (
-                    ParameterList
-                    (
-                        SingletonSeparatedList
-                        (
-                            Parameter(Identifier("model"))
-                                .WithType(typeSyntax(action.ModelTemplate))
-                        )
-                    )
-                );
+            parameters.Add
+            (
+                Parameter(Identifier("model"))
+                    .WithType(typeSyntax(action.ModelTemplate))
+            );
         }
+        parameters.Add
+        (
+            Parameter(Identifier("ct"))
+                .WithType(IdentifierName("CancellationToken"))
+        );
+        actionDeclaration = actionDeclaration
+            .WithParameterList
+            (
+                ParameterList
+                (
+                    SeparatedList(parameters.ToArray())
+                )
+            );
         var attributes = getAttributesForAction(group, action);
         if (attributes.Any())
         {
@@ -366,34 +378,44 @@ public sealed class CsControllers : CodeGenerator
         (
             TokenList(Token(SyntaxKind.PublicKeyword))
         );
+        var parameters = new List<ParameterSyntax>();
         if (!action.HasEmptyModel())
         {
-            actionDeclaration = actionDeclaration
-                .WithParameterList
-                (
-                    ParameterList
+            parameters.Add
+            (
+                Parameter(Identifier("model"))
+                    .WithType(typeSyntax(action.ModelTemplate))
+                    .WithAttributeLists
                     (
-                        SingletonSeparatedList
+                        SingletonList
                         (
-                            Parameter(Identifier("model"))
-                                .WithType(typeSyntax(action.ModelTemplate))
-                                .WithAttributeLists
+                            AttributeList
+                            (
+                                SingletonSeparatedList
                                 (
-                                    SingletonList
-                                    (
-                                        AttributeList
-                                        (
-                                            SingletonSeparatedList
-                                            (
-                                                Attribute(IdentifierName("FromBody"))
-                                            )
-                                        )
-                                    )
+                                    Attribute(IdentifierName("FromBody"))
                                 )
+                            )
                         )
                     )
-                );
+            );
         }
+        parameters.Add
+        (
+            Parameter(Identifier("ct"))
+                .WithType(IdentifierName("CancellationToken"))
+        );
+        actionDeclaration = actionDeclaration
+            .WithParameterList
+            (
+                ParameterList
+                (
+                    SeparatedList
+                    (
+                        parameters.ToArray()
+                    )
+                )
+            );
         return actionDeclaration
             .WithBody
             (
@@ -508,9 +530,9 @@ public sealed class CsControllers : CodeGenerator
                                     (
                                         new SyntaxNodeOrToken[]
                                         {
-                                                typeSyntax(action.ModelTemplate),
-                                                Token(SyntaxKind.CommaToken),
-                                                typeSyntax(action.ResultTemplate)
+                                            typeSyntax(action.ModelTemplate),
+                                            Token(SyntaxKind.CommaToken),
+                                            typeSyntax(action.ResultTemplate)
                                         }
                                     )
                                 )
@@ -543,14 +565,15 @@ public sealed class CsControllers : CodeGenerator
             (
                 SeparatedList
                 (
-                    new ArgumentSyntax[]
+                    new[]
                     {
-                            Argument
-                            (
-                                action.HasEmptyModel()
-                                    ? (ExpressionSyntax)newEmptyRequest()
-                                    : IdentifierName("model")
-                            )
+                        Argument
+                        (
+                            action.HasEmptyModel()
+                                ? newEmptyRequest()
+                                : IdentifierName("model")
+                        ),
+                        Argument(IdentifierName("ct"))
                     }
                 )
             )
@@ -603,8 +626,8 @@ public sealed class CsControllers : CodeGenerator
                     (
                         new ParameterSyntax[]
                         {
-                                Parameter(Identifier("api"))
-                                    .WithType(IdentifierName(apiClassName))
+                            Parameter(Identifier("api"))
+                                .WithType(IdentifierName(apiClassName))
                         }
                     )
                 )

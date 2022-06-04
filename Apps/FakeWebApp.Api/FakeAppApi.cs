@@ -73,7 +73,7 @@ public sealed class EmployeeGroup : AppApiGroupWrapper
 
 public sealed class AddEmployeeAction : AppAction<AddEmployeeForm, int>
 {
-    public Task<int> Execute(AddEmployeeForm model)
+    public Task<int> Execute(AddEmployeeForm model, CancellationToken ct)
     {
         return Task.FromResult(1);
     }
@@ -81,7 +81,7 @@ public sealed class AddEmployeeAction : AppAction<AddEmployeeForm, int>
 
 public sealed class AddEmployeeFormAction : AppAction<EmptyRequest, IDictionary<string, object?>>
 {
-    public Task<IDictionary<string, object?>> Execute(EmptyRequest model)
+    public Task<IDictionary<string, object?>> Execute(EmptyRequest model, CancellationToken ct)
     {
         var form = new AddEmployeeForm();
         return Task.FromResult(form.Export());
@@ -90,7 +90,7 @@ public sealed class AddEmployeeFormAction : AppAction<EmptyRequest, IDictionary<
 
 public sealed class AddEmployeeFormViewAction : AppAction<EmptyRequest, WebPartialViewResult>
 {
-    public Task<WebPartialViewResult> Execute(EmptyRequest model)
+    public Task<WebPartialViewResult> Execute(EmptyRequest model, CancellationToken ct)
     {
         return Task.FromResult(new WebPartialViewResult("AddEmployeeForm"));
     }
@@ -98,7 +98,7 @@ public sealed class AddEmployeeFormViewAction : AppAction<EmptyRequest, WebParti
 
 public sealed class AddEmployeeValidation : AppActionValidation<AddEmployeeForm>
 {
-    public Task Validate(ErrorList errors, AddEmployeeForm model)
+    public Task Validate(ErrorList errors, AddEmployeeForm model, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(model.EmployeeName.Value()))
         {
@@ -110,7 +110,7 @@ public sealed class AddEmployeeValidation : AppActionValidation<AddEmployeeForm>
 
 public sealed class EmployeeAction : AppAction<int, Employee>
 {
-    public Task<Employee> Execute(int id)
+    public Task<Employee> Execute(int id, CancellationToken ct)
     {
         return Task.FromResult(new Employee { ID = id, Name = "Someone", BirthDate = DateTime.Today });
     }
@@ -158,7 +158,7 @@ public sealed class ProductGroup : AppApiGroupWrapper
 
 public sealed class GetInfoAction : AppAction<EmptyRequest, string>
 {
-    public Task<string> Execute(EmptyRequest model)
+    public Task<string> Execute(EmptyRequest model, CancellationToken ct)
     {
         return Task.FromResult("");
     }
@@ -166,7 +166,7 @@ public sealed class GetInfoAction : AppAction<EmptyRequest, string>
 
 public sealed class AddProductAction : AppAction<AddProductModel, int>
 {
-    public Task<int> Execute(AddProductModel model)
+    public Task<int> Execute(AddProductModel model, CancellationToken ct)
     {
         return Task.FromResult(1);
     }
@@ -174,7 +174,7 @@ public sealed class AddProductAction : AppAction<AddProductModel, int>
 
 public sealed class AddProductValidation : AppActionValidation<AddProductModel>
 {
-    public Task Validate(ErrorList errors, AddProductModel model)
+    public Task Validate(ErrorList errors, AddProductModel model, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(model.Name))
         {
@@ -186,7 +186,7 @@ public sealed class AddProductValidation : AppActionValidation<AddProductModel>
 
 public sealed class ProductAction : AppAction<int, Product>
 {
-    public Task<Product> Execute(int id)
+    public Task<Product> Execute(int id, CancellationToken ct)
     {
         return Task.FromResult(new Product { ID = id, Quantity = 2, Price = 23.42M });
     }

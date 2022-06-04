@@ -9,27 +9,27 @@ public class ProductController : Controller
         this.api = api;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(CancellationToken ct)
     {
-        var result = await api.Group("Product").Action<EmptyRequest, WebViewResult>("Index").Execute(new EmptyRequest());
+        var result = await api.Group("Product").Action<EmptyRequest, WebViewResult>("Index").Execute(new EmptyRequest(), ct);
         return View(result.Data.ViewName);
     }
 
     [HttpPost]
-    public Task<ResultContainer<string>> GetInfo()
+    public Task<ResultContainer<string>> GetInfo(CancellationToken ct)
     {
-        return api.Group("Product").Action<EmptyRequest, string>("GetInfo").Execute(new EmptyRequest());
+        return api.Group("Product").Action<EmptyRequest, string>("GetInfo").Execute(new EmptyRequest(), ct);
     }
 
     [HttpPost]
-    public Task<ResultContainer<int>> AddProduct([FromBody] AddProductModel model)
+    public Task<ResultContainer<int>> AddProduct([FromBody] AddProductModel model, CancellationToken ct)
     {
-        return api.Group("Product").Action<AddProductModel, int>("AddProduct").Execute(model);
+        return api.Group("Product").Action<AddProductModel, int>("AddProduct").Execute(model, ct);
     }
 
     [HttpPost]
-    public Task<ResultContainer<Product>> Product([FromBody] int model)
+    public Task<ResultContainer<Product>> Product([FromBody] int model, CancellationToken ct)
     {
-        return api.Group("Product").Action<int, Product>("Product").Execute(model);
+        return api.Group("Product").Action<int, Product>("Product").Execute(model, ct);
     }
 }
