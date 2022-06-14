@@ -3,7 +3,7 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "lib": [ "es2015", "dom" ],
+    "lib": [ "es2018", "dom" ],
     "module": "commonjs",
     "noImplicitAny": false,
     "noEmitOnError": true,
@@ -13,14 +13,15 @@
     "importHelpers": true,
     "baseUrl": ".",
     "paths": {
-      "XtiShared/*": [ "../../Imports/Shared/*" ]
+      "@jasonbenfield/sharedwebapp/*": [ "C:/XTI/src/JasonBenfield/SharedWebApp/Apps/SharedWebApp/Scripts/Shared/*" ]
     },
     "typeRoots": [
       "../../node_modules/@types"
     ]
   },
   "include": [
-    "./**/*.ts"
+    "./**/*.ts",
+    "C:/XTI/src/JasonBenfield/SharedWebApp/Apps/SharedWebApp/Scripts/Shared/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",

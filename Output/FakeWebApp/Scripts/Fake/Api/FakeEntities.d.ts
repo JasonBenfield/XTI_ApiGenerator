@@ -1,5 +1,16 @@
 // Generated code
 
+interface IQueryableEmployee {
+	ID?: number;
+	Name?: string;
+	BirthDate?: Date;
+	EmployeeType?: IEmployeeType;
+	Departments?: number[];
+	CurrentProduct?: IProduct;
+	Rates?: Record<string,number>;
+	Status?: Status;
+	TimeEmployed?: string;
+}
 interface IUserStartRequest {
 	ReturnUrl: string;
 }
@@ -25,6 +36,25 @@ interface IProduct {
 	ID: number;
 	Quantity: number;
 	Price: number;
+}
+interface IWebFileResult {
+	FileStream: IStream;
+	ContentType: string;
+	DownloadName: string;
+}
+interface IStream {
+	CanRead: boolean;
+	CanWrite: boolean;
+	CanSeek: boolean;
+	CanTimeout: boolean;
+	Length: number;
+	Position: number;
+	ReadTimeout: number;
+	WriteTimeout: number;
+}
+interface IWebContentResult {
+	Content: string;
+	ContentType: string;
 }
 interface IAddProductModel {
 	Name: string;

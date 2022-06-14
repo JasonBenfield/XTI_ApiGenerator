@@ -34,6 +34,34 @@ public sealed class TypeSyntaxFromValueTemplate
                     )
                 );
         }
+        if (valueTemplate is QueryableValueTemplate query)
+        {
+            return GenericName(Identifier("IQueryable"))
+                .WithTypeArgumentList
+                (
+                    TypeArgumentList
+                    (
+                        SingletonSeparatedList
+                        (
+                            new TypeSyntaxFromValueTemplate(query.ElementTemplate).Value()
+                        )
+                    )
+                );
+        }
+        if (valueTemplate is QueryOptionsTemplate optionsTempl)
+        {
+            return GenericName(Identifier("ODataQueryOptions"))
+                .WithTypeArgumentList
+                (
+                    TypeArgumentList
+                    (
+                        SingletonSeparatedList
+                        (
+                            new TypeSyntaxFromValueTemplate(optionsTempl.EntityTemplate).Value()
+                        )
+                    )
+                );
+        }
         if (valueTemplate.DataType == typeof(string))
         {
             return PredefinedType(Token(SyntaxKind.StringKeyword));

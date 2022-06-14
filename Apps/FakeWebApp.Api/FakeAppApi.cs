@@ -1,13 +1,16 @@
-﻿using XTI_App.Abstractions;
+﻿using Microsoft.AspNetCore.OData.Query;
+using Microsoft.Extensions.DependencyInjection;
+using XTI_App.Abstractions;
 using XTI_App.Api;
 using XTI_Core;
+using XTI_ODataQuery.Api;
 using XTI_WebApp.Api;
 
 namespace FakeWebApp.Api;
 
 public static class FakeAppKey
 {
-    public static readonly AppKey AppKey = new AppKey("Fake", AppType.Values.WebApp);
+    public static readonly AppKey AppKey = AppKey.WebApp("Fake");
 }
 public sealed class FakeAppApi : WebAppApiWrapper
 {
@@ -16,9 +19,15 @@ public sealed class FakeAppApi : WebAppApiWrapper
         : base(new AppApi(FakeAppKey.AppKey, user, access), sp)
     {
         Employee = new EmployeeGroup(source.AddGroup(nameof(Employee)));
+        EmployeeQuery = new ODataGroup<Employee>
+        (
+            source.AddGroup(nameof(EmployeeQuery)),
+            () => sp.GetRequiredService<QueryEmployeesAction>()
+        );
         Product = new ProductGroup(source.AddGroup(nameof(Product)));
     }
     public EmployeeGroup Employee { get; }
+    public ODataGroup<Employee> EmployeeQuery { get; }
     public ProductGroup Product { get; }
 }
 
@@ -27,41 +36,36 @@ public sealed class EmployeeGroup : AppApiGroupWrapper
     public EmployeeGroup(AppApiGroup source)
         : base(source)
     {
-        var actions = new WebAppApiActionFactory(source);
-        Index = source.AddAction(actions.DefaultView());
+        Index = source.AddAction(nameof(Index), () => ViewAppAction<EmptyRequest>.Index());
         AddEmployee = source.AddAction
         (
-            actions.Action
-            (
-                nameof(AddEmployee),
-                () => new AddEmployeeValidation(),
-                () => new AddEmployeeAction()
-            )
+            nameof(AddEmployee),
+            () => new AddEmployeeAction(),
+            () => new AddEmployeeValidation()
         );
         AddEmployeeFormView = source.AddAction
         (
-            actions.PartialView
-            (
-                nameof(AddEmployeeFormView),
-                () => new AddEmployeeFormViewAction()
-            )
+            nameof(AddEmployeeFormView),
+            () => new AddEmployeeFormViewAction()
         );
         AddEmployeeForm = source.AddAction
         (
-            actions.Action
-            (
-                nameof(AddEmployeeForm),
-                () => new AddEmployeeFormAction()
-            )
+            nameof(AddEmployeeForm),
+            () => new AddEmployeeFormAction()
         );
         Employee = source.AddAction
         (
-            actions.Action
-            (
-                nameof(Employee),
-                () => new EmployeeAction(),
-                "Get Employee Information"
-            )
+            nameof(Employee),
+            () => new EmployeeAction(),
+            friendlyName: "Get Employee Information"
+        );
+        DownloadAttachment = source.AddAction
+        (
+            nameof(DownloadAttachment), () => new DownloadAttachmentAction()
+        );
+        GetContent = source.AddAction
+        (
+            nameof(GetContent), () => new GetContentAction()
         );
     }
     public AppApiAction<EmptyRequest, WebViewResult> Index { get; }
@@ -69,6 +73,34 @@ public sealed class EmployeeGroup : AppApiGroupWrapper
     public AppApiAction<EmptyRequest, IDictionary<string, object?>> AddEmployeeForm { get; }
     public AppApiAction<EmptyRequest, WebPartialViewResult> AddEmployeeFormView { get; }
     public AppApiAction<int, Employee> Employee { get; }
+    public AppApiAction<EmptyRequest, WebFileResult> DownloadAttachment { get; }
+    public AppApiAction<EmptyRequest, WebContentResult> GetContent { get; }
+}
+
+public sealed class QueryEmployeesAction : QueryAction<Employee>
+{
+    public IQueryable<Employee> Execute(ODataQueryOptions<Employee> options) =>
+        Enumerable.Range(1, 3)
+            .Select(i => new Employee { ID = i })
+            .AsQueryable();
+}
+
+public sealed class GetContentAction : AppAction<EmptyRequest, WebContentResult>
+{
+    public Task<WebContentResult> Execute(EmptyRequest model, CancellationToken stoppingToken) =>
+        Task.FromResult(new WebContentResult("Whatever"));
+}
+
+public sealed class DownloadAttachmentAction : AppAction<EmptyRequest, WebFileResult>
+{
+    public Task<WebFileResult> Execute(EmptyRequest model, CancellationToken stoppingToken)
+    {
+        var stream = new MemoryStream();
+        return Task.FromResult
+        (
+            new WebFileResult(stream, "text/plain", "attachment.txt")
+        );
+    }
 }
 
 public sealed class AddEmployeeAction : AppAction<AddEmployeeForm, int>
@@ -121,33 +153,23 @@ public sealed class ProductGroup : AppApiGroupWrapper
     public ProductGroup(AppApiGroup source)
         : base(source)
     {
-        var actions = new WebAppApiActionFactory(source);
-        Index = source.AddAction(actions.DefaultView());
+        Index = source.AddAction(nameof(Index), () => ViewAppAction<EmptyRequest>.Index());
         GetInfo = source.AddAction
         (
-            actions.Action
-            (
-                nameof(GetInfo),
-                () => new GetInfoAction()
-            )
+            nameof(GetInfo),
+            () => new GetInfoAction()
         );
         AddProduct = source.AddAction
         (
-            actions.Action
-            (
-                nameof(AddProduct),
-                () => new AddProductValidation(),
-                () => new AddProductAction()
-            )
+            nameof(AddProduct),
+            () => new AddProductAction(),
+            () => new AddProductValidation()
         );
         Product = source.AddAction
         (
-            actions.Action
-            (
-                nameof(Product),
-                () => new ProductAction(),
-                "Get Product Information"
-            )
+            nameof(Product),
+            () => new ProductAction(),
+            friendlyName: "Get Product Information"
         );
     }
     public AppApiAction<EmptyRequest, WebViewResult> Index { get; }

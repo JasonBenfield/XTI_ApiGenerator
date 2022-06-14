@@ -2,6 +2,7 @@
 
 import { AppApi } from "@jasonbenfield/sharedwebapp/Api/AppApi";
 import { AppApiEvents } from "@jasonbenfield/sharedwebapp/Api/AppApiEvents";
+import { AppApiODataGroup } from "@jasonbenfield/sharedwebapp/Api/AppApiODataGroup";
 import { UserGroup } from "./UserGroup";
 import { UserCacheGroup } from "./UserCacheGroup";
 import { EmployeeGroup } from "./EmployeeGroup";
@@ -14,11 +15,13 @@ export class FakeAppApi extends AppApi {
 		this.User = this.addGroup((evts, resourceUrl) => new UserGroup(evts, resourceUrl));
 		this.UserCache = this.addGroup((evts, resourceUrl) => new UserCacheGroup(evts, resourceUrl));
 		this.Employee = this.addGroup((evts, resourceUrl) => new EmployeeGroup(evts, resourceUrl));
+		this.EmployeeQuery = this.addODataGroup<IQueryableEmployee>((evts, resourceUrl) => new AppApiODataGroup<IQueryableEmployee>(evts, resourceUrl, 'EmployeeQuery'));
 		this.Product = this.addGroup((evts, resourceUrl) => new ProductGroup(evts, resourceUrl));
 	}
 	
 	readonly User: UserGroup;
 	readonly UserCache: UserCacheGroup;
 	readonly Employee: EmployeeGroup;
+	readonly EmployeeQuery: AppApiODataGroup<IQueryableEmployee>;
 	readonly Product: ProductGroup;
 }

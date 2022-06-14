@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using XTI_App.Api;
+using XTI_WebApp.CodeGeneration;
 using XTI_WebApp.CodeGeneration.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -168,10 +169,19 @@ public sealed class ApiAppClass
             (
                 PropertyDeclaration
                 (
-                    IdentifierName
-                    (
-                        $"{group.Name}Group"
-                    ),
+                    group.IsODataGroup()
+                        ? GenericName(Identifier("AppClientODataGroup"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SingletonSeparatedList
+                                    (
+                                        new TypeSyntaxFromValueTemplate(group.QueryableTemplates().First().ElementTemplate).Value()
+                                    )
+                                )
+                            )
+                        : IdentifierName($"{group.Name}Group"),
                     Identifier(group.Name)
                 )
                 .WithModifiers
@@ -244,7 +254,8 @@ public sealed class ApiAppClass
         {
             statements.Add
             (
-                ExpressionStatement
+                group.IsODataGroup()
+                ? ExpressionStatement
                 (
                     AssignmentExpression
                     (
@@ -252,7 +263,46 @@ public sealed class ApiAppClass
                         IdentifierName(group.Name),
                         InvocationExpression
                         (
-                            IdentifierName("GetGroup")
+                            GenericName(Identifier("CreateODataGroup"))
+                                .WithTypeArgumentList
+                                (
+                                    TypeArgumentList
+                                    (
+                                        SingletonSeparatedList
+                                        (
+                                            new TypeSyntaxFromValueTemplate(group.QueryableTemplates().First().ElementTemplate).Value()
+                                        )
+                                    )
+                                )
+                        )
+                        .WithArgumentList
+                        (
+                            ArgumentList
+                            (
+                                SingletonSeparatedList
+                                (
+                                    Argument
+                                    (
+                                        LiteralExpression
+                                        (
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(group.Name)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+                : ExpressionStatement
+                (
+                    AssignmentExpression
+                    (
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName(group.Name),
+                        InvocationExpression
+                        (
+                            IdentifierName("CreateGroup")
                         )
                         .WithArgumentList
                         (

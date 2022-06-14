@@ -126,7 +126,7 @@ public sealed class ApiGroupClass
                 )
             );
         }
-        foreach (var action in template.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView() && !a.IsPartialView()))
+        foreach (var action in template.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView() && !a.IsPartialView() && !a.IsFile() && !a.IsQueryToExcel()))
         {
             members.AddRange
             (
@@ -137,6 +137,75 @@ public sealed class ApiGroupClass
             );
         }
         return members.ToArray();
+    }
+
+    private InvocationExpressionSyntax InvokePost(AppApiActionTemplate action)
+    { 
+        if (action.IsQuery())
+        {
+            return InvocationExpression
+            (
+                IdentifierName(Identifier("PostForQuery"))
+            )
+            .WithArgumentList
+            (
+                ArgumentList
+                (
+                    SeparatedList<ArgumentSyntax>
+                    (
+                        postArgs(action, template.HasModifier)
+                    )
+                )
+            );
+        }
+        else if (action.IsContent())
+        {
+            return InvocationExpression
+            (
+                IdentifierName(Identifier("PostForContent"))
+            )
+            .WithArgumentList
+            (
+                ArgumentList
+                (
+                    SeparatedList<ArgumentSyntax>
+                    (
+                        postArgs(action, template.HasModifier)
+                    )
+                )
+            );
+        }
+        return InvocationExpression
+        (
+            GenericName(Identifier("Post"))
+            .WithTypeArgumentList
+            (
+                TypeArgumentList
+                (
+                    SeparatedList<TypeSyntax>
+                    (
+                        new SyntaxNodeOrToken[]
+                        {
+                            action.IsQuery() || action.IsQueryToExcel()
+                                ? PredefinedType(Token(SyntaxKind.StringKeyword))
+                                : new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value(),
+                            Token(SyntaxKind.CommaToken),
+                            new TypeSyntaxFromValueTemplate(action.ModelTemplate).Value()
+                        }
+                    )
+                )
+            )
+        )
+        .WithArgumentList
+        (
+            ArgumentList
+            (
+                SeparatedList<ArgumentSyntax>
+                (
+                    postArgs(action, template.HasModifier)
+                )
+            )
+        );
     }
 
     private MethodDeclarationSyntax actionDeclaration(AppApiActionTemplate action)
@@ -150,7 +219,9 @@ public sealed class ApiGroupClass
                     (
                         SingletonSeparatedList
                         (
-                            new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value()
+                            action.IsQuery() || action.IsContent()
+                                ? PredefinedType(Token(SyntaxKind.StringKeyword))
+                                : new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value()
                         )
                     )
                 ),
@@ -174,35 +245,7 @@ public sealed class ApiGroupClass
         (
             ArrowExpressionClause
             (
-                InvocationExpression
-                (
-                    GenericName(Identifier("Post"))
-                    .WithTypeArgumentList
-                    (
-                        TypeArgumentList
-                        (
-                            SeparatedList<TypeSyntax>
-                            (
-                                new SyntaxNodeOrToken[]
-                                {
-                                    new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value(),
-                                    Token(SyntaxKind.CommaToken),
-                                    new TypeSyntaxFromValueTemplate(action.ModelTemplate).Value()
-                                }
-                            )
-                        )
-                    )
-                )
-                .WithArgumentList
-                (
-                    ArgumentList
-                    (
-                        SeparatedList<ArgumentSyntax>
-                        (
-                            postArgs(action, template.HasModifier)
-                        )
-                    )
-                )
+                InvokePost(action)
             )
         )
         .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
@@ -291,7 +334,9 @@ public sealed class ApiGroupClass
                 Parameter(Identifier("model"))
                     .WithType
                     (
-                        new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
+                        actionTemplate.IsQuery() || actionTemplate.IsQueryToExcel()
+                            ? PredefinedType(Token(SyntaxKind.StringKeyword))
+                            : new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
                     )
             );
         }

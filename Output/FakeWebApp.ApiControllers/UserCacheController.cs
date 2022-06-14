@@ -1,7 +1,7 @@
 // Generated Code
 namespace FakeWebApp.ApiControllers;
 [Authorize]
-public class UserCacheController : Controller
+public sealed partial class UserCacheController : Controller
 {
     private readonly FakeAppApi api;
     public UserCacheController(FakeAppApi api)

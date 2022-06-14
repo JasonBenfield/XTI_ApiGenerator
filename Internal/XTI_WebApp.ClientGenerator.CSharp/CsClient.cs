@@ -32,7 +32,9 @@ public sealed class CsClient : CodeGenerator
             await new ApiObjectClass(ns, createStream, objTemplate).Output();
         }
         var formTemplates = appTemplate.FormTemplates(ApiCodeGenerators.Dotnet);
-        var complexFieldTemplates = formTemplates.SelectMany(ft => ft.Form.ComplexFieldTemplates).Distinct();
+        var complexFieldTemplates = formTemplates
+            .SelectMany(ft => ft.Form.ComplexFieldTemplates)
+            .Distinct();
         foreach (var complexFieldTemplate in complexFieldTemplates)
         {
             await new ComplexFieldClass(ns, createStream, complexFieldTemplate, "ComplexField").Output();
@@ -43,8 +45,15 @@ public sealed class CsClient : CodeGenerator
         }
         foreach (var groupTemplate in appTemplate.GroupTemplates)
         {
-            await new ApiGroupActionsClass(ns, createStream, groupTemplate).Output();
-            await new ApiGroupClass(ns, createStream, groupTemplate).Output();
+            if (groupTemplate.IsODataGroup())
+            {
+
+            }
+            else
+            {
+                await new ApiGroupActionsClass(ns, createStream, groupTemplate).Output();
+                await new ApiGroupClass(ns, createStream, groupTemplate).Output();
+            }
         }
         foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.Dotnet))
         {

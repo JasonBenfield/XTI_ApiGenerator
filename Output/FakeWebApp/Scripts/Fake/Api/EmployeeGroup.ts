@@ -15,6 +15,8 @@ export class EmployeeGroup extends AppApiGroup {
 		this.AddEmployeeFormView = this.createView<IEmptyRequest>('AddEmployeeFormView');
 		this.AddEmployeeFormAction = this.createAction<IEmptyRequest,Record<string,object>>('AddEmployeeForm', 'Add Employee Form');
 		this.EmployeeAction = this.createAction<number,IEmployee>('Employee', 'Get Employee Information');
+		this.DownloadAttachment = this.createView<IEmptyRequest>('DownloadAttachment');
+		this.GetContentAction = this.createAction<IEmptyRequest,IWebContentResult>('GetContent', 'Get Content');
 	}
 	
 	readonly Index: AppApiView<IEmptyRequest>;
@@ -22,6 +24,8 @@ export class EmployeeGroup extends AppApiGroup {
 	readonly AddEmployeeFormView: AppApiView<IEmptyRequest>;
 	readonly AddEmployeeFormAction: AppApiAction<IEmptyRequest,Record<string,object>>;
 	readonly EmployeeAction: AppApiAction<number,IEmployee>;
+	readonly DownloadAttachment: AppApiView<IEmptyRequest>;
+	readonly GetContentAction: AppApiAction<IEmptyRequest,IWebContentResult>;
 	
 	AddEmployee(model: AddEmployeeForm, errorOptions?: IActionErrorOptions) {
 		return this.AddEmployeeAction.execute(model, errorOptions || {});
@@ -31,5 +35,8 @@ export class EmployeeGroup extends AppApiGroup {
 	}
 	Employee(model: number, errorOptions?: IActionErrorOptions) {
 		return this.EmployeeAction.execute(model, errorOptions || {});
+	}
+	GetContent(errorOptions?: IActionErrorOptions) {
+		return this.GetContentAction.execute({}, errorOptions || {});
 	}
 }

@@ -1,7 +1,7 @@
 // Generated Code
 namespace FakeWebApp.ApiControllers;
 [Authorize]
-public class EmployeeController : Controller
+public sealed partial class EmployeeController : Controller
 {
     private readonly FakeAppApi api;
     public EmployeeController(FakeAppApi api)
@@ -38,5 +38,18 @@ public class EmployeeController : Controller
     public Task<ResultContainer<Employee>> Employee([FromBody] int model, CancellationToken ct)
     {
         return api.Group("Employee").Action<int, Employee>("Employee").Execute(model, ct);
+    }
+
+    public async Task<IActionResult> DownloadAttachment(CancellationToken ct)
+    {
+        var result = await api.Group("Employee").Action<EmptyRequest, WebFileResult>("DownloadAttachment").Execute(new EmptyRequest(), ct);
+        return File(result.Data.FileStream, result.Data.ContentType, result.Data.DownloadName);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetContent(CancellationToken ct)
+    {
+        var result = await api.Group("Employee").Action<EmptyRequest, WebContentResult>("GetContent").Execute(new EmptyRequest(), ct);
+        return Content(result.Data.Content, result.Data.ContentType);
     }
 }
