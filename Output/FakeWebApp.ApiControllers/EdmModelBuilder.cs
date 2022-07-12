@@ -1,13 +1,19 @@
+// Generated Code
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 
 namespace FakeWebApp.ApiControllers;
-public sealed class EdmModelBuilder
+public sealed partial class EdmModelBuilder
 {
-    public IEdmModel GetEdmModel()
+    private readonly ODataConventionModelBuilder odataBuilder = new();
+    public EdmModelBuilder()
     {
-        var odataBuilder = new ODataConventionModelBuilder();
-        odataBuilder.EntitySet<Employee>("EmployeeQuery");
-        return odataBuilder.GetEdmModel();
+        EmployeeQuery = odataBuilder.EntitySet<Employee>("EmployeeQuery");
+        init();
     }
+
+    partial void init();
+    public EntitySetConfiguration<Employee> EmployeeQuery { get; }
+
+    public IEdmModel GetEdmModel() => odataBuilder.GetEdmModel();
 }

@@ -30,6 +30,10 @@ public sealed class TsClient : CodeGenerator
         {
             await new ApiGroupClassGenerator(createStream, group).Output();
         }
+        foreach (var group in appTemplate.GroupTemplates.Where(g => g.IsODataGroup()))
+        {
+            await new ODataColumnsBuilderGenerator(createStream, group.QueryableTemplates().First()).Output();
+        }
         await new EntityGenerator(createStream, appTemplate).Output();
         foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.TypeScript))
         {

@@ -194,7 +194,7 @@ internal class ODataControllerClassGenerator
                                                     LiteralExpression
                                                     (
                                                         SyntaxKind.StringLiteralExpression,
-                                                        Literal(groupTemplate.Name)
+                                                        Literal($"odata/{groupTemplate.Name}")
                                                     )
                                                 )
                                             )

@@ -63,27 +63,16 @@ internal sealed class EdmModelBuilderClassGenerator
                     new[]
                     {
                         Token(SyntaxKind.PublicKeyword),
-                        Token(SyntaxKind.SealedKeyword)
+                        Token(SyntaxKind.SealedKeyword),
+                        Token(SyntaxKind.PartialKeyword)
                     }
                 )
             )
             .WithMembers
             (
-                SingletonList<MemberDeclarationSyntax>
+                List
                 (
-                    MethodDeclaration
-                    (
-                        IdentifierName("IEdmModel"),
-                        Identifier("GetEdmModel")
-                    )
-                    .WithModifiers
-                    (
-                        TokenList(Token(SyntaxKind.PublicKeyword))
-                    )
-                    .WithBody
-                    (
-                        GetEdmModelMethodBody()
-                    )
+                    GetClassMembers()
                 )
             );
 
@@ -101,6 +90,15 @@ internal sealed class EdmModelBuilderClassGenerator
                     ),
                     IdentifierName("Edm")
                 )
+            )
+            .WithUsingKeyword
+            (
+                Token
+                (
+                    TriviaList(Comment("// Generated Code")),
+                    SyntaxKind.UsingKeyword,
+                    TriviaList()
+                )
             ),
             UsingDirective
             (
@@ -116,115 +114,235 @@ internal sealed class EdmModelBuilderClassGenerator
             )
         };
 
-    private BlockSyntax GetEdmModelMethodBody()
+    private MemberDeclarationSyntax[] GetClassMembers()
     {
-        var statements = new List<StatementSyntax>();
-        statements.Add(CreateODataConventionModelBuilderStatement());
-        foreach (var groupTemplate in GetOdataGroupTemplates())
-        {
-            statements.Add(GetEntitySetExpression(groupTemplate));
-        }
-        statements.Add(GetEdmModelReturnStatement());
-        return Block(statements);
+        var members = new List<MemberDeclarationSyntax>();
+        members.Add(CreateODataConventionModelBuilderStatement());
+        members.Add(GetConstructor());
+        members.Add(GetInitMethodDeclaration());
+        members.AddRange(GetEntitySetPropertyDeclarations());
+        members.Add(GetEdmModelMethodDeclaration());
+        return members.ToArray();
     }
 
     private IEnumerable<AppApiGroupTemplate> GetOdataGroupTemplates() =>
         appTemplate.GroupTemplates.Where(g => g.IsODataGroup());
 
-    private LocalDeclarationStatementSyntax CreateODataConventionModelBuilderStatement() =>
-        LocalDeclarationStatement
+    private FieldDeclarationSyntax CreateODataConventionModelBuilderStatement() =>
+        FieldDeclaration
         (
-            VariableDeclaration
-            (
-                IdentifierName
-                (
-                    Identifier
-                    (
-                        TriviaList(),
-                        SyntaxKind.VarKeyword,
-                        "var",
-                        "var",
-                        TriviaList()
-                    )
-                )
-            )
+            VariableDeclaration(IdentifierName("ODataConventionModelBuilder"))
             .WithVariables
             (
                 SingletonSeparatedList
                 (
                     VariableDeclarator(Identifier("odataBuilder"))
-                    .WithInitializer
-                    (
-                        EqualsValueClause
+                        .WithInitializer
                         (
-                            ObjectCreationExpression
-                            (
-                                IdentifierName("ODataConventionModelBuilder")
-                            )
-                            .WithArgumentList(ArgumentList())
+                            EqualsValueClause(ImplicitObjectCreationExpression())
                         )
-                    )
                 )
+            )
+        )
+        .WithModifiers
+        (
+            TokenList
+            (
+                new[]
+                {
+                    Token(SyntaxKind.PrivateKeyword),
+                    Token(SyntaxKind.ReadOnlyKeyword)
+                }
             )
         );
 
-
-    private ExpressionStatementSyntax GetEntitySetExpression(AppApiGroupTemplate groupTemplate) =>
-        ExpressionStatement
+    private ConstructorDeclarationSyntax GetConstructor() =>
+        ConstructorDeclaration
         (
-            InvocationExpression
+            Identifier("EdmModelBuilder")
+        )
+        .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+        .WithBody
+        (
+            Block
             (
-                MemberAccessExpression
+               GetEntitySetAssignments()
+                .Union
                 (
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("odataBuilder"),
-                    GenericName(Identifier("EntitySet"))
-                    .WithTypeArgumentList
-                    (
-                        TypeArgumentList
+                    new[]
+                    {
+                        ExpressionStatement
                         (
-                            SingletonSeparatedList
+                            InvocationExpression
                             (
-                                new TypeSyntaxFromValueTemplate
+                                IdentifierName
                                 (
-                                    groupTemplate.QueryableTemplates().First().ElementTemplate
+                                    Identifier
+                                    (
+                                        TriviaList(),
+                                        SyntaxKind.InitKeyword,
+                                        "init",
+                                        "init",
+                                        TriviaList()
+                                    )
                                 )
-                                .Value()
                             )
+                        )
+                    }
+                )
+            )
+        );
+
+    private MethodDeclarationSyntax GetInitMethodDeclaration() =>
+        MethodDeclaration
+        (
+            PredefinedType(Token(SyntaxKind.VoidKeyword)),
+            Identifier
+            (
+                TriviaList(),
+                SyntaxKind.InitKeyword,
+                "init",
+                "init",
+                TriviaList()
+            )
+        )
+        .WithModifiers(TokenList(Token(SyntaxKind.PartialKeyword)))
+        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+    private ExpressionStatementSyntax[] GetEntitySetAssignments()
+    {
+        var expressions = new List<ExpressionStatementSyntax>();
+        foreach(var groupTemplate in GetOdataGroupTemplates())
+        {
+            expressions.Add
+            (
+                ExpressionStatement
+                (
+                    AssignmentExpression
+                    (
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName(groupTemplate.Name),
+                        GetEntitySetExpression(groupTemplate)
+                    )
+                )
+            );
+        }
+        return expressions.ToArray();
+    }
+
+    private InvocationExpressionSyntax GetEntitySetExpression(AppApiGroupTemplate groupTemplate) =>
+        InvocationExpression
+        (
+            MemberAccessExpression
+            (
+                SyntaxKind.SimpleMemberAccessExpression,
+                IdentifierName("odataBuilder"),
+                GenericName(Identifier("EntitySet"))
+                .WithTypeArgumentList
+                (
+                    TypeArgumentList
+                    (
+                        SingletonSeparatedList
+                        (
+                            new TypeSyntaxFromValueTemplate
+                            (
+                                groupTemplate.QueryableTemplates().First().ElementTemplate
+                            )
+                            .Value()
                         )
                     )
                 )
             )
-            .WithArgumentList
+        )
+        .WithArgumentList
+        (
+            ArgumentList
             (
-                ArgumentList
+                SingletonSeparatedList
                 (
-                    SingletonSeparatedList
+                    Argument
                     (
-                        Argument
+                        LiteralExpression
                         (
-                            LiteralExpression
-                            (
-                                SyntaxKind.StringLiteralExpression,
-                                Literal(groupTemplate.Name)
-                            )
+                            SyntaxKind.StringLiteralExpression,
+                            Literal(groupTemplate.Name)
                         )
                     )
                 )
             )
         );
 
-    private ReturnStatementSyntax GetEdmModelReturnStatement() =>
-        ReturnStatement
-        (
-            InvocationExpression
+    private PropertyDeclarationSyntax[] GetEntitySetPropertyDeclarations()
+    {
+        var properties = new List<PropertyDeclarationSyntax>();
+        foreach (var groupTemplate in GetOdataGroupTemplates())
+        {
+            properties.Add
             (
-                MemberAccessExpression
+                PropertyDeclaration
                 (
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName("odataBuilder"),
-                    IdentifierName("GetEdmModel")
+                    GenericName(Identifier("EntitySetConfiguration")
+                )
+                .WithTypeArgumentList
+                (
+                    TypeArgumentList
+                    (
+                        SingletonSeparatedList
+                        (
+                            new TypeSyntaxFromValueTemplate
+                            (
+                                groupTemplate.QueryableTemplates().First().ElementTemplate
+                            )
+                            .Value()
+                        )
+                    )
+                ),
+                Identifier(groupTemplate.Name))
+                    .WithModifiers
+                    (
+                        TokenList(Token(SyntaxKind.PublicKeyword))
+                    )
+                    .WithAccessorList
+                    (
+                        AccessorList
+                        (
+                            SingletonList
+                            (
+                                AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                            )
+                        )
+                    )
+            );
+        }
+        return properties.ToArray();
+    }
+
+    private MethodDeclarationSyntax GetEdmModelMethodDeclaration() =>
+        MethodDeclaration
+        (
+            IdentifierName("IEdmModel"),
+            Identifier("GetEdmModel")
+        )
+        .WithModifiers
+        (
+            TokenList(Token(SyntaxKind.PublicKeyword))
+        )
+        .WithExpressionBody
+        (
+            ArrowExpressionClause
+            (
+                InvocationExpression
+                (
+                    MemberAccessExpression
+                    (
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("odataBuilder"),
+                        IdentifierName("GetEdmModel")
+                    )
                 )
             )
-        );
+        )
+        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
 }
