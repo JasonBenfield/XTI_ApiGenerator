@@ -175,9 +175,13 @@ public sealed class ApiAppClass
                             (
                                 TypeArgumentList
                                 (
-                                    SingletonSeparatedList
+                                    SeparatedList
                                     (
-                                        new TypeSyntaxFromValueTemplate(group.QueryableTemplates().First().ElementTemplate).Value()
+                                        new[]
+                                        {
+                                            new TypeSyntaxFromValueTemplate(group.ActionTemplates.First().ModelTemplate).Value(),
+                                            new TypeSyntaxFromValueTemplate(group.QueryableTemplates().First().ElementTemplate).Value()
+                                        }
                                     )
                                 )
                             )
@@ -268,9 +272,13 @@ public sealed class ApiAppClass
                                 (
                                     TypeArgumentList
                                     (
-                                        SingletonSeparatedList
+                                        SeparatedList
                                         (
-                                            new TypeSyntaxFromValueTemplate(group.QueryableTemplates().First().ElementTemplate).Value()
+                                            new[]
+                                            {
+                                                new TypeSyntaxFromValueTemplate(group.ActionTemplates.First().ModelTemplate).Value(),
+                                                new TypeSyntaxFromValueTemplate(group.QueryableTemplates().First().ElementTemplate).Value()
+                                            }
                                         )
                                     )
                                 )

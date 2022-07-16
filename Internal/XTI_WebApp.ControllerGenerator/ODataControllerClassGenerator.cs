@@ -48,7 +48,7 @@ internal class ODataControllerClassGenerator
                 (
                     SingletonList<MemberDeclarationSyntax>
                     (
-                        ControllerDeclaration()
+                        ControllerClassDeclaration()
                         .WithMembers
                         (
                             List
@@ -143,7 +143,7 @@ internal class ODataControllerClassGenerator
             );
     }
 
-    private ClassDeclarationSyntax ControllerDeclaration() =>
+    private ClassDeclarationSyntax ControllerClassDeclaration() =>
         ClassDeclaration(GetControllerClassName())
             .WithModifiers
             (
@@ -218,9 +218,13 @@ internal class ODataControllerClassGenerator
                                 (
                                     TypeArgumentList
                                     (
-                                        SingletonSeparatedList
+                                        SeparatedList
                                         (
-                                            typeSyntax(groupTemplate.QueryableTemplates().First().ElementTemplate)
+                                            new[]
+                                            {
+                                                typeSyntax(groupTemplate.ActionTemplates.First().ModelTemplate),
+                                                typeSyntax(groupTemplate.QueryableTemplates().First().ElementTemplate)
+                                            }
                                         )
                                     )
                                 )

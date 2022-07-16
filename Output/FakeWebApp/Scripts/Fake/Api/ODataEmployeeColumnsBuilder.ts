@@ -21,12 +21,16 @@ export class ODataEmployeeColumnsBuilder {
 		this.ID = new ODataColumnBuilder('ID', new SourceType('Int32'), views.ID);
 		this.Name = new ODataColumnBuilder('Name', new SourceType('String'), views.Name);
 		this.BirthDate = new ODataColumnBuilder('BirthDate', new SourceType('DateTime'), views.BirthDate);
+		this.BirthDate.setDisplayText('Birth Date');
 		this.EmployeeType = new ODataColumnBuilder('EmployeeType', new SourceType('EmployeeType'), views.EmployeeType);
+		this.EmployeeType.setDisplayText('Employee Type');
 		this.Departments = new ODataColumnBuilder('Departments', new SourceType('Int32[]'), views.Departments);
 		this.CurrentProduct = new ODataColumnBuilder('CurrentProduct', new SourceType('Product'), views.CurrentProduct);
+		this.CurrentProduct.setDisplayText('Current Product');
 		this.Rates = new ODataColumnBuilder('Rates', new SourceType('IDictionary`2'), views.Rates);
 		this.Status = new ODataColumnBuilder('Status', new SourceType('Status'), views.Status);
 		this.TimeEmployed = new ODataColumnBuilder('TimeEmployed', new SourceType('TimeSpan'), views.TimeEmployed);
+		this.TimeEmployed.setDisplayText('Time Employed');
 	}
 	readonly ID: ODataColumnBuilder;
 	readonly Name: ODataColumnBuilder;

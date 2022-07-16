@@ -86,7 +86,7 @@ internal sealed class TsType
         {
             var queryableArgs = type.GetGenericArguments();
             var entityType = queryableArgs[0].Name;
-            tsType = $"IQueryable{entityType}[]";
+            tsType = $"I{entityType}[]";
         }
         else if (typeof(Form).IsAssignableFrom(type))
         {

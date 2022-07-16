@@ -15,13 +15,13 @@ export class FakeAppApi extends AppApi {
 		this.User = this.addGroup((evts, resourceUrl) => new UserGroup(evts, resourceUrl));
 		this.UserCache = this.addGroup((evts, resourceUrl) => new UserCacheGroup(evts, resourceUrl));
 		this.Employee = this.addGroup((evts, resourceUrl) => new EmployeeGroup(evts, resourceUrl));
-		this.EmployeeQuery = this.addODataGroup<IQueryableEmployee>((evts, resourceUrl) => new AppApiQuery<IQueryableEmployee>(evts, resourceUrl, 'EmployeeQuery'));
+		this.EmployeeQuery = this.addODataGroup((evts, resourceUrl) => new AppApiQuery<IQueryEmployeesRequest, IEmployee>(evts, resourceUrl.odata('EmployeeQuery'), 'EmployeeQuery'));
 		this.Product = this.addGroup((evts, resourceUrl) => new ProductGroup(evts, resourceUrl));
 	}
 	
 	readonly User: UserGroup;
 	readonly UserCache: UserCacheGroup;
 	readonly Employee: EmployeeGroup;
-	readonly EmployeeQuery: AppApiQuery<IQueryableEmployee>;
+	readonly EmployeeQuery: AppApiQuery<IQueryEmployeesRequest, IEmployee>;
 	readonly Product: ProductGroup;
 }

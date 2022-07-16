@@ -71,7 +71,7 @@ internal sealed class ODataColumnsBuilderGenerator
             }
         }
         tsFile.Outdent();
-        tsFile.AddLine($"}} as ODataColumns<IQueryable{entityName}>;");
+        tsFile.AddLine($"}} as ODataColumns<I{entityName}>;");
         tsFile.Outdent();
         tsFile.AddLine("}");
         tsFile.Outdent();

@@ -7,7 +7,7 @@ public sealed partial class FakeAppClient : AppClient
         User = CreateGroup((_clientFactory, _tokenAccessor, _url) => new UserGroup(_clientFactory, _tokenAccessor, _url));
         UserCache = CreateGroup((_clientFactory, _tokenAccessor, _url) => new UserCacheGroup(_clientFactory, _tokenAccessor, _url));
         Employee = CreateGroup((_clientFactory, _tokenAccessor, _url) => new EmployeeGroup(_clientFactory, _tokenAccessor, _url));
-        EmployeeQuery = CreateODataGroup<Employee>("EmployeeQuery");
+        EmployeeQuery = CreateODataGroup<QueryEmployeesRequest, Employee>("EmployeeQuery");
         Product = CreateGroup((_clientFactory, _tokenAccessor, _url) => new ProductGroup(_clientFactory, _tokenAccessor, _url));
     }
 
@@ -19,7 +19,7 @@ public sealed partial class FakeAppClient : AppClient
 
     public EmployeeGroup Employee { get; }
 
-    public AppClientODataGroup<Employee> EmployeeQuery { get; }
+    public AppClientODataGroup<QueryEmployeesRequest, Employee> EmployeeQuery { get; }
 
     public ProductGroup Product { get; }
 }

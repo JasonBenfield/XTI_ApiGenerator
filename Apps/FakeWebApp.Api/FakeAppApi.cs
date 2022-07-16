@@ -19,7 +19,7 @@ public sealed class FakeAppApi : WebAppApiWrapper
         : base(new AppApi(FakeAppKey.AppKey, user, access), sp)
     {
         Employee = new EmployeeGroup(source.AddGroup(nameof(Employee)));
-        EmployeeQuery = new ODataGroup<Employee>
+        EmployeeQuery = new ODataGroup<QueryEmployeesRequest, Employee>
         (
             source.AddGroup(nameof(EmployeeQuery)),
             () => sp.GetRequiredService<QueryEmployeesAction>()
@@ -27,7 +27,7 @@ public sealed class FakeAppApi : WebAppApiWrapper
         Product = new ProductGroup(source.AddGroup(nameof(Product)));
     }
     public EmployeeGroup Employee { get; }
-    public ODataGroup<Employee> EmployeeQuery { get; }
+    public ODataGroup<QueryEmployeesRequest, Employee> EmployeeQuery { get; }
     public ProductGroup Product { get; }
 }
 
@@ -77,12 +77,17 @@ public sealed class EmployeeGroup : AppApiGroupWrapper
     public AppApiAction<EmptyRequest, WebContentResult> GetContent { get; }
 }
 
-public sealed class QueryEmployeesAction : QueryAction<Employee>
+public sealed record QueryEmployeesRequest(string Department);
+
+public sealed class QueryEmployeesAction : QueryAction<QueryEmployeesRequest, Employee>
 {
-    public IQueryable<Employee> Execute(ODataQueryOptions<Employee> options) =>
-        Enumerable.Range(1, 3)
-            .Select(i => new Employee { ID = i })
-            .AsQueryable();
+    public Task<IQueryable<Employee>> Execute(ODataQueryOptions<Employee> options, QueryEmployeesRequest model) =>
+        Task.FromResult
+        (
+            Enumerable.Range(1, 3)
+                .Select(i => new Employee { ID = i })
+                .AsQueryable()
+        );
 }
 
 public sealed class GetContentAction : AppAction<EmptyRequest, WebContentResult>

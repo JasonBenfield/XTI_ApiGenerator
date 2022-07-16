@@ -36,8 +36,9 @@ internal sealed class AppClassGenerator
         {
             if (groupTemplate.IsODataGroup())
             {
+                var modelTemplate = new TsType(groupTemplate.ActionTemplates.First().ModelTemplate).Value;
                 var entityTemplate = new TsType(groupTemplate.QueryableTemplates().First().ElementTemplate).Value;
-                tsFile.AddLine($"this.{groupTemplate.Name} = this.addODataGroup<IQueryable{entityTemplate.Substring(1)}>((evts, resourceUrl) => new AppApiQuery<IQueryable{entityTemplate.Substring(1)}>(evts, resourceUrl.odata('{groupTemplate.Name}'), '{groupTemplate.Name}'));");
+                tsFile.AddLine($"this.{groupTemplate.Name} = this.addODataGroup((evts, resourceUrl) => new AppApiQuery<{modelTemplate}, {entityTemplate}>(evts, resourceUrl.odata('{groupTemplate.Name}'), '{groupTemplate.Name}'));");
             }
             else
             {
@@ -47,16 +48,17 @@ internal sealed class AppClassGenerator
         tsFile.Outdent();
         tsFile.AddLine("}");
         tsFile.AddLine();
-        foreach (var group in appTemplate.GroupTemplates)
+        foreach (var groupTemplate in appTemplate.GroupTemplates)
         {
-            if (group.IsODataGroup())
+            if (groupTemplate.IsODataGroup())
             {
-                var entityTemplate = new TsType(group.QueryableTemplates().First().ElementTemplate).Value;
-                tsFile.AddLine($"readonly {group.Name}: AppApiQuery<IQueryable{entityTemplate.Substring(1)}>;");
+                var modelTemplate = new TsType(groupTemplate.ActionTemplates.First().ModelTemplate).Value;
+                var entityTemplate = new TsType(groupTemplate.QueryableTemplates().First().ElementTemplate).Value;
+                tsFile.AddLine($"readonly {groupTemplate.Name}: AppApiQuery<{modelTemplate}, {entityTemplate}>;");
             }
             else
             {
-                tsFile.AddLine($"readonly {group.Name}: {group.Name}Group;");
+                tsFile.AddLine($"readonly {groupTemplate.Name}: {groupTemplate.Name}Group;");
             }
         }
         tsFile.Outdent();
