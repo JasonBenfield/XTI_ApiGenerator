@@ -45,13 +45,8 @@ public sealed class CsClient : CodeGenerator
         }
         foreach (var groupTemplate in appTemplate.GroupTemplates)
         {
-            if (groupTemplate.IsODataGroup())
+            if (!groupTemplate.IsODataGroup())
             {
-
-            }
-            else
-            {
-                await new ApiGroupActionsClass(ns, createStream, groupTemplate).Output();
                 await new ApiGroupClass(ns, createStream, groupTemplate).Output();
             }
         }

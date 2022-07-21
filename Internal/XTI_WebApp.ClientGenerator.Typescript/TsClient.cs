@@ -26,7 +26,7 @@ public sealed class TsClient : CodeGenerator
             await new ComplexFieldClassGenerator(createStream, formTemplate.Form, true).Output();
             await new ComplexFieldViewClassGenerator(createStream, formTemplate.Form, true).Output();
         }
-        foreach (var group in appTemplate.GroupTemplates.Where(g => !g.IsODataGroup()))
+        foreach (var group in appTemplate.GroupTemplates.Where(g => !g.IsODataGroup() && !g.IsUser()))
         {
             await new ApiGroupClassGenerator(createStream, group).Output();
         }

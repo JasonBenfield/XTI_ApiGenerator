@@ -18,7 +18,7 @@ public sealed class FakeAppApi : WebAppApiWrapper
     public FakeAppApi(IAppApiUser user, ResourceAccess access, IServiceProvider sp)
         : base(new AppApi(FakeAppKey.AppKey, user, access), sp)
     {
-        Employee = new EmployeeGroup(source.AddGroup(nameof(Employee)));
+        Employee = new EmployeeGroup(source.AddGroup(nameof(Employee), new ModifierCategoryName("Department")));
         EmployeeQuery = new ODataGroup<QueryEmployeesRequest, Employee>
         (
             source.AddGroup(nameof(EmployeeQuery)),
