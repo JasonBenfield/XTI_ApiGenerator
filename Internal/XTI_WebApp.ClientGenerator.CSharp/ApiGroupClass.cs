@@ -211,31 +211,28 @@ public sealed class ApiGroupClass
     private IEnumerable<StatementSyntax> CreateCtorBody()
     {
         var statements = new List<StatementSyntax>();
-        if (actionsForGetMethod.Any())
-        {
-            statements.Add
+        statements.Add
+        (
+            ExpressionStatement
             (
-                ExpressionStatement
+                AssignmentExpression
                 (
-                    AssignmentExpression
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName("Actions"),
+                    ObjectCreationExpression(IdentifierName($"{GetGroupClassName()}Actions"))
+                    .WithArgumentList
                     (
-                        SyntaxKind.SimpleAssignmentExpression,
-                        IdentifierName("Actions"),
-                        ObjectCreationExpression(IdentifierName($"{GetGroupClassName()}Actions"))
-                        .WithArgumentList
+                        ArgumentList
                         (
-                            ArgumentList
+                            SeparatedList<ArgumentSyntax>
                             (
-                                SeparatedList<ArgumentSyntax>
-                                (
-                                    GetObjectCreationArgsForActions()
-                                )
+                                GetObjectCreationArgsForActions()
                             )
                         )
                     )
                 )
-            );
-        }
+            )
+        );
         return statements;
     }
 
@@ -243,7 +240,7 @@ public sealed class ApiGroupClass
     {
         var args = new List<SyntaxNodeOrToken>();
         var lastActionTemplate = template.ActionTemplates.Last();
-        foreach(var actionTemplate in template.ActionTemplates)
+        foreach (var actionTemplate in template.ActionTemplates)
         {
             args.Add
             (

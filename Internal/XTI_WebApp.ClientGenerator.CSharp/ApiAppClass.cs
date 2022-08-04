@@ -333,7 +333,9 @@ public sealed class ApiAppClass
                                                             Token(SyntaxKind.CommaToken),
                                                             Parameter(Identifier("_tokenAccessor")),
                                                             Token(SyntaxKind.CommaToken),
-                                                            Parameter(Identifier("_url"))
+                                                            Parameter(Identifier("_url")),
+                                                            Token(SyntaxKind.CommaToken),
+                                                            Parameter(Identifier("_options"))
                                                         }
                                                     )
                                                 )
@@ -353,7 +355,9 @@ public sealed class ApiAppClass
                                                                     Token(SyntaxKind.CommaToken),
                                                                     Argument(IdentifierName("_tokenAccessor")),
                                                                     Token(SyntaxKind.CommaToken),
-                                                                    Argument(IdentifierName("_url"))
+                                                                    Argument(IdentifierName("_url")),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    Argument(IdentifierName("_options"))
                                                                 }
                                                             )
                                                         )

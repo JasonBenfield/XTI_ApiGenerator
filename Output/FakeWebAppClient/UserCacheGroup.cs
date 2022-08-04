@@ -4,6 +4,7 @@ public sealed partial class UserCacheGroup : AppClientGroup
 {
     public UserCacheGroup(IHttpClientFactory httpClientFactory, XtiTokenAccessor xtiTokenAccessor, AppClientUrl clientUrl, AppClientOptions options) : base(httpClientFactory, xtiTokenAccessor, clientUrl, options, "UserCache")
     {
+        Actions = new UserCacheGroupActions(ClearCache: CreatePostAction<string, EmptyActionResult>("ClearCache"));
     }
 
     public UserCacheGroupActions Actions { get; }
