@@ -1,21 +1,5 @@
 // Generated code
 
-interface IQueryableEmployee {
-	ID?: number;
-	Name?: string;
-	BirthDate?: Date;
-	EmployeeType?: IEmployeeType;
-	Departments?: number[];
-	CurrentProduct?: IProduct;
-	Rates?: Record<string,number>;
-	Status?: Status;
-	TimeEmployed?: string;
-}
-interface IUserStartRequest {
-	ReturnUrl: string;
-}
-interface IEmptyRequest {
-}
 interface ILogoutRequest {
 	ReturnUrl: string;
 }
@@ -55,6 +39,9 @@ interface IStream {
 interface IWebContentResult {
 	Content: string;
 	ContentType: string;
+}
+interface IQueryEmployeesRequest {
+	Department: string;
 }
 interface IAddProductModel {
 	Name: string;

@@ -26,9 +26,13 @@ public sealed class TsClient : CodeGenerator
             await new ComplexFieldClassGenerator(createStream, formTemplate.Form, true).Output();
             await new ComplexFieldViewClassGenerator(createStream, formTemplate.Form, true).Output();
         }
-        foreach (var group in appTemplate.GroupTemplates.Where(g => !g.IsODataGroup()))
+        foreach (var group in appTemplate.GroupTemplates.Where(g => !g.IsODataGroup() && !g.IsUser()))
         {
             await new ApiGroupClassGenerator(createStream, group).Output();
+        }
+        foreach (var group in appTemplate.GroupTemplates.Where(g => g.IsODataGroup()))
+        {
+            await new ODataColumnsBuilderGenerator(createStream, group.QueryableTemplates().First()).Output();
         }
         await new EntityGenerator(createStream, appTemplate).Output();
         foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.TypeScript))

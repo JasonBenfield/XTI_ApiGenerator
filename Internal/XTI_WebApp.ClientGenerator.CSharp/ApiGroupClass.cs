@@ -24,12 +24,12 @@ public sealed class ApiGroupClass
 
     public async Task Output()
     {
-        var groupClient = createGroupClient();
-        var className = getGroupClassName();
+        var groupClient = CreateGroupDocument();
+        var className = GetGroupClassName();
         await outputClass(groupClient, className);
     }
 
-    private CompilationUnitSyntax createGroupClient()
+    private CompilationUnitSyntax CreateGroupDocument()
     {
         return CompilationUnit()
             .WithMembers
@@ -50,19 +50,19 @@ public sealed class ApiGroupClass
                         (
                             List
                             (
-                                groupClass()
+                                CreateGroupClassDeclaration()
                             )
                         )
                 )
             );
     }
 
-    private MemberDeclarationSyntax[] groupClass()
+    private MemberDeclarationSyntax[] CreateGroupClassDeclaration()
     {
         var groupClass = new List<MemberDeclarationSyntax>();
         groupClass.Add
         (
-            ClassDeclaration(getGroupClassName())
+            ClassDeclaration(GetGroupClassName())
                 .WithModifiers
                 (
                     TokenList
@@ -81,7 +81,10 @@ public sealed class ApiGroupClass
                     (
                         SeparatedList
                         (
-                            groupBaseList()
+                            SingletonSeparatedList<BaseTypeSyntax>
+                            (
+                                SimpleBaseType(IdentifierName("AppClientGroup"))
+                            )
                         )
                     )
                 )
@@ -89,263 +92,57 @@ public sealed class ApiGroupClass
                 (
                     List
                     (
-                        groupMembers()
+                        GetGroupMembers()
                     )
                 )
         );
         return groupClass.ToArray();
     }
 
-    private MemberDeclarationSyntax[] groupMembers()
+    private MemberDeclarationSyntax[] GetGroupMembers()
     {
         var members = new List<MemberDeclarationSyntax>();
-        members.Add(groupCtor());
-        if (actionsForGetMethod.Any())
-        {
-            members.Add
+        members.Add(CreateCtorDeclaration());
+        members.Add
+        (
+            PropertyDeclaration
             (
-                PropertyDeclaration
+                IdentifierName($"{GetGroupClassName()}Actions"),
+                Identifier("Actions")
+            )
+            .WithModifiers
+            (
+                TokenList(Token(SyntaxKind.PublicKeyword))
+            )
+            .WithAccessorList
+            (
+                AccessorList
                 (
-                    IdentifierName($"{template.Name}Actions"),
-                    Identifier("Actions")
-                )
-                .WithModifiers
-                (
-                    TokenList(Token(SyntaxKind.PublicKeyword))
-                )
-                .WithAccessorList
-                (
-                    AccessorList
+                    SingletonList
                     (
-                        SingletonList
-                        (
-                            AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                        )
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                     )
                 )
-            );
-        }
-        foreach (var action in template.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView() && !a.IsPartialView() && !a.IsFile() && !a.IsQueryToExcel()))
+            )
+        );
+        foreach (var action in template.ActionTemplates.Where(a => !a.IsRedirect() && !a.IsView() && !a.IsPartialView()))
         {
             members.AddRange
             (
                 new[]
                 {
-                    actionDeclaration(action)
+                    CreateActionDeclaration(action)
                 }
             );
         }
+        members.Add(CreateActionsClassDeclaration());
         return members.ToArray();
     }
 
-    private InvocationExpressionSyntax InvokePost(AppApiActionTemplate action)
-    { 
-        if (action.IsQuery())
-        {
-            return InvocationExpression
-            (
-                IdentifierName(Identifier("PostForQuery"))
-            )
-            .WithArgumentList
-            (
-                ArgumentList
-                (
-                    SeparatedList<ArgumentSyntax>
-                    (
-                        postArgs(action, template.HasModifier)
-                    )
-                )
-            );
-        }
-        else if (action.IsContent())
-        {
-            return InvocationExpression
-            (
-                IdentifierName(Identifier("PostForContent"))
-            )
-            .WithArgumentList
-            (
-                ArgumentList
-                (
-                    SeparatedList<ArgumentSyntax>
-                    (
-                        postArgs(action, template.HasModifier)
-                    )
-                )
-            );
-        }
-        return InvocationExpression
-        (
-            GenericName(Identifier("Post"))
-            .WithTypeArgumentList
-            (
-                TypeArgumentList
-                (
-                    SeparatedList<TypeSyntax>
-                    (
-                        new SyntaxNodeOrToken[]
-                        {
-                            action.IsQuery() || action.IsQueryToExcel()
-                                ? PredefinedType(Token(SyntaxKind.StringKeyword))
-                                : new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value(),
-                            Token(SyntaxKind.CommaToken),
-                            new TypeSyntaxFromValueTemplate(action.ModelTemplate).Value()
-                        }
-                    )
-                )
-            )
-        )
-        .WithArgumentList
-        (
-            ArgumentList
-            (
-                SeparatedList<ArgumentSyntax>
-                (
-                    postArgs(action, template.HasModifier)
-                )
-            )
-        );
-    }
-
-    private MethodDeclarationSyntax actionDeclaration(AppApiActionTemplate action)
+    private MemberDeclarationSyntax CreateCtorDeclaration()
     {
-        return MethodDeclaration
-        (
-            GenericName(Identifier("Task"))
-                .WithTypeArgumentList
-                (
-                    TypeArgumentList
-                    (
-                        SingletonSeparatedList
-                        (
-                            action.IsQuery() || action.IsContent()
-                                ? PredefinedType(Token(SyntaxKind.StringKeyword))
-                                : new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value()
-                        )
-                    )
-                ),
-                Identifier(action.Name)
-        )
-        .WithModifiers
-        (
-            TokenList(Token(SyntaxKind.PublicKeyword))
-        )
-        .WithParameterList
-        (
-            ParameterList
-            (
-                SeparatedList
-                (
-                    actionArgs(action, template.HasModifier)
-                )
-            )
-        )
-        .WithExpressionBody
-        (
-            ArrowExpressionClause
-            (
-                InvokePost(action)
-            )
-        )
-        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-    }
-
-    private static SyntaxNodeOrToken[] postArgs(AppApiActionTemplate actionTemplate, bool includeModifier)
-    {
-        var args = new List<SyntaxNodeOrToken>();
-        args.AddRange
-        (
-            new SyntaxNodeOrToken[]
-            {
-                Argument
-                (
-                    LiteralExpression
-                    (
-                        SyntaxKind.StringLiteralExpression,
-                        Literal(actionTemplate.Name)
-                    )
-                ),
-                Token(SyntaxKind.CommaToken)
-            }
-        );
-        if (includeModifier)
-        {
-            args.AddRange
-            (
-                new SyntaxNodeOrToken[]
-                {
-                    Argument(IdentifierName("modifier")),
-                    Token(SyntaxKind.CommaToken)
-                }
-            );
-        }
-        else
-        {
-            args.AddRange
-            (
-                new SyntaxNodeOrToken[]
-                {
-                    Argument
-                    (
-                        LiteralExpression
-                        (
-                            SyntaxKind.StringLiteralExpression,
-                            Literal("")
-                        )
-                    ),
-                    Token(SyntaxKind.CommaToken)
-                }
-            );
-        }
-        if (actionTemplate.HasEmptyModel())
-        {
-            args.Add
-            (
-                Argument
-                (
-                    ObjectCreationExpression(IdentifierName("EmptyRequest"))
-                        .WithArgumentList(ArgumentList())
-                )
-            );
-        }
-        else
-        {
-            args.Add(Argument(IdentifierName("model")));
-        }
-        return args.ToArray();
-    }
-
-    private static ParameterSyntax[] actionArgs(AppApiActionTemplate actionTemplate, bool includeModifier)
-    {
-        var parameters = new List<ParameterSyntax>();
-        if (includeModifier)
-        {
-            parameters.Add
-            (
-                Parameter(Identifier("modifier"))
-                    .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
-            );
-        }
-        if (!actionTemplate.HasEmptyModel())
-        {
-            parameters.Add
-            (
-                Parameter(Identifier("model"))
-                    .WithType
-                    (
-                        actionTemplate.IsQuery() || actionTemplate.IsQueryToExcel()
-                            ? PredefinedType(Token(SyntaxKind.StringKeyword))
-                            : new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
-                    )
-            );
-        }
-        return parameters.ToArray();
-    }
-
-    private MemberDeclarationSyntax groupCtor()
-    {
-        return ConstructorDeclaration(Identifier(getGroupClassName()))
+        return ConstructorDeclaration(Identifier(GetGroupClassName()))
             .WithModifiers
             (
                 TokenList(Token(SyntaxKind.PublicKeyword))
@@ -365,7 +162,10 @@ public sealed class ApiGroupClass
                                 .WithType(IdentifierName("XtiTokenAccessor")),
                             Token(SyntaxKind.CommaToken),
                             Parameter(Identifier("clientUrl"))
-                                .WithType(IdentifierName("AppClientUrl"))
+                                .WithType(IdentifierName("AppClientUrl")),
+                            Token(SyntaxKind.CommaToken),
+                            Parameter(Identifier("options"))
+                                .WithType(IdentifierName("AppClientOptions"))
                         }
                     )
                 )
@@ -387,6 +187,8 @@ public sealed class ApiGroupClass
                                 Token(SyntaxKind.CommaToken),
                                 Argument(IdentifierName("clientUrl")),
                                 Token(SyntaxKind.CommaToken),
+                                Argument(IdentifierName("options")),
+                                Token(SyntaxKind.CommaToken),
                                 Argument
                                 (
                                     LiteralExpression
@@ -402,52 +204,474 @@ public sealed class ApiGroupClass
             )
             .WithBody
             (
-                Block(ctorBody())
+                Block(CreateCtorBody())
             );
     }
 
-    private IEnumerable<StatementSyntax> ctorBody()
+    private IEnumerable<StatementSyntax> CreateCtorBody()
     {
         var statements = new List<StatementSyntax>();
-        if (actionsForGetMethod.Any())
-        {
-            statements.Add
+        statements.Add
+        (
+            ExpressionStatement
             (
-                ExpressionStatement
+                AssignmentExpression
                 (
-                    AssignmentExpression
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName("Actions"),
+                    ObjectCreationExpression(IdentifierName($"{GetGroupClassName()}Actions"))
+                    .WithArgumentList
                     (
-                        SyntaxKind.SimpleAssignmentExpression,
-                        IdentifierName("Actions"),
-                        ObjectCreationExpression(IdentifierName($"{template.Name}Actions"))
-                        .WithArgumentList
+                        ArgumentList
                         (
-                            ArgumentList
+                            SeparatedList<ArgumentSyntax>
                             (
-                                SeparatedList<ArgumentSyntax>
+                                GetObjectCreationArgsForActions()
+                            )
+                        )
+                    )
+                )
+            )
+        );
+        return statements;
+    }
+
+    private SyntaxNodeOrToken[] GetObjectCreationArgsForActions()
+    {
+        var args = new List<SyntaxNodeOrToken>();
+        var lastActionTemplate = template.ActionTemplates.Last();
+        foreach (var actionTemplate in template.ActionTemplates)
+        {
+            args.Add
+            (
+                Argument
+                (
+                    InvocationExpression
+                    (
+                        actionTemplate.IsFile() ?
+                            GenericName(Identifier("CreateFileAction"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
                                 (
-                                    new SyntaxNodeOrToken[]
-                                    {
-                                        Argument(IdentifierName("clientUrl"))
-                                    }
+                                    SeparatedList<TypeSyntax>
+                                    (
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
+                                        }
+                                    )
+                                )
+                            )
+                        : actionTemplate.IsContent() ?
+                            GenericName(Identifier("CreateContentAction"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SeparatedList<TypeSyntax>
+                                    (
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
+                                        }
+                                    )
+                                )
+                            )
+                        : actionTemplate.IsView() || actionTemplate.IsPartialView() || actionTemplate.IsRedirect() ?
+                            GenericName(Identifier("CreateGetAction"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SeparatedList<TypeSyntax>
+                                    (
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
+                                        }
+                                    )
+                                )
+                            )
+                        : GenericName(Identifier("CreatePostAction"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SeparatedList<TypeSyntax>
+                                    (
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value(),
+                                            Token(SyntaxKind.CommaToken),
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ResultTemplate).Value()
+                                        }
+                                    )
+                                )
+                            )
+                    )
+                    .WithArgumentList
+                    (
+                        ArgumentList
+                        (
+                            SingletonSeparatedList
+                            (
+                                Argument
+                                (
+                                    LiteralExpression
+                                    (
+                                        SyntaxKind.StringLiteralExpression,
+                                        Literal(actionTemplate.Name)
+                                    )
                                 )
                             )
                         )
                     )
                 )
+                .WithNameColon
+                (
+                    NameColon(IdentifierName(actionTemplate.Name))
+                )
+            );
+            if (actionTemplate.Name != lastActionTemplate.Name)
+            {
+                args.Add(Token(SyntaxKind.CommaToken));
+            }
+        }
+        return args.ToArray();
+    }
+
+    private MethodDeclarationSyntax CreateActionDeclaration(AppApiActionTemplate action)
+    {
+        return MethodDeclaration
+        (
+            GenericName(Identifier("Task"))
+                .WithTypeArgumentList
+                (
+                    TypeArgumentList
+                    (
+                        SingletonSeparatedList
+                        (
+                            action.IsContent() ? IdentifierName("AppClientContentResult")
+                            : action.IsFile() ? IdentifierName("AppClientFileResult")
+                            : new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value()
+                        )
+                    )
+                ),
+                Identifier(action.Name)
+        )
+        .WithModifiers
+        (
+            TokenList(Token(SyntaxKind.PublicKeyword))
+        )
+        .WithParameterList
+        (
+            ParameterList
+            (
+                SeparatedList
+                (
+                    GetActionMethodDeclarationArgs(action, template.HasModifier)
+                )
+            )
+        )
+        .WithExpressionBody
+        (
+            ArrowExpressionClause
+            (
+                CreateActionMethodInvocation(action)
+            )
+        )
+        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+    }
+
+    private static ParameterSyntax[] GetActionMethodDeclarationArgs(AppApiActionTemplate actionTemplate, bool includeModifier)
+    {
+        var parameters = new List<ParameterSyntax>();
+        if (includeModifier)
+        {
+            parameters.Add
+            (
+                Parameter(Identifier("modifier"))
+                    .WithType(PredefinedType(Token(SyntaxKind.StringKeyword)))
             );
         }
-        return statements;
+        if (!actionTemplate.HasEmptyModel())
+        {
+            parameters.Add
+            (
+                Parameter(Identifier("model"))
+                    .WithType
+                    (
+                        new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
+                    )
+            );
+        }
+        return parameters.ToArray();
     }
 
-    private static BaseTypeSyntax[] groupBaseList()
+    private InvocationExpressionSyntax CreateActionMethodInvocation(AppApiActionTemplate action)
     {
-        var baseTypes = new List<BaseTypeSyntax>();
-        baseTypes.Add(SimpleBaseType(IdentifierName("AppClientGroup")));
-        return baseTypes.ToArray();
+        if (action.IsFile())
+        {
+            return InvocationExpression
+            (
+                MemberAccessExpression
+                (
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    MemberAccessExpression
+                    (
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("Actions"),
+                        IdentifierName(action.Name)
+                    ),
+                    IdentifierName("GetFile")
+                )
+            )
+            .WithArgumentList
+            (
+                ArgumentList
+                (
+                    SeparatedList<ArgumentSyntax>
+                    (
+                        GetActionMethodInvocationArgs(action, template.HasModifier)
+                    )
+                )
+            );
+        }
+        else if (action.IsContent())
+        {
+            return InvocationExpression
+            (
+                MemberAccessExpression
+                (
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    MemberAccessExpression
+                    (
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("Actions"),
+                        IdentifierName(action.Name)
+                    ),
+                    IdentifierName("Post")
+                )
+            )
+            .WithArgumentList
+            (
+                ArgumentList
+                (
+                    SeparatedList<ArgumentSyntax>
+                    (
+                        GetActionMethodInvocationArgs(action, template.HasModifier)
+                    )
+                )
+            );
+        }
+        return InvocationExpression
+        (
+            MemberAccessExpression
+            (
+                SyntaxKind.SimpleMemberAccessExpression,
+                MemberAccessExpression
+                (
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName("Actions"),
+                    IdentifierName(action.Name)
+                ),
+                IdentifierName("Post")
+            )
+        )
+        .WithArgumentList
+        (
+            ArgumentList
+            (
+                SeparatedList<ArgumentSyntax>
+                (
+                    GetActionMethodInvocationArgs(action, template.HasModifier)
+                )
+            )
+        );
     }
 
-    private string getGroupClassName() => $"{template.Name}Group";
+    private static SyntaxNodeOrToken[] GetActionMethodInvocationArgs(AppApiActionTemplate actionTemplate, bool includeModifier)
+    {
+        var args = new List<SyntaxNodeOrToken>();
+        args.AddRange
+        (
+            new SyntaxNodeOrToken[]
+            {
+                Argument
+                (
+                    includeModifier
+                        ? IdentifierName("modifier")
+                        : LiteralExpression
+                        (
+                            SyntaxKind.StringLiteralExpression,
+                            Literal("")
+                        )
+                ),
+                Token(SyntaxKind.CommaToken)
+            }
+        );
+        if (actionTemplate.HasEmptyModel())
+        {
+            args.Add
+            (
+                Argument
+                (
+                    ObjectCreationExpression(IdentifierName("EmptyRequest"))
+                        .WithArgumentList(ArgumentList())
+                )
+            );
+        }
+        else
+        {
+            args.Add(Argument(IdentifierName("model")));
+        }
+        return args.ToArray();
+    }
+
+    private RecordDeclarationSyntax CreateActionsClassDeclaration()
+    {
+        return RecordDeclaration
+        (
+            Token(SyntaxKind.RecordKeyword),
+            Identifier($"{GetGroupClassName()}Actions"))
+            .WithModifiers
+            (
+                TokenList
+                (
+                    new[]
+                    {
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.SealedKeyword)
+                    }
+                )
+            )
+            .WithParameterList
+            (
+                ParameterList
+                (
+                    SeparatedList<ParameterSyntax>
+                    (
+                        GetParametersForActions()
+                    )
+                )
+            )
+            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+    }
+
+    private SyntaxNodeOrToken[] GetParametersForActions()
+    {
+        var parameters = new List<SyntaxNodeOrToken>();
+        var lastActionTemplate = template.ActionTemplates.Last();
+        foreach (var actionTemplate in template.ActionTemplates)
+        {
+            if (actionTemplate.IsFile())
+            {
+                parameters.Add
+                (
+                    Parameter(Identifier(actionTemplate.Name))
+                        .WithType
+                        (
+                            GenericName(Identifier("AppClientFileAction"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SeparatedList
+                                    (
+                                        SingletonSeparatedList
+                                        (
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                );
+            }
+            else if (actionTemplate.IsContent())
+            {
+                parameters.Add
+                (
+                    Parameter(Identifier(actionTemplate.Name))
+                        .WithType
+                        (
+                            GenericName(Identifier("AppClientContentAction"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SeparatedList
+                                    (
+                                        SingletonSeparatedList
+                                        (
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                );
+            }
+            else if (actionTemplate.IsView() || actionTemplate.IsPartialView() || actionTemplate.IsRedirect())
+            {
+                parameters.Add
+                (
+                    Parameter(Identifier(actionTemplate.Name))
+                        .WithType
+                        (
+                            GenericName(Identifier("AppClientGetAction"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SeparatedList
+                                    (
+                                        SingletonSeparatedList
+                                        (
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                );
+            }
+            else
+            {
+                parameters.Add
+                (
+                    Parameter(Identifier(actionTemplate.Name))
+                        .WithType
+                        (
+                            GenericName(Identifier("AppClientPostAction"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SeparatedList<TypeSyntax>
+                                    (
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value(),
+                                            Token(SyntaxKind.CommaToken),
+                                            new TypeSyntaxFromValueTemplate(actionTemplate.ResultTemplate).Value()
+                                        }
+                                    )
+                                )
+                            )
+                        )
+                );
+            }
+            if (actionTemplate.Name != lastActionTemplate.Name)
+            {
+                parameters.Add(Token(SyntaxKind.CommaToken));
+            }
+        }
+        return parameters.ToArray();
+    }
+
+    private string GetGroupClassName() => $"{template.Name}Group";
 
     private Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
     {

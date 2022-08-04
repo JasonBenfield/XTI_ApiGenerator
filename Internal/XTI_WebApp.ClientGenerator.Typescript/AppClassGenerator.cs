@@ -20,8 +20,8 @@ internal sealed class AppClassGenerator
         tsFile.AddLine();
         tsFile.AddLine("import { AppApi } from \"@jasonbenfield/sharedwebapp/Api/AppApi\";");
         tsFile.AddLine("import { AppApiEvents } from \"@jasonbenfield/sharedwebapp/Api/AppApiEvents\";");
-        tsFile.AddLine("import { AppApiODataGroup } from \"@jasonbenfield/sharedwebapp/Api/AppApiODataGroup\";");
-        foreach (var groupTemplate in appTemplate.GroupTemplates.Where(g => !g.IsODataGroup()))
+        tsFile.AddLine("import { AppApiQuery } from \"@jasonbenfield/sharedwebapp/Api/AppApiQuery\";");
+        foreach (var groupTemplate in appTemplate.GroupTemplates.Where(g => !g.IsODataGroup() && !g.IsUser()))
         {
             var groupClassName = new GroupClassName(groupTemplate).Value;
             tsFile.AddLine($"import {{ {groupClassName} }} from \"./{groupClassName}\";");
@@ -36,10 +36,11 @@ internal sealed class AppClassGenerator
         {
             if (groupTemplate.IsODataGroup())
             {
+                var modelTemplate = new TsType(groupTemplate.ActionTemplates.First().ModelTemplate).Value;
                 var entityTemplate = new TsType(groupTemplate.QueryableTemplates().First().ElementTemplate).Value;
-                tsFile.AddLine($"this.{groupTemplate.Name} = this.addODataGroup<IQueryable{entityTemplate.Substring(1)}>((evts, resourceUrl) => new AppApiODataGroup<IQueryable{entityTemplate.Substring(1)}>(evts, resourceUrl, '{groupTemplate.Name}'));");
+                tsFile.AddLine($"this.{groupTemplate.Name} = this.addODataGroup((evts, resourceUrl) => new AppApiQuery<{modelTemplate}, {entityTemplate}>(evts, resourceUrl.odata('{groupTemplate.Name}'), '{groupTemplate.Name}'));");
             }
-            else
+            else if(!groupTemplate.IsUser())
             {
                 tsFile.AddLine($"this.{groupTemplate.Name} = this.addGroup((evts, resourceUrl) => new {groupTemplate.Name}Group(evts, resourceUrl));");
             }
@@ -47,16 +48,17 @@ internal sealed class AppClassGenerator
         tsFile.Outdent();
         tsFile.AddLine("}");
         tsFile.AddLine();
-        foreach (var group in appTemplate.GroupTemplates)
+        foreach (var groupTemplate in appTemplate.GroupTemplates.Where(g => !g.IsUser()))
         {
-            if (group.IsODataGroup())
+            if (groupTemplate.IsODataGroup())
             {
-                var entityTemplate = new TsType(group.QueryableTemplates().First().ElementTemplate).Value;
-                tsFile.AddLine($"readonly {group.Name}: AppApiODataGroup<IQueryable{entityTemplate.Substring(1)}>;");
+                var modelTemplate = new TsType(groupTemplate.ActionTemplates.First().ModelTemplate).Value;
+                var entityTemplate = new TsType(groupTemplate.QueryableTemplates().First().ElementTemplate).Value;
+                tsFile.AddLine($"readonly {groupTemplate.Name}: AppApiQuery<{modelTemplate}, {entityTemplate}>;");
             }
             else
             {
-                tsFile.AddLine($"readonly {group.Name}: {group.Name}Group;");
+                tsFile.AddLine($"readonly {groupTemplate.Name}: {groupTemplate.Name}Group;");
             }
         }
         tsFile.Outdent();

@@ -63,7 +63,7 @@ internal sealed class ComplexFieldClassGenerator
                 }
                 foreach (var constraint in simpleField.Constraints)
                 {
-                    if (constraint is NotWhitespaceConstraintModel)
+                    if (constraint is NotWhiteSpaceConstraintModel)
                     {
                         tsFile.AddLine($"this.{field.Name}.constraints.mustNotBeWhitespace('{constraint.FailureMessage}');");
                     }

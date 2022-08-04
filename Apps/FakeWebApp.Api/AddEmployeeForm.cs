@@ -20,7 +20,7 @@ public sealed class AddEmployeeForm : Form
         Department.MustNotBeNull();
         Address = AddComplex(nameof(Address), (p, n) => new AddressInput(p, n));
         SSN = AddInt32Input(nameof(SSN));
-        SSN.IsProtected = true;
+        SSN.Protect();
         SSN.AddConstraints(Int32RangeConstraint.FromAbove(0).ToBelow(1000000000));
         HireDate = AddDateDropDown
         (

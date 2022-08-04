@@ -44,6 +44,7 @@ public sealed class CsControllers : CodeGenerator
             .Distinct()
             .OrderBy(str => str)
             .ToArray();
+        await new EdmModelBuilderClassGenerator(ns, createStream, appTemplate).Output();
         await new GlobalUsingsClass(createStream, namespaces).Output();
     }
 }

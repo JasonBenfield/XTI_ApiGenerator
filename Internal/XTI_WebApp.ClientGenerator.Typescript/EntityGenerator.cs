@@ -15,13 +15,6 @@ internal sealed class EntityGenerator
     {
         var tsFile = new TypeScriptFile($"{appTemplate.Name}Entities.d.ts", createStream);
         tsFile.AddLine();
-        foreach(var queryTemplate in appTemplate.QueryableTemplates(ApiCodeGenerators.TypeScript))
-        {
-            if(queryTemplate.ElementTemplate is ObjectValueTemplate objectTemplate)
-            {
-                AddQueryableInterface(tsFile, objectTemplate);
-            }
-        }
         foreach (var objectTemplate in appTemplate.ObjectTemplates(ApiCodeGenerators.TypeScript))
         {
             AddObjectInterface(tsFile, objectTemplate);
@@ -31,19 +24,6 @@ internal sealed class EntityGenerator
             AddNumericValueInterface(tsFile, numericValueTemplate);
         }
         return tsFile.Output();
-    }
-
-    private static void AddQueryableInterface(TypeScriptFile tsFile, ObjectValueTemplate objectTemplate)
-    {
-        tsFile.AddLine($"interface IQueryable{objectTemplate.DataType.Name} {{");
-        tsFile.Indent();
-        foreach (var property in objectTemplate.PropertyTemplates)
-        {
-            var tsType = new TsType(property.ValueTemplate).Value;
-            tsFile.AddLine($"{property.Name}?: {tsType};");
-        }
-        tsFile.Outdent();
-        tsFile.AddLine("}");
     }
 
     private static void AddObjectInterface(TypeScriptFile tsFile, ObjectValueTemplate objectTemplate)

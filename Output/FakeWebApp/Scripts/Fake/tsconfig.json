@@ -13,7 +13,7 @@
     "importHelpers": true,
     "baseUrl": ".",
     "paths": {
-      "@jasonbenfield/sharedwebapp/*": [ "C:/XTI/src/JasonBenfield/SharedWebApp/Apps/SharedWebApp/Scripts/Shared/*" ]
+      "@jasonbenfield/sharedwebapp/*": [ "C:/XTI/src/JasonBenfield/SharedWebApp/Apps/SharedWebApp/Scripts/Lib/*" ]
     },
     "typeRoots": [
       "../../node_modules/@types"
@@ -21,7 +21,7 @@
   },
   "include": [
     "./**/*.ts",
-    "C:/XTI/src/JasonBenfield/SharedWebApp/Apps/SharedWebApp/Scripts/Shared/**/*.d.ts"
+    "C:/XTI/src/JasonBenfield/SharedWebApp/Apps/SharedWebApp/Scripts/Lib/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
