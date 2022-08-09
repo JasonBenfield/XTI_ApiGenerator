@@ -21,8 +21,8 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-		<PackageReference Include="XTI_WebApp.Fakes" Version="1.8.22" />
-		<PackageReference Include="XTI_Core.Extensions" Version="1.10.12" />
+		<PackageReference Include="XTI_WebApp.Fakes" Version="1.8.23" />
+		<PackageReference Include="XTI_Core.Extensions" Version="1.10.14" />
 	</ItemGroup>
 
 	<ItemGroup>
