@@ -406,6 +406,22 @@ public sealed class ApiGroupClass
                     )
             );
         }
+        parameters.Add
+        (
+            Parameter(Identifier("ct"))
+                .WithType(IdentifierName("CancellationToken"))
+                .WithDefault
+                (
+                    EqualsValueClause
+                    (
+                        LiteralExpression
+                        (
+                            SyntaxKind.DefaultLiteralExpression,
+                            Token(SyntaxKind.DefaultKeyword)
+                        )
+                    )
+                )
+        );
         return parameters.ToArray();
     }
 
@@ -526,6 +542,8 @@ public sealed class ApiGroupClass
         {
             args.Add(Argument(IdentifierName("model")));
         }
+        args.Add(Token(SyntaxKind.CommaToken));
+        args.Add(Argument(IdentifierName("ct")));
         return args.ToArray();
     }
 
