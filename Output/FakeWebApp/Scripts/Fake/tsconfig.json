@@ -9,11 +9,10 @@
     "noEmitOnError": true,
     "removeComments": false,
     "sourceMap": true,
-    "target": "es5",
+    "target": "es6",
     "importHelpers": true,
     "baseUrl": ".",
     "paths": {
-      "@jasonbenfield/sharedwebapp/*": [ "C:/XTI/src/JasonBenfield/SharedWebApp/Apps/SharedWebApp/Scripts/Lib/*" ]
     },
     "typeRoots": [
       "../../node_modules/@types"
@@ -21,7 +20,7 @@
   },
   "include": [
     "./**/*.ts",
-    "C:/XTI/src/JasonBenfield/SharedWebApp/Apps/SharedWebApp/Scripts/Lib/**/*.d.ts"
+    "../../node_modules/@jasonbenfield/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
