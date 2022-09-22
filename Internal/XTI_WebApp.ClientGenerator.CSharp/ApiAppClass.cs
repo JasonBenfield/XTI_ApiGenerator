@@ -163,7 +163,7 @@ public sealed class ApiAppClass
             )
             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
         );
-        foreach (var group in template.GroupTemplates)
+        foreach (var group in template.GroupTemplates.Where(gt => !gt.IsUser() && !gt.IsUserCache()))
         {
             members.Add
             (
@@ -254,7 +254,7 @@ public sealed class ApiAppClass
     private StatementSyntax[] appCtorBodyStatements()
     {
         var statements = new List<StatementSyntax>();
-        foreach (var group in template.GroupTemplates)
+        foreach (var group in template.GroupTemplates.Where(gt => !gt.IsUser() && !gt.IsUserCache()))
         {
             statements.Add
             (

@@ -21,7 +21,7 @@ internal sealed class AppClassGenerator
         tsFile.AddLine("import { AppApi } from \"@jasonbenfield/sharedwebapp/Api/AppApi\";");
         tsFile.AddLine("import { AppApiEvents } from \"@jasonbenfield/sharedwebapp/Api/AppApiEvents\";");
         tsFile.AddLine("import { AppApiQuery } from \"@jasonbenfield/sharedwebapp/Api/AppApiQuery\";");
-        foreach (var groupTemplate in appTemplate.GroupTemplates.Where(g => !g.IsODataGroup() && !g.IsUser()))
+        foreach (var groupTemplate in appTemplate.GroupTemplates.Where(g => !g.IsODataGroup() && !g.IsUser() && !g.IsUserCache()))
         {
             var groupClassName = new GroupClassName(groupTemplate).Value;
             tsFile.AddLine($"import {{ {groupClassName} }} from \"./{groupClassName}\";");
@@ -40,7 +40,7 @@ internal sealed class AppClassGenerator
                 var entityTemplate = new TsType(groupTemplate.QueryableTemplates().First().ElementTemplate).Value;
                 tsFile.AddLine($"this.{groupTemplate.Name} = this.addODataGroup((evts, resourceUrl) => new AppApiQuery<{modelTemplate}, {entityTemplate}>(evts, resourceUrl.odata('{groupTemplate.Name}'), '{groupTemplate.Name}'));");
             }
-            else if(!groupTemplate.IsUser())
+            else if(!groupTemplate.IsUser() && !groupTemplate.IsUserCache())
             {
                 tsFile.AddLine($"this.{groupTemplate.Name} = this.addGroup((evts, resourceUrl) => new {groupTemplate.Name}Group(evts, resourceUrl));");
             }
@@ -48,7 +48,7 @@ internal sealed class AppClassGenerator
         tsFile.Outdent();
         tsFile.AddLine("}");
         tsFile.AddLine();
-        foreach (var groupTemplate in appTemplate.GroupTemplates.Where(g => !g.IsUser()))
+        foreach (var groupTemplate in appTemplate.GroupTemplates.Where(g => !g.IsUser() && !g.IsUserCache()))
         {
             if (groupTemplate.IsODataGroup())
             {

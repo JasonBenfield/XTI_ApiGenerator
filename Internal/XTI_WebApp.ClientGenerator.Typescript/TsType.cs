@@ -38,6 +38,10 @@ internal sealed class TsType
         {
             tsType = "string";
         }
+        else if(type.Name == "IFormFile")
+        {
+            tsType = "File";
+        }
         else if
         (
             type == typeof(short) || type == typeof(int) || type == typeof(long)

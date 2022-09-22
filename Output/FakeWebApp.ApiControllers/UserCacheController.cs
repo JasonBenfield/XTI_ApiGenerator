@@ -10,7 +10,7 @@ public sealed partial class UserCacheController : Controller
     }
 
     [HttpPost]
-    public Task<ResultContainer<EmptyActionResult>> ClearCache([FromBody] string model, CancellationToken ct)
+    public Task<ResultContainer<EmptyActionResult>> ClearCache(string model, CancellationToken ct)
     {
         return api.Group("UserCache").Action<string, EmptyActionResult>("ClearCache").Execute(model, ct);
     }

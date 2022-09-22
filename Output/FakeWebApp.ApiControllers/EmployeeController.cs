@@ -35,7 +35,7 @@ public sealed partial class EmployeeController : Controller
     }
 
     [HttpPost]
-    public Task<ResultContainer<Employee>> Employee([FromBody] int model, CancellationToken ct)
+    public Task<ResultContainer<Employee>> Employee(int model, CancellationToken ct)
     {
         return api.Group("Employee").Action<int, Employee>("Employee").Execute(model, ct);
     }

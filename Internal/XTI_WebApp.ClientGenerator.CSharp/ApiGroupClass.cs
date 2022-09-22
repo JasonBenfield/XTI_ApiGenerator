@@ -12,14 +12,12 @@ public sealed class ApiGroupClass
     private readonly string ns;
     private readonly Func<string, Stream> createStream;
     private readonly AppApiGroupTemplate template;
-    private readonly AppApiActionTemplate[] actionsForGetMethod;
 
     public ApiGroupClass(string ns, Func<string, Stream> createStream, AppApiGroupTemplate template)
     {
         this.ns = ns;
         this.createStream = createStream;
         this.template = template;
-        actionsForGetMethod = template.ActionsForGetMethod();
     }
 
     public async Task Output()

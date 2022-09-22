@@ -26,10 +26,7 @@ internal sealed class ApiGroupClassGenerator
             tsFile.AddLine($"import {{ {form.Form.TypeName} }} from \"./{form.Form.TypeName}\";");
         }
         tsFile.AddLine();
-        var implementsClause = group.IsUser()
-            ? "implements IUserGroup "
-            : "";
-        tsFile.AddLine($"export class {groupClassName} extends AppApiGroup {implementsClause}{{");
+        tsFile.AddLine($"export class {groupClassName} extends AppApiGroup {{");
         tsFile.Indent();
         tsFile.AddLine("constructor(events: AppApiEvents, resourceUrl: AppResourceUrl) {");
         tsFile.Indent();

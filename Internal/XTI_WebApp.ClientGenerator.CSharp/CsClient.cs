@@ -43,12 +43,9 @@ public sealed class CsClient : CodeGenerator
         {
             await new ComplexFieldClass(ns, createStream, formTemplate.Form, "Form").Output();
         }
-        foreach (var groupTemplate in appTemplate.GroupTemplates)
+        foreach (var groupTemplate in appTemplate.GroupTemplates.Where(gt => !gt.IsODataGroup() && !gt.IsUser() && !gt.IsUserCache()))
         {
-            if (!groupTemplate.IsODataGroup())
-            {
                 await new ApiGroupClass(ns, createStream, groupTemplate).Output();
-            }
         }
         foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.Dotnet))
         {

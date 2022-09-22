@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -12,7 +12,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.11" />
-		<PackageReference Include="XTI_WebApp.Api" Version="1.8.28" />
+		<PackageReference Include="XTI_WebApp.Api" Version="1.8.31" />
 	</ItemGroup>
 
 	<ItemGroup>
