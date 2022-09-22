@@ -55,9 +55,9 @@ public sealed class ApiObjectClass
                                         (
                                             new[]
                                             {
-                                                    Token(SyntaxKind.PublicKeyword),
-                                                    Token(SyntaxKind.SealedKeyword),
-                                                    Token(SyntaxKind.PartialKeyword)
+                                                Token(SyntaxKind.PublicKeyword),
+                                                Token(SyntaxKind.SealedKeyword),
+                                                Token(SyntaxKind.PartialKeyword)
                                             }
                                         )
                                     )
@@ -81,7 +81,7 @@ public sealed class ApiObjectClass
         {
             var propDecl = PropertyDeclaration
                 (
-                    new TypeSyntaxFromValueTemplate(property.ValueTemplate).Value(),
+                    GetTypeSyntaxFromValueTemplate(property.ValueTemplate),
                     Identifier(property.Name)
                 )
                 .WithModifiers
@@ -156,7 +156,7 @@ public sealed class ApiObjectClass
                             (
                                 ArrayType
                                 (
-                                    new TypeSyntaxFromValueTemplate(arr.ElementTemplate).Value()
+                                    GetTypeSyntaxFromValueTemplate(arr.ElementTemplate)
                                 )
                                 .WithRankSpecifiers
                                 (
@@ -198,9 +198,9 @@ public sealed class ApiObjectClass
                                             (
                                                 new SyntaxNodeOrToken[]
                                                 {
-                                                    new TypeSyntaxFromValueTemplate(dict.KeyTemplate).Value(),
+                                                    GetTypeSyntaxFromValueTemplate(dict.KeyTemplate),
                                                     Token(SyntaxKind.CommaToken),
-                                                    new TypeSyntaxFromValueTemplate(dict.ValueTemplate).Value()
+                                                    GetTypeSyntaxFromValueTemplate(dict.ValueTemplate)
                                                 }
                                             )
                                         )
@@ -218,7 +218,7 @@ public sealed class ApiObjectClass
                     (
                         EqualsValueClause
                         (
-                            ObjectCreationExpression(IdentifierName(property.ValueTemplate.DataType.Name))
+                            ObjectCreationExpression(IdentifierName(property.ValueTemplate.DataType.Name == "IFormFile" ? "FileUpload" : property.ValueTemplate.DataType.Name))
                                 .WithArgumentList(ArgumentList())
                         )
                     )
@@ -227,6 +227,32 @@ public sealed class ApiObjectClass
             propDecls.Add(propDecl);
         }
         return propDecls;
+    }
+
+    private static TypeSyntax GetTypeSyntaxFromValueTemplate(ValueTemplate valueTemplate)
+    {
+        if(valueTemplate is FileUploadValueTemplate)
+        {
+            return IdentifierName("FileUpload");
+        }
+        if(valueTemplate is ArrayValueTemplate arrTempl && arrTempl.ElementTemplate is FileUploadValueTemplate)
+        {
+            return ArrayType(IdentifierName("FileUpload"))
+            .WithRankSpecifiers
+            (
+                SingletonList
+                (
+                    ArrayRankSpecifier
+                    (
+                        SingletonSeparatedList<ExpressionSyntax>
+                        (
+                            OmittedArraySizeExpression()
+                        )
+                    )
+                )
+            );
+        }
+        return new TypeSyntaxFromValueTemplate(valueTemplate).Value();
     }
 
     private Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)

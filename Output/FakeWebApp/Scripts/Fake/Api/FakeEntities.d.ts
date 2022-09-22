@@ -1,10 +1,5 @@
 // Generated code
 
-interface ILogoutRequest {
-	ReturnUrl: string;
-}
-interface IEmptyActionResult {
-}
 interface IEmployee {
 	ID: number;
 	Name: string;
@@ -47,6 +42,11 @@ interface IAddProductModel {
 	Name: string;
 	Quantity: number;
 	Price: number;
+	Attachment: File;
+	SubProduct: IAddSubProductModel;
+}
+interface IAddSubProductModel {
+	Attachments: File[];
 }
 interface IEmployeeType {
 	Value: number;

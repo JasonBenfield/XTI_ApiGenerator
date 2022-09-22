@@ -186,21 +186,29 @@ internal class ControllerClassGenerator
         {
             var modelParameter = Parameter(Identifier("model"))
                 .WithType(typeSyntax(action.ModelTemplate));
-            if (IsPost(action))
+            if (IsPost(action) && !action.HasFileUploadTemplates())
             {
-                modelParameter = modelParameter.WithAttributeLists
-                (
-                    SingletonList
+                //var isSimpleType = action.ModelTemplate is SimpleValueTemplate simpleTempl &&
+                //    (
+                //        simpleTempl.DataType.IsValueType ||
+                //        simpleTempl.DataType == typeof(string)
+                //    );
+                //if (!isSimpleType)
+                //{
+                    modelParameter = modelParameter.WithAttributeLists
                     (
-                        AttributeList
+                        SingletonList
                         (
-                            SingletonSeparatedList
+                            AttributeList
                             (
-                                Attribute(IdentifierName("FromBody"))
+                                SingletonSeparatedList
+                                (
+                                    Attribute(IdentifierName("FromBody"))
+                                )
                             )
                         )
-                    )
-                );
+                    );
+                //}
             }
             parameters.Add(modelParameter);
         }
