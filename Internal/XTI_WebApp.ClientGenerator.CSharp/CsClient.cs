@@ -61,7 +61,7 @@ public sealed class CsClient : CodeGenerator
         var namespaces = new[]
         {
             "XTI_WebAppClient",
-            "XTI_WebAppClient.Forms",
+            "XTI_App.Abstractions",
             "Microsoft.Extensions.Hosting"
         };
         await new GlobalUsingsClass(createStream, namespaces).Output();

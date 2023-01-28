@@ -1,12 +1,12 @@
 // Generated Code
 namespace FakeWebAppClient;
-public sealed class EmployeeType : ClientNumericValue
+public sealed class EmployeeType : NumericValue
 {
-    public sealed class EmployeeTypes : ClientNumericValues<EmployeeType>
+    public sealed class EmployeeTypes : NumericValues<EmployeeType>
     {
-        internal EmployeeTypes()
+        internal EmployeeTypes() : base(new EmployeeType(0, "None"))
         {
-            None = Add(new EmployeeType(0, "None"));
+            None = DefaultValue;
             Temp = Add(new EmployeeType(10, "Temp"));
             Permanent = Add(new EmployeeType(15, "Permanent"));
         }

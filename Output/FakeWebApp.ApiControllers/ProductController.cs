@@ -28,7 +28,7 @@ public sealed partial class ProductController : Controller
     }
 
     [HttpPost]
-    public Task<ResultContainer<Product>> Product(int model, CancellationToken ct)
+    public Task<ResultContainer<Product>> Product([FromBody] int model, CancellationToken ct)
     {
         return api.Group("Product").Action<int, Product>("Product").Execute(model, ct);
     }
