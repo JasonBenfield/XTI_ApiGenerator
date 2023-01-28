@@ -3,12 +3,13 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text.RegularExpressions;
 using XTI_App.Api;
+using XTI_Core;
 using XTI_WebApp.CodeGeneration.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace XTI_WebApp.ClientGenerator.CSharp;
 
-public sealed class NumericValueClass
+public sealed partial class NumericValueClass
 {
     private readonly string ns;
     private readonly Func<string, Stream> createStream;
@@ -69,7 +70,7 @@ public sealed class NumericValueClass
                                             (
                                                 SimpleBaseType
                                                 (
-                                                    IdentifierName("ClientNumericValue")
+                                                    IdentifierName("NumericValue")
                                                 )
                                             )
                                         )
@@ -102,7 +103,7 @@ public sealed class NumericValueClass
                                                                 (
                                                                     GenericName
                                                                     (
-                                                                        Identifier("ClientNumericValues")
+                                                                        Identifier("NumericValues")
                                                                     )
                                                                     .WithTypeArgumentList
                                                                     (
@@ -244,6 +245,52 @@ public sealed class NumericValueClass
                     Token(SyntaxKind.InternalKeyword)
                 )
             )
+            .WithInitializer
+            (
+                ConstructorInitializer
+                (
+                    SyntaxKind.BaseConstructorInitializer,
+                    ArgumentList
+                    (
+                        SingletonSeparatedList
+                        (
+                            Argument
+                            (
+                                ObjectCreationExpression(IdentifierName("EmployeeType"))
+                                .WithArgumentList
+                                (
+                                    ArgumentList
+                                    (
+                                        SeparatedList<ArgumentSyntax>
+                                        (
+                                            new SyntaxNodeOrToken[]
+                                            {
+                                                Argument
+                                                (
+                                                    LiteralExpression
+                                                    (
+                                                        SyntaxKind.NumericLiteralExpression,
+                                                        Literal(template.Values[0].Value)
+                                                    )
+                                                ),
+                                                Token(SyntaxKind.CommaToken),
+                                                Argument
+                                                (
+                                                    LiteralExpression
+                                                    (
+                                                        SyntaxKind.StringLiteralExpression,
+                                                        Literal(template.Values[0].DisplayText)
+                                                    )
+                                                )
+                                            }
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
             .WithBody
             (
                 Block
@@ -287,12 +334,21 @@ public sealed class NumericValueClass
         return properties;
     }
 
-    private static readonly Regex whitespaceRegex = new Regex("\\s+");
-
     private IEnumerable<StatementSyntax> assignNumericValues()
     {
-        var statements = new List<StatementSyntax>();
-        foreach (var numericValue in template.Values)
+        var statements = new List<StatementSyntax>
+        {
+            ExpressionStatement
+            (
+                AssignmentExpression
+                (
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName(nameFromDisplayText(template.Values[0])),
+                    IdentifierName("DefaultValue")
+                )
+            )
+        };
+        foreach (var numericValue in template.Values.Skip(1))
         {
             statements.Add
             (
@@ -359,11 +415,14 @@ public sealed class NumericValueClass
     }
 
     private static string nameFromDisplayText(XTI_Core.NumericValue numericValue)=>
-        whitespaceRegex.Replace(numericValue.DisplayText, "");
+        WhiteSpaceRegex().Replace(numericValue.DisplayText, "");
 
     private async Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
     {
         var cSharpFile = new CSharpFile(compilationUnitSyntax, createStream, className);
         await cSharpFile.Output();
     }
+
+    [GeneratedRegex("\\s+")]
+    private static partial Regex WhiteSpaceRegex();
 }

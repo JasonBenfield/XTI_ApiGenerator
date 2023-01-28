@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using XTI_App.Api;
 using XTI_Forms;
 using XTI_WebApp.CodeGeneration.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -103,7 +104,7 @@ public sealed class ComplexFieldClass
         return members;
     }
 
-    private MemberDeclarationSyntax constructor()=>
+    private MemberDeclarationSyntax constructor() =>
         ConstructorDeclaration(Identifier(template.TypeName))
             .WithModifiers
             (
@@ -152,15 +153,15 @@ public sealed class ComplexFieldClass
                     )
             );
             args.Add(Token(SyntaxKind.CommaToken));
+            args.Add
+            (
+                Parameter(Identifier("name"))
+                    .WithType
+                    (
+                        PredefinedType(Token(SyntaxKind.StringKeyword))
+                    )
+            );
         }
-        args.Add
-        (
-            Parameter(Identifier("name"))
-                .WithType
-                (
-                    PredefinedType(Token(SyntaxKind.StringKeyword))
-                )
-        );
         return args;
     }
 
@@ -171,8 +172,22 @@ public sealed class ComplexFieldClass
         {
             args.Add(Argument(IdentifierName("prefix")));
             args.Add(Token(SyntaxKind.CommaToken));
+            args.Add(Argument(IdentifierName("name")));
         }
-        args.Add(Argument(IdentifierName("name")));
+        else if (template is FormModel formTemplate)
+        {
+            args.Add
+            (
+                Argument
+                (
+                    LiteralExpression
+                    (
+                        SyntaxKind.StringLiteralExpression,
+                        Literal(formTemplate.Name)
+                    )
+                )
+            );
+        }
         return args;
     }
 
@@ -201,22 +216,72 @@ public sealed class ComplexFieldClass
             (
                 SyntaxKind.SimpleAssignmentExpression,
                 IdentifierName(field.Name),
-                InvocationExpression(IdentifierName("AddField"))
+                InvocationExpression(IdentifierName(GetAddFieldName(field)))
                     .WithArgumentList
                     (
                         ArgumentList
                         (
-                            SingletonSeparatedList
+                            SeparatedList<ArgumentSyntax>
                             (
-                                Argument
-                                (
-                                    addFieldArgument(field)
-                                )
+                                GetAddFieldArguments(field)
                             )
                         )
                     )
                 )
             );
+    }
+
+    private string GetAddFieldName(FieldModel field)
+    {
+        string methodName = "Add";
+        if (field is SimpleFieldModel simpleField)
+        {
+            if (simpleField.InputDataType == typeof(DateTimeOffset?))
+            {
+                methodName += "Date";
+            }
+            else if (simpleField.InputDataType == typeof(int?))
+            {
+                methodName += "Int32";
+            }
+            else if (simpleField.InputDataType == typeof(decimal?))
+            {
+                methodName += "Decimal";
+            }
+            else if (simpleField.InputDataType == typeof(bool?))
+            {
+                methodName += "Boolean";
+            }
+            else if (simpleField.InputDataType == typeof(string))
+            {
+                methodName += "Text";
+            }
+            else
+            {
+                throw new NotSupportedException($"Simple field of type '{simpleField.InputDataType?.Name}' is not supported");
+            }
+            if (field is InputFieldModel)
+            {
+                methodName += "Input";
+            }
+            else if (field is DropDownFieldModel)
+            {
+                methodName += "DropDown";
+            }
+            else if (field is HiddenFieldModel)
+            {
+                methodName += "Hidden";
+            }
+            else
+            {
+                throw new NotSupportedException($"Simple field of type {field.GetType()} is not supported");
+            }
+        }
+        else
+        {
+            methodName += "Complex";
+        }
+        return methodName;
     }
 
     private PropertyDeclarationSyntax fieldDeclarationStatement(FieldModel field)
@@ -249,41 +314,74 @@ public sealed class ComplexFieldClass
                 );
     }
 
-    private ExpressionSyntax addFieldArgument(FieldModel field)
+    private SyntaxNodeOrToken[] GetAddFieldArguments(FieldModel field)
     {
-        var expression = ObjectCreationExpression
-        (
-            typeSyntaxFromField(field)
-        );
-        expression = expression.WithArgumentList
-        (
-            ArgumentList
+        var arguments = new List<SyntaxNodeOrToken>
+        {
+            Argument
             (
-                SeparatedList<ArgumentSyntax>
-                (
-                    new SyntaxNodeOrToken[]
-                    {
-                            Argument(IdentifierName("FieldName")),
-                            Token(SyntaxKind.CommaToken),
-                            Argument
+                InvocationExpression(IdentifierName("nameof"))
+                    .WithArgumentList
+                    (
+                        ArgumentList
+                        (
+                            SingletonSeparatedList
                             (
-                                InvocationExpression(IdentifierName("nameof"))
-                                    .WithArgumentList
-                                    (
-                                        ArgumentList
-                                        (
-                                            SingletonSeparatedList
-                                            (
-                                                Argument(IdentifierName(field.Name))
-                                            )
-                                        )
-                                    )
+                                Argument(IdentifierName(field.Name))
                             )
-                    }
-                )
+                        )
+                    )
             )
-        );
-        return expression;
+        };
+        if (field is ComplexFieldModel complexField)
+        {
+            arguments.AddRange
+            (
+                new SyntaxNodeOrToken[]
+                {
+                    Token(SyntaxKind.CommaToken),
+                    Argument
+                    (
+                        ParenthesizedLambdaExpression()
+                        .WithParameterList
+                        (
+                            ParameterList
+                            (
+                                SeparatedList<ParameterSyntax>
+                                (
+                                    new SyntaxNodeOrToken[]
+                                    {
+                                        Parameter(Identifier("p")),
+                                        Token(SyntaxKind.CommaToken),
+                                        Parameter(Identifier("n"))
+                                    }
+                                )
+                            )
+                        )
+                        .WithExpressionBody
+                        (
+                            ObjectCreationExpression(IdentifierName(complexField.TypeName))
+                            .WithArgumentList
+                            (
+                                ArgumentList
+                                (
+                                    SeparatedList<ArgumentSyntax>
+                                    (
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                            Argument(IdentifierName("p")),
+                                            Token(SyntaxKind.CommaToken),
+                                            Argument(IdentifierName("n"))
+                                        }
+                                    )
+                                )
+                            )
+                        )
+                    )
+                }
+            );
+        }
+        return arguments.ToArray();
     }
 
     private TypeSyntax typeSyntaxFromField(FieldModel field)
@@ -335,6 +433,10 @@ public sealed class ComplexFieldClass
                 throw new NotSupportedException($"Simple field of type '{field.InputDataType?.Name}' is not supported");
             }
             typeSyntax = PredefinedType(Token(syntaxKind));
+            if (field.InputDataType != typeof(string))
+            {
+                typeSyntax = NullableType(typeSyntax);
+            }
         }
         string specificName;
         if (field is InputFieldModel)
