@@ -36,7 +36,7 @@ public sealed class EmployeeGroup : AppApiGroupWrapper
     public EmployeeGroup(AppApiGroup source)
         : base(source)
     {
-        Index = source.AddAction(nameof(Index), () => ViewAppAction<EmptyRequest>.Index());
+        Index = source.AddAction(nameof(Index), () => new IndexAction());
         AddEmployee = source.AddAction
         (
             nameof(AddEmployee),
@@ -75,6 +75,12 @@ public sealed class EmployeeGroup : AppApiGroupWrapper
     public AppApiAction<int, Employee> Employee { get; }
     public AppApiAction<EmptyRequest, WebFileResult> DownloadAttachment { get; }
     public AppApiAction<EmptyRequest, WebContentResult> GetContent { get; }
+}
+
+public sealed class IndexAction : AppAction<EmptyRequest, WebViewResult>
+{
+    public Task<WebViewResult> Execute(EmptyRequest model, CancellationToken stoppingToken) =>
+        Task.FromResult(new WebViewResult("Index"));
 }
 
 public sealed record QueryEmployeesRequest(string Department);
@@ -158,7 +164,7 @@ public sealed class ProductGroup : AppApiGroupWrapper
     public ProductGroup(AppApiGroup source)
         : base(source)
     {
-        Index = source.AddAction(nameof(Index), () => ViewAppAction<EmptyRequest>.Index());
+        Index = source.AddAction(nameof(Index), () => new IndexAction());
         GetInfo = source.AddAction
         (
             nameof(GetInfo),
