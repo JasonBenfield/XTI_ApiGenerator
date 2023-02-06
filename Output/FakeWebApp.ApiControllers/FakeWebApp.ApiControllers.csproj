@@ -12,7 +12,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.12" />
-		<PackageReference Include="XTI_WebApp.Api" Version="1.8.34-dev230124084608054" />
+		<PackageReference Include="XTI_WebApp.Api" Version="1.8.34" />
 	</ItemGroup>
 
 	<ItemGroup>

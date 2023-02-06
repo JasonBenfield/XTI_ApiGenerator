@@ -45,7 +45,7 @@ public sealed class GlobalUsingsClass
             (
                 List(usings)
             );
-        var cSharpFile = new CSharpFile(code, createStream, "DefaultGlobalUsings");
+        var cSharpFile = new CSharpFile(code, createStream, "DefaultUsings");
         await cSharpFile.Output();
     }
 

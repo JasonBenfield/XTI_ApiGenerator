@@ -256,7 +256,7 @@ public sealed partial class NumericValueClass
                         (
                             Argument
                             (
-                                ObjectCreationExpression(IdentifierName("EmployeeType"))
+                                ObjectCreationExpression(IdentifierName(template.DataType.Name))
                                 .WithArgumentList
                                 (
                                     ArgumentList

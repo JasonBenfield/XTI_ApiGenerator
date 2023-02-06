@@ -37,6 +37,7 @@ public sealed class CsControllers : CodeGenerator
                 {
                     "Microsoft.AspNetCore.Authorization",
                     "Microsoft.AspNetCore.Mvc",
+                    "XTI_App.Abstractions",
                     "XTI_App.Api",
                     "XTI_WebApp.Api"
                 }

@@ -14,7 +14,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="XTI_Core.Extensions" Version="1.10.19-dev230123130057636" />
+		<PackageReference Include="XTI_Core.Extensions" Version="1.10.19" />
 	</ItemGroup>
 
 	<ItemGroup>
