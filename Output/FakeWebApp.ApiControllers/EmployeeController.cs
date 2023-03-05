@@ -12,7 +12,7 @@ public sealed partial class EmployeeController : Controller
     public async Task<IActionResult> Index(CancellationToken ct)
     {
         var result = await api.Group("Employee").Action<EmptyRequest, WebViewResult>("Index").Execute(new EmptyRequest(), ct);
-        return View(result.Data.ViewName);
+        return View(result.Data!.ViewName);
     }
 
     [HttpPost]
@@ -25,7 +25,7 @@ public sealed partial class EmployeeController : Controller
     public async Task<IActionResult> AddEmployeeFormView(CancellationToken ct)
     {
         var result = await api.Group("Employee").Action<EmptyRequest, WebPartialViewResult>("AddEmployeeFormView").Execute(new EmptyRequest(), ct);
-        return PartialView(result.Data.ViewName);
+        return PartialView(result.Data!.ViewName);
     }
 
     [HttpPost]
@@ -43,13 +43,13 @@ public sealed partial class EmployeeController : Controller
     public async Task<IActionResult> DownloadAttachment(CancellationToken ct)
     {
         var result = await api.Group("Employee").Action<EmptyRequest, WebFileResult>("DownloadAttachment").Execute(new EmptyRequest(), ct);
-        return File(result.Data.FileStream, result.Data.ContentType, result.Data.DownloadName);
+        return File(result.Data!.FileStream, result.Data!.ContentType, result.Data!.DownloadName);
     }
 
     [HttpPost]
     public async Task<IActionResult> GetContent(CancellationToken ct)
     {
         var result = await api.Group("Employee").Action<EmptyRequest, WebContentResult>("GetContent").Execute(new EmptyRequest(), ct);
-        return Content(result.Data.Content, result.Data.ContentType);
+        return Content(result.Data!.Content, result.Data.ContentType);
     }
 }

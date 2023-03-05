@@ -21,6 +21,13 @@ interface IProduct {
 	Quantity: number;
 	Price: number;
 }
+interface IWebContentResult {
+	Content: string;
+	ContentType: string;
+}
+interface IQueryEmployeesRequest {
+	Department: string;
+}
 interface IWebFileResult {
 	FileStream: IStream;
 	ContentType: string;
@@ -35,13 +42,6 @@ interface IStream {
 	Position: number;
 	ReadTimeout: number;
 	WriteTimeout: number;
-}
-interface IWebContentResult {
-	Content: string;
-	ContentType: string;
-}
-interface IQueryEmployeesRequest {
-	Department: string;
 }
 interface IAddProductModel {
 	Name: string;

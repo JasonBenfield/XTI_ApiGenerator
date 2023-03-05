@@ -144,11 +144,15 @@ internal class ControllerClassGenerator
                                         MemberAccessExpression
                                         (
                                             SyntaxKind.SimpleMemberAccessExpression,
-                                            MemberAccessExpression
+                                            PostfixUnaryExpression
                                             (
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName("result"),
-                                                IdentifierName("Data")
+                                                SyntaxKind.SuppressNullableWarningExpression,
+                                                MemberAccessExpression
+                                                (
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    IdentifierName("result"),
+                                                    IdentifierName("Data")
+                                                )
                                             ),
                                             IdentifierName("Url")
                                         )
@@ -188,27 +192,19 @@ internal class ControllerClassGenerator
                 .WithType(typeSyntax(action.ModelTemplate));
             if (IsPost(action) && !action.HasFileUploadTemplates())
             {
-                //var isSimpleType = action.ModelTemplate is SimpleValueTemplate simpleTempl &&
-                //    (
-                //        simpleTempl.DataType.IsValueType ||
-                //        simpleTempl.DataType == typeof(string)
-                //    );
-                //if (!isSimpleType)
-                //{
-                    modelParameter = modelParameter.WithAttributeLists
+                modelParameter = modelParameter.WithAttributeLists
+                (
+                    SingletonList
                     (
-                        SingletonList
+                        AttributeList
                         (
-                            AttributeList
+                            SingletonSeparatedList
                             (
-                                SingletonSeparatedList
-                                (
-                                    Attribute(IdentifierName("FromBody"))
-                                )
+                                Attribute(IdentifierName("FromBody"))
                             )
                         )
-                    );
-                //}
+                    )
+                );
             }
             parameters.Add(modelParameter);
         }
@@ -261,12 +257,16 @@ internal class ControllerClassGenerator
                                     (
                                         MemberAccessExpression
                                         (
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            MemberAccessExpression
+                                            SyntaxKind.SimpleMemberAccessExpression, 
+                                            PostfixUnaryExpression
                                             (
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName("result"),
-                                                IdentifierName("Data")
+                                                SyntaxKind.SuppressNullableWarningExpression,
+                                                MemberAccessExpression
+                                                (
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    IdentifierName("result"),
+                                                    IdentifierName("Data")
+                                                )
                                             ),
                                             IdentifierName("ViewName")
                                         )
@@ -341,11 +341,15 @@ internal class ControllerClassGenerator
                                             MemberAccessExpression
                                             (
                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                MemberAccessExpression
+                                                PostfixUnaryExpression
                                                 (
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("result"),
-                                                    IdentifierName("Data")
+                                                    SyntaxKind.SuppressNullableWarningExpression,
+                                                    MemberAccessExpression
+                                                    (
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("result"),
+                                                        IdentifierName("Data")
+                                                    )
                                                 ),
                                                 IdentifierName("FileStream")
                                             )
@@ -355,11 +359,15 @@ internal class ControllerClassGenerator
                                             MemberAccessExpression
                                             (
                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                MemberAccessExpression
+                                                PostfixUnaryExpression
                                                 (
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("result"),
-                                                    IdentifierName("Data")
+                                                    SyntaxKind.SuppressNullableWarningExpression,
+                                                    MemberAccessExpression
+                                                    (
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("result"),
+                                                        IdentifierName("Data")
+                                                    )
                                                 ),
                                                 IdentifierName("ContentType")
                                             )
@@ -369,11 +377,15 @@ internal class ControllerClassGenerator
                                             MemberAccessExpression
                                             (
                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                MemberAccessExpression
+                                                PostfixUnaryExpression
                                                 (
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("result"),
-                                                    IdentifierName("Data")
+                                                    SyntaxKind.SuppressNullableWarningExpression,
+                                                    MemberAccessExpression
+                                                    (
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("result"),
+                                                        IdentifierName("Data")
+                                                    )
                                                 ),
                                                 IdentifierName("DownloadName")
                                             )
@@ -449,11 +461,15 @@ internal class ControllerClassGenerator
                                             MemberAccessExpression
                                             (
                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                MemberAccessExpression
+                                                PostfixUnaryExpression
                                                 (
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("result"),
-                                                    IdentifierName("Data")
+                                                    SyntaxKind.SuppressNullableWarningExpression,
+                                                    MemberAccessExpression
+                                                    (
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("result"),
+                                                        IdentifierName("Data")
+                                                    )
                                                 ),
                                                 IdentifierName("Content")
                                             )
