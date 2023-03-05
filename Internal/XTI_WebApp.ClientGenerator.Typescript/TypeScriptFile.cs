@@ -6,7 +6,7 @@ public sealed class TypeScriptFile
 {
     private readonly string fileName;
     private readonly Func<string, Stream> createStream;
-    private readonly StringBuilder str = new StringBuilder();
+    private readonly StringBuilder str = new();
 
     private string indentation = "";
 

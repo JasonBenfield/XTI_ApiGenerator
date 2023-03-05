@@ -350,7 +350,7 @@ public sealed class ApiGroupClass
                     (
                         SingletonSeparatedList
                         (
-                            action.IsContent() ? IdentifierName("AppClientContentResult")
+                            action.IsContent() ? IdentifierName("WebContentResult")
                             : action.IsFile() ? IdentifierName("AppClientFileResult")
                             : new TypeSyntaxFromValueTemplate(action.ResultTemplate).Value()
                         )
