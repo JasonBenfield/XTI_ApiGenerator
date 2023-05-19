@@ -26,9 +26,9 @@ export class AddEmployeeForm extends BaseForm {
 		this.SSN.protect();
 		this.HireDate.setCaption('Hire Date');
 		this.HireDate.setItems(
-			new DropDownFieldItem(new Date(Date.UTC(2023, 2, 2, 5, 0, 0, 0)), 'Yesterday'),
-			new DropDownFieldItem(new Date(Date.UTC(2023, 2, 3, 5, 0, 0, 0)), 'Today'),
-			new DropDownFieldItem(new Date(Date.UTC(2023, 2, 4, 5, 0, 0, 0)), 'Tomorrow')
+			new DropDownFieldItem(new Date(Date.UTC(2023, 4, 17, 4, 0, 0, 0)), 'Yesterday'),
+			new DropDownFieldItem(new Date(Date.UTC(2023, 4, 18, 4, 0, 0, 0)), 'Today'),
+			new DropDownFieldItem(new Date(Date.UTC(2023, 4, 19, 4, 0, 0, 0)), 'Tomorrow')
 		);
 		this.IsTemp.setCaption('Is Temp');
 		this.IsTemp.setItems(
