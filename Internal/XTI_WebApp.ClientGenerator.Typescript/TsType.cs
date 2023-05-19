@@ -38,7 +38,7 @@ internal sealed class TsType
         {
             tsType = "string";
         }
-        else if(type.Name == "IFormFile")
+        else if(type.Name == "IFormFile" || type.Name == "FileUpload")
         {
             tsType = "File";
         }
