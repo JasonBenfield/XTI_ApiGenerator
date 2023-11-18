@@ -7,13 +7,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace XTI_WebApp.ClientGenerator.CSharp;
 
-public sealed class ApiGroupClass
+public sealed class AppClientGroupClass
 {
     private readonly string ns;
     private readonly Func<string, Stream> createStream;
     private readonly AppApiGroupTemplate template;
 
-    public ApiGroupClass(string ns, Func<string, Stream> createStream, AppApiGroupTemplate template)
+    public AppClientGroupClass(string ns, Func<string, Stream> createStream, AppApiGroupTemplate template)
     {
         this.ns = ns;
         this.createStream = createStream;

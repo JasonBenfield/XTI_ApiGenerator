@@ -26,4 +26,5 @@ public sealed class CsClientOptions
 {
     public bool Disable { get; set; }
     public string OutputFolder { get; set; } = "";
+    public bool OutputClientExtensions { get; set; } = true;
 }
