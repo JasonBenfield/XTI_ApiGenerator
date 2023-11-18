@@ -22,4 +22,8 @@ export class EmployeeType extends NumericValue implements IEmployeeType {
 	private constructor(Value: number, DisplayText: string) {
 		super(Value, DisplayText);
 	}
+	
+	equalsAny: (...other: this[] | IEmployeeType[] | number[] | string[]) => boolean;
+	
+	equals: (other: this | IEmployeeType | number | string) => boolean;
 }

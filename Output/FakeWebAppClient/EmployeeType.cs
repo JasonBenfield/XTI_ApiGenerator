@@ -12,9 +12,7 @@ public sealed class EmployeeType : NumericValue
         }
 
         public EmployeeType None { get; }
-
         public EmployeeType Temp { get; }
-
         public EmployeeType Permanent { get; }
     }
 

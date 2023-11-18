@@ -7,13 +7,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace XTI_WebApp.ClientGenerator.CSharp;
 
-public sealed class ApiObjectClass
+public sealed class AppClientObjectClass
 {
     private readonly string ns;
     private readonly Func<string, Stream> createStream;
     private readonly ObjectValueTemplate template;
 
-    public ApiObjectClass(string ns, Func<string, Stream> createStream, ObjectValueTemplate template)
+    public AppClientObjectClass(string ns, Func<string, Stream> createStream, ObjectValueTemplate template)
     {
         this.ns = ns;
         this.createStream = createStream;
@@ -211,7 +211,7 @@ public sealed class ApiObjectClass
                     )
                     .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
             }
-            else if(property.ValueTemplate is not SimpleValueTemplate)
+            else if (property.ValueTemplate is not SimpleValueTemplate)
             {
                 propDecl = propDecl
                     .WithInitializer
@@ -231,11 +231,11 @@ public sealed class ApiObjectClass
 
     private static TypeSyntax GetTypeSyntaxFromValueTemplate(ValueTemplate valueTemplate)
     {
-        if(valueTemplate is FileUploadValueTemplate)
+        if (valueTemplate is FileUploadValueTemplate)
         {
             return IdentifierName("FileUpload");
         }
-        if(valueTemplate is ArrayValueTemplate arrTempl && arrTempl.ElementTemplate is FileUploadValueTemplate)
+        if (valueTemplate is ArrayValueTemplate arrTempl && arrTempl.ElementTemplate is FileUploadValueTemplate)
         {
             return ArrayType(IdentifierName("FileUpload"))
             .WithRankSpecifiers

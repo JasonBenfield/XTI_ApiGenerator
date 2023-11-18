@@ -16,19 +16,19 @@ internal sealed class ApiGroupClassGenerator
         var groupClassName = new GroupClassName(group).Value;
         var tsFile = new TypeScriptFile(groupClassName, createStream);
         tsFile.AddLine();
-        tsFile.AddLine("import { AppApiGroup } from \"@jasonbenfield/sharedwebapp/Api/AppApiGroup\";");
-        tsFile.AddLine("import { AppApiAction } from \"@jasonbenfield/sharedwebapp/Api/AppApiAction\";");
-        tsFile.AddLine("import { AppApiView } from \"@jasonbenfield/sharedwebapp/Api/AppApiView\";");
-        tsFile.AddLine("import { AppApiEvents } from \"@jasonbenfield/sharedwebapp/Api/AppApiEvents\";");
-        tsFile.AddLine("import { AppResourceUrl } from \"@jasonbenfield/sharedwebapp/Api/AppResourceUrl\";");
+        tsFile.AddLine("import { AppClientGroup } from \"@jasonbenfield/sharedwebapp/Http/AppClientGroup\";");
+        tsFile.AddLine("import { AppClientAction } from \"@jasonbenfield/sharedwebapp/Http/AppClientAction\";");
+        tsFile.AddLine("import { AppClientView } from \"@jasonbenfield/sharedwebapp/Http/AppClientView\";");
+        tsFile.AddLine("import { AppClientEvents } from \"@jasonbenfield/sharedwebapp/Http/AppClientEvents\";");
+        tsFile.AddLine("import { AppResourceUrl } from \"@jasonbenfield/sharedwebapp/Http/AppResourceUrl\";");
         foreach (var form in group.FormTemplates())
         {
             tsFile.AddLine($"import {{ {form.Form.TypeName} }} from \"./{form.Form.TypeName}\";");
         }
         tsFile.AddLine();
-        tsFile.AddLine($"export class {groupClassName} extends AppApiGroup {{");
+        tsFile.AddLine($"export class {groupClassName} extends AppClientGroup {{");
         tsFile.Indent();
-        tsFile.AddLine("constructor(events: AppApiEvents, resourceUrl: AppResourceUrl) {");
+        tsFile.AddLine("constructor(events: AppClientEvents, resourceUrl: AppResourceUrl) {");
         tsFile.Indent();
         tsFile.AddLine($"super(events, resourceUrl, '{group.Name}');");
         foreach (var action in group.ActionTemplates)
@@ -52,12 +52,12 @@ internal sealed class ApiGroupClassGenerator
             if (IsWebPage(action))
             {
                 var modelType = new TsType(action.ModelTemplate).Value;
-                tsFile.AddLine($"readonly {action.Name}: AppApiView<{modelType}>;");
+                tsFile.AddLine($"readonly {action.Name}: AppClientView<{modelType}>;");
             }
             else
             {
                 var genericArgs = GetGenericArguments(action);
-                tsFile.AddLine($"readonly {action.Name}Action: AppApiAction{genericArgs};");
+                tsFile.AddLine($"readonly {action.Name}Action: AppClientAction{genericArgs};");
             }
         }
         tsFile.AddLine();

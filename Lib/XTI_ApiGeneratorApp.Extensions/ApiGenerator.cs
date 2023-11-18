@@ -29,7 +29,11 @@ public sealed class ApiGenerator
             {
                 throw new ArgumentException($"TS Output Folder {options.TsClient.OutputFolder} does not exist");
             }
-            var tsClientToDisk = new CodeToDisk(createStream => new TsClient(createStream), options.TsClient.OutputFolder);
+            var tsClientToDisk = new CodeToDisk
+            (
+                createStream => new TsClient(createStream, versionKey), 
+                options.TsClient.OutputFolder
+            );
             await tsClientToDisk.Output(api);
         }
         if (options.CsController?.Disable == false)
@@ -66,7 +70,13 @@ public sealed class ApiGenerator
             }
             var csClientToDisk = new CodeToDisk
             (
-                createStream => new CsClient(versionKey, options.CsClient.OutputFolder, createStream),
+                createStream => new CsClient
+                (
+                    versionKey, 
+                    options.CsClient.OutputFolder,
+                    options.CsClient.OutputClientExtensions,
+                    createStream
+                ),
                 options.CsClient.OutputFolder
             );
             await csClientToDisk.Output(api);

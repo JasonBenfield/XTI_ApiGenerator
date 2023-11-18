@@ -8,13 +8,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace XTI_WebApp.ClientGenerator.CSharp;
 
-public sealed class ApiAppClass
+public sealed class AppClientClass
 {
     private readonly string ns;
     private readonly Func<string, Stream> createStream;
     private readonly AppApiTemplate template;
 
-    public ApiAppClass(string ns, Func<string, Stream> createStream, AppApiTemplate template)
+    public AppClientClass(string ns, Func<string, Stream> createStream, AppApiTemplate template)
     {
         this.ns = ns;
         this.createStream = createStream;
@@ -397,6 +397,9 @@ public sealed class ApiAppClass
                 Parameter(Identifier("clientUrl"))
                     .WithType(IdentifierName("AppClientUrl")),
                 Token(SyntaxKind.CommaToken),
+                Parameter(Identifier("requestKey"))
+                    .WithType(IdentifierName("IAppClientRequestKey")),
+                Token(SyntaxKind.CommaToken),
                 Parameter(Identifier("version"))
                     .WithType(IdentifierName($"{template.Name}AppClientVersion"))
             }
@@ -416,6 +419,8 @@ public sealed class ApiAppClass
                 Argument(IdentifierName("xtiTokenAccessor")),
                 Token(SyntaxKind.CommaToken),
                 Argument(IdentifierName("clientUrl")),
+                Token(SyntaxKind.CommaToken),
+                Argument(IdentifierName("requestKey")),
                 Token(SyntaxKind.CommaToken),
                 Argument
                 (

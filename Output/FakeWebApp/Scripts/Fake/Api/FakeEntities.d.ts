@@ -28,21 +28,6 @@ interface IWebContentResult {
 interface IQueryEmployeesRequest {
 	Department: string;
 }
-interface IWebFileResult {
-	FileStream: IStream;
-	ContentType: string;
-	DownloadName: string;
-}
-interface IStream {
-	CanRead: boolean;
-	CanWrite: boolean;
-	CanSeek: boolean;
-	CanTimeout: boolean;
-	Length: number;
-	Position: number;
-	ReadTimeout: number;
-	WriteTimeout: number;
-}
 interface IAddProductModel {
 	Name: string;
 	Quantity: number;
