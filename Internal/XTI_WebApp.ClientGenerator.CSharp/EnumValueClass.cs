@@ -39,7 +39,7 @@ internal class EnumValueClass
                     (
                         Token
                         (
-                            TriviaList(Comment("// Generated Code")),
+                            TriviaList(new GeneratedCodeComment().Value()),
                             SyntaxKind.NamespaceKeyword,
                             TriviaList()
                         )

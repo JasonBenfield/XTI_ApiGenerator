@@ -1,6 +1,6 @@
 // Generated Code
 namespace FakeWebAppClient;
-public sealed class FakeAppClientVersion
+public sealed partial class FakeAppClientVersion
 {
     public static FakeAppClientVersion Version(string value) => new FakeAppClientVersion(value);
     public FakeAppClientVersion(IHostEnvironment hostEnv) : this(getValue(hostEnv))
@@ -12,7 +12,7 @@ public sealed class FakeAppClientVersion
         string value;
         if (hostEnv.IsProduction())
         {
-            value = "V0";
+            value = "V00000";
         }
         else
         {

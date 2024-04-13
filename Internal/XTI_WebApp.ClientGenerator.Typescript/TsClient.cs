@@ -1,19 +1,22 @@
-﻿using XTI_WebApp.CodeGeneration;
+﻿using XTI_App.Abstractions;
+using XTI_WebApp.CodeGeneration;
 
 namespace XTI_WebApp.ClientGenerator.Typescript;
 
 public sealed class TsClient : CodeGenerator
 {
     private readonly Func<string, Stream> createStream;
+    private readonly AppVersionKey versionKey;
 
-    public TsClient(Func<string, Stream> createStream)
+    public TsClient(Func<string, Stream> createStream, AppVersionKey versionKey)
     {
         this.createStream = createStream;
+        this.versionKey = versionKey;
     }
 
     public async Task Output(AppApiTemplate appTemplate)
     {
-        await new AppClassGenerator(createStream, appTemplate).Output();
+        await new AppClassGenerator(createStream, appTemplate, versionKey).Output();
         var formTemplates = appTemplate.FormTemplates(ApiCodeGenerators.TypeScript);
         var complexFieldTemplates = formTemplates.SelectMany(ft => ft.Form.ComplexFieldTemplates).Distinct();
         foreach (var complexFieldTemplate in complexFieldTemplates)

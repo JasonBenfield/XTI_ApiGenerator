@@ -1,19 +1,20 @@
 // Generated code
 import { BaseFormView } from '@jasonbenfield/sharedwebapp/Views/BaseFormView';
-import { SimpleFieldFormGroupInputView, SimpleFieldFormGroupSelectView } from '@jasonbenfield/sharedwebapp/Views/FormGroup';
+import * as views from '@jasonbenfield/sharedwebapp/Views/FormGroup';
 import { IFormGroupLayout } from '@jasonbenfield/sharedwebapp/Views/Types';
 import { BasicComponentView } from '@jasonbenfield/sharedwebapp/Views/BasicComponentView';
+import { InputView } from '@jasonbenfield/sharedwebapp/Views/InputView';
 import { AddressInputView } from './AddressInputView';
 
 export interface IAddEmployeeFormView {
-	EmployeeName: SimpleFieldFormGroupInputView;
-	BirthDate: SimpleFieldFormGroupInputView;
-	Department: SimpleFieldFormGroupSelectView;
+	EmployeeName: views.SimpleFieldFormGroupInputView;
+	BirthDate: views.SimpleFieldFormGroupInputView;
+	Department: views.SimpleFieldFormGroupSelectView;
 	Address: AddressInputView;
-	SSN: SimpleFieldFormGroupInputView;
-	HireDate: SimpleFieldFormGroupSelectView;
-	IsTemp: SimpleFieldFormGroupSelectView;
-	EmployeeID: SimpleFieldFormGroupInputView;
+	SSN: views.SimpleFieldFormGroupInputView;
+	HireDate: views.SimpleFieldFormGroupSelectView;
+	IsTemp: views.SimpleFieldFormGroupSelectView;
+	EmployeeID: InputView;
 }
 
 export class DefaultAddEmployeeFormViewLayout implements IFormGroupLayout<IAddEmployeeFormView> {
@@ -26,7 +27,7 @@ export class DefaultAddEmployeeFormViewLayout implements IFormGroupLayout<IAddEm
 			SSN: form.addInputFormGroup(),
 			HireDate: form.addDropDownFormGroup(),
 			IsTemp: form.addDropDownFormGroup(),
-			EmployeeID: form.addInputFormGroup()
+			EmployeeID: form.addHiddenInput()
 		}
 	}
 }

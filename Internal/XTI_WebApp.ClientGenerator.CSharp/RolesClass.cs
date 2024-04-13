@@ -39,7 +39,7 @@ internal sealed class RolesClass
                         (
                             Token
                             (
-                                TriviaList(Comment("// Generated Code")),
+                                TriviaList(new GeneratedCodeComment().Value()),
                                 SyntaxKind.NamespaceKeyword,
                                 TriviaList()
                             )

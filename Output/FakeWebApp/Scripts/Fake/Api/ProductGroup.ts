@@ -1,13 +1,14 @@
 // Generated code
 
-import { AppApiGroup } from "@jasonbenfield/sharedwebapp/Api/AppApiGroup";
-import { AppApiAction } from "@jasonbenfield/sharedwebapp/Api/AppApiAction";
-import { AppApiView } from "@jasonbenfield/sharedwebapp/Api/AppApiView";
-import { AppApiEvents } from "@jasonbenfield/sharedwebapp/Api/AppApiEvents";
-import { AppResourceUrl } from "@jasonbenfield/sharedwebapp/Api/AppResourceUrl";
+import * as xti from "@jasonbenfield/sharedwebapp/Common";
+import { AppClientGroup } from "@jasonbenfield/sharedwebapp/Http/AppClientGroup";
+import { AppClientAction } from "@jasonbenfield/sharedwebapp/Http/AppClientAction";
+import { AppClientView } from "@jasonbenfield/sharedwebapp/Http/AppClientView";
+import { AppClientEvents } from "@jasonbenfield/sharedwebapp/Http/AppClientEvents";
+import { AppResourceUrl } from "@jasonbenfield/sharedwebapp/Http/AppResourceUrl";
 
-export class ProductGroup extends AppApiGroup {
-	constructor(events: AppApiEvents, resourceUrl: AppResourceUrl) {
+export class ProductGroup extends AppClientGroup {
+	constructor(events: AppClientEvents, resourceUrl: AppResourceUrl) {
 		super(events, resourceUrl, 'Product');
 		this.Index = this.createView<IEmptyRequest>('Index');
 		this.GetInfoAction = this.createAction<IEmptyRequest,string>('GetInfo', 'Get Info');
@@ -15,10 +16,10 @@ export class ProductGroup extends AppApiGroup {
 		this.ProductAction = this.createAction<number,IProduct>('Product', 'Get Product Information');
 	}
 	
-	readonly Index: AppApiView<IEmptyRequest>;
-	readonly GetInfoAction: AppApiAction<IEmptyRequest,string>;
-	readonly AddProductAction: AppApiAction<IAddProductModel,number>;
-	readonly ProductAction: AppApiAction<number,IProduct>;
+	readonly Index: AppClientView<IEmptyRequest>;
+	readonly GetInfoAction: AppClientAction<IEmptyRequest,string>;
+	readonly AddProductAction: AppClientAction<IAddProductModel,number>;
+	readonly ProductAction: AppClientAction<number,IProduct>;
 	
 	GetInfo(errorOptions?: IActionErrorOptions) {
 		return this.GetInfoAction.execute({}, errorOptions || {});

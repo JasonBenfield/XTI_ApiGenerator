@@ -15,18 +15,11 @@ public sealed partial class AddEmployeeForm : Form
     }
 
     public InputField<string> EmployeeName { get; }
-
-    public InputField<DateTimeOffset?> BirthDate { get; }
-
+    public InputField<DateOnly?> BirthDate { get; }
     public DropDownField<int?> Department { get; }
-
     public AddressInput Address { get; }
-
     public InputField<int?> SSN { get; }
-
-    public DropDownField<DateTimeOffset?> HireDate { get; }
-
+    public DropDownField<DateOnly?> HireDate { get; }
     public DropDownField<bool?> IsTemp { get; }
-
     public HiddenField<int?> EmployeeID { get; }
 }

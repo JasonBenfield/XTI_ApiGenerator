@@ -13,14 +13,9 @@ public sealed partial class AddressInput : ComplexField
     }
 
     public HiddenField<string> ID1 { get; }
-
     public HiddenField<int?> ID2 { get; }
-
     public InputField<string> Line1 { get; }
-
     public InputField<string> City { get; }
-
     public InputField<string> State { get; }
-
     public InputField<int?> Zip { get; }
 }

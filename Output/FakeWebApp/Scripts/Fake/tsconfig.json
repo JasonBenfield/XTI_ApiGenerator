@@ -1,15 +1,13 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "lib": [ "es2018", "dom" ],
+    "lib": [ "es2020", "dom" ],
     "module": "commonjs",
     "noImplicitAny": false,
     "noEmitOnError": true,
     "removeComments": false,
     "sourceMap": true,
-    "target": "es6",
+    "target": "es2020",
     "importHelpers": true,
     "baseUrl": ".",
     "paths": {

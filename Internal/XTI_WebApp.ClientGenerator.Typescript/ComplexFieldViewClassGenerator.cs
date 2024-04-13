@@ -1,4 +1,5 @@
-﻿using XTI_Forms;
+﻿using System;
+using XTI_Forms;
 
 namespace XTI_WebApp.ClientGenerator.Typescript;
 
@@ -27,9 +28,10 @@ internal sealed class ComplexFieldViewClassGenerator
         {
             tsFile.AddLine("import { ComplexFieldFormGroupView } from '@jasonbenfield/sharedwebapp/Views/ComplexFieldFormGroupView';");
         }
-        tsFile.AddLine("import { SimpleFieldFormGroupInputView, SimpleFieldFormGroupSelectView } from '@jasonbenfield/sharedwebapp/Views/FormGroup';");
+        tsFile.AddLine("import * as views from '@jasonbenfield/sharedwebapp/Views/FormGroup';");
         tsFile.AddLine("import { IFormGroupLayout } from '@jasonbenfield/sharedwebapp/Views/Types';");
         tsFile.AddLine("import { BasicComponentView } from '@jasonbenfield/sharedwebapp/Views/BasicComponentView';");
+        tsFile.AddLine("import { InputView } from '@jasonbenfield/sharedwebapp/Views/InputView';");
         var fields = complexField.Fields;
         foreach (var field in fields.OfType<ComplexFieldModel>().Select(f => f.TypeName).Distinct())
         {
@@ -48,11 +50,26 @@ internal sealed class ComplexFieldViewClassGenerator
             }
             else if (field is DropDownFieldModel dropDownField)
             {
-                tsFile.Append("SimpleFieldFormGroupSelectView");
+                tsFile.Append("views.SimpleFieldFormGroupSelectView");
             }
-            else if (field is SimpleFieldModel hiddenField)
+            else if (field is HiddenFieldModel hiddenField)
             {
-                tsFile.Append("SimpleFieldFormGroupInputView");
+                tsFile.Append("InputView");
+            }
+            else if (field is SimpleFieldModel simpleField)
+            {
+                if (simpleField.InputDataType == typeof(DateTime?) || simpleField.InputDataType == typeof(DateTimeOffset?))
+                {
+                    tsFile.Append("views.SimpleFieldFormGroupDateTimeInputView");
+                }
+                else if (simpleField.InputDataType == typeof(TimeSpan?))
+                {
+                    tsFile.Append("views.SimpleFieldFormGroupTimeSpanInputView");
+                }
+                else
+                {
+                    tsFile.Append("views.SimpleFieldFormGroupInputView");
+                }
             }
             else
             {
@@ -80,9 +97,24 @@ internal sealed class ComplexFieldViewClassGenerator
             {
                 tsFile.Append("form.addDropDownFormGroup()");
             }
-            else if (field is SimpleFieldModel)
+            else if (field is HiddenFieldModel hiddenField)
             {
-                tsFile.Append("form.addInputFormGroup()");
+                tsFile.Append("form.addHiddenInput()");
+            }
+            else if (field is SimpleFieldModel simple)
+            {
+                if(simple.InputDataType == typeof(DateTime?) || simple.InputDataType == typeof(DateTimeOffset?))
+                {
+                    tsFile.Append("form.addDateTimeInputFormGroup()");
+                }
+                else if (simple.InputDataType == typeof(TimeSpan?))
+                {
+                    tsFile.Append("form.addTimeSpanInputFormGroup()");
+                }
+                else
+                {
+                    tsFile.Append("form.addInputFormGroup()");
+                }
             }
             else
             {

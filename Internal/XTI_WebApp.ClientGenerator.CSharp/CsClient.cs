@@ -11,17 +11,20 @@ public sealed class CsClient : CodeGenerator
     private readonly AppVersionKey versionKey;
     private readonly string ns;
     private readonly Func<string, Stream> createStream;
+    private readonly bool outputExtensions;
 
     public CsClient
     (
         AppVersionKey versionKey,
         string outputFolder,
+        bool outputExtensions,
         Func<string, Stream> createStream
     )
     {
         this.versionKey = versionKey;
         ns = new NamespaceFromFolder(outputFolder).Value();
         this.createStream = createStream;
+        this.outputExtensions = outputExtensions;
     }
 
     public async Task Output(AppApiTemplate appTemplate)
@@ -29,7 +32,7 @@ public sealed class CsClient : CodeGenerator
         var objTemplates = appTemplate.ObjectTemplates(ApiCodeGenerators.Dotnet);
         foreach (var objTemplate in objTemplates)
         {
-            await new ApiObjectClass(ns, createStream, objTemplate).Output();
+            await new AppClientObjectClass(ns, createStream, objTemplate).Output();
         }
         var formTemplates = appTemplate.FormTemplates(ApiCodeGenerators.Dotnet);
         var complexFieldTemplates = formTemplates
@@ -45,7 +48,7 @@ public sealed class CsClient : CodeGenerator
         }
         foreach (var groupTemplate in appTemplate.GroupTemplates.Where(gt => !gt.IsODataGroup() && !gt.IsUser() && !gt.IsUserCache()))
         {
-                await new ApiGroupClass(ns, createStream, groupTemplate).Output();
+            await new AppClientGroupClass(ns, createStream, groupTemplate).Output();
         }
         foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.Dotnet))
         {
@@ -57,10 +60,16 @@ public sealed class CsClient : CodeGenerator
         }
         await new AppVersionClass(ns, createStream, appTemplate, versionKey).Output();
         await new RolesClass(ns, createStream, appTemplate).Output();
-        await new ApiAppClass(ns, createStream, appTemplate).Output();
+        await new AppClientFactoryClass(ns, createStream, appTemplate).Output();
+        await new AppClientClass(ns, createStream, appTemplate).Output();
+        if (outputExtensions)
+        {
+            await new AppClientExtensionsClass(ns, createStream, appTemplate).Output();
+        }
         var namespaces = new[]
         {
             "XTI_App.Abstractions",
+            "XTI_WebApp.Abstractions",
             "XTI_WebAppClient",
             "Microsoft.Extensions.Hosting"
         };

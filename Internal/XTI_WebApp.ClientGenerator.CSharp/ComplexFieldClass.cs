@@ -43,7 +43,7 @@ public sealed class ComplexFieldClass
                         (
                             Token
                             (
-                                TriviaList(Comment("// Generated Code")),
+                                TriviaList(new GeneratedCodeComment().Value()),
                                 SyntaxKind.NamespaceKeyword,
                                 TriviaList()
                             )
@@ -238,6 +238,10 @@ public sealed class ComplexFieldClass
         {
             if (simpleField.InputDataType == typeof(DateTimeOffset?))
             {
+                methodName += "DateTime";
+            }
+            if (simpleField.InputDataType == typeof(DateOnly?))
+            {
                 methodName += "Date";
             }
             else if (simpleField.InputDataType == typeof(int?))
@@ -408,6 +412,14 @@ public sealed class ComplexFieldClass
         if (field.InputDataType == typeof(DateTimeOffset?))
         {
             typeSyntax = NullableType(IdentifierName("DateTimeOffset"));
+        }
+        else if (field.InputDataType == typeof(DateTime?))
+        {
+            typeSyntax = NullableType(IdentifierName("DateTime"));
+        }
+        else if (field.InputDataType == typeof(DateOnly?))
+        {
+            typeSyntax = NullableType(IdentifierName("DateOnly"));
         }
         else
         {

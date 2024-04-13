@@ -34,6 +34,11 @@ public sealed class TypeScriptFile
         }
     }
 
+    public void AddXtiCommonImport()
+    {
+        AddLine("import * as xti from \"@jasonbenfield/sharedwebapp/Common\";");
+    }
+
     public void AddLine(string line = "")
     {
         if (str.Length > 0)

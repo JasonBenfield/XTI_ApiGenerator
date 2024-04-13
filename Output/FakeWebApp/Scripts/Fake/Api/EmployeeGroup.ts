@@ -1,14 +1,15 @@
 // Generated code
 
-import { AppApiGroup } from "@jasonbenfield/sharedwebapp/Api/AppApiGroup";
-import { AppApiAction } from "@jasonbenfield/sharedwebapp/Api/AppApiAction";
-import { AppApiView } from "@jasonbenfield/sharedwebapp/Api/AppApiView";
-import { AppApiEvents } from "@jasonbenfield/sharedwebapp/Api/AppApiEvents";
-import { AppResourceUrl } from "@jasonbenfield/sharedwebapp/Api/AppResourceUrl";
+import * as xti from "@jasonbenfield/sharedwebapp/Common";
+import { AppClientGroup } from "@jasonbenfield/sharedwebapp/Http/AppClientGroup";
+import { AppClientAction } from "@jasonbenfield/sharedwebapp/Http/AppClientAction";
+import { AppClientView } from "@jasonbenfield/sharedwebapp/Http/AppClientView";
+import { AppClientEvents } from "@jasonbenfield/sharedwebapp/Http/AppClientEvents";
+import { AppResourceUrl } from "@jasonbenfield/sharedwebapp/Http/AppResourceUrl";
 import { AddEmployeeForm } from "./AddEmployeeForm";
 
-export class EmployeeGroup extends AppApiGroup {
-	constructor(events: AppApiEvents, resourceUrl: AppResourceUrl) {
+export class EmployeeGroup extends AppClientGroup {
+	constructor(events: AppClientEvents, resourceUrl: AppResourceUrl) {
 		super(events, resourceUrl, 'Employee');
 		this.Index = this.createView<IEmptyRequest>('Index');
 		this.AddEmployeeAction = this.createAction<AddEmployeeForm,number>('AddEmployee', 'Add Employee');
@@ -19,13 +20,13 @@ export class EmployeeGroup extends AppApiGroup {
 		this.GetContentAction = this.createAction<IEmptyRequest,IWebContentResult>('GetContent', 'Get Content');
 	}
 	
-	readonly Index: AppApiView<IEmptyRequest>;
-	readonly AddEmployeeAction: AppApiAction<AddEmployeeForm,number>;
-	readonly AddEmployeeFormView: AppApiView<IEmptyRequest>;
-	readonly AddEmployeeFormAction: AppApiAction<IEmptyRequest,Record<string,object>>;
-	readonly EmployeeAction: AppApiAction<number,IEmployee>;
-	readonly DownloadAttachment: AppApiView<IEmptyRequest>;
-	readonly GetContentAction: AppApiAction<IEmptyRequest,IWebContentResult>;
+	readonly Index: AppClientView<IEmptyRequest>;
+	readonly AddEmployeeAction: AppClientAction<AddEmployeeForm,number>;
+	readonly AddEmployeeFormView: AppClientView<IEmptyRequest>;
+	readonly AddEmployeeFormAction: AppClientAction<IEmptyRequest,Record<string,object>>;
+	readonly EmployeeAction: AppClientAction<number,IEmployee>;
+	readonly DownloadAttachment: AppClientView<IEmptyRequest>;
+	readonly GetContentAction: AppClientAction<IEmptyRequest,IWebContentResult>;
 	
 	AddEmployee(model: AddEmployeeForm, errorOptions?: IActionErrorOptions) {
 		return this.AddEmployeeAction.execute(model, errorOptions || {});

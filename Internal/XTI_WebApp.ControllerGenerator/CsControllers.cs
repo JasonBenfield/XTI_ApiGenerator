@@ -39,7 +39,8 @@ public sealed class CsControllers : CodeGenerator
                     "Microsoft.AspNetCore.Mvc",
                     "XTI_App.Abstractions",
                     "XTI_App.Api",
-                    "XTI_WebApp.Api"
+                    "XTI_WebApp.Api",
+                    "XTI_WebApp.Abstractions"       
                 }
             )
             .Distinct()

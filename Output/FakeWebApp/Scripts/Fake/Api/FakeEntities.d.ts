@@ -4,17 +4,20 @@ interface ILinkModel {
 	LinkName: string;
 	DisplayText: string;
 	Url: string;
+	IsAuthenticationRequired: boolean;
 }
 interface IEmployee {
 	ID: number;
 	Name: string;
-	BirthDate: Date;
+	BirthDate: import('@jasonbenfield/sharedwebapp/Common').DateTimeOffset;
 	EmployeeType: IEmployeeType;
 	Departments: number[];
 	CurrentProduct: IProduct;
 	Rates: Record<string,number>;
 	Status: Status;
-	TimeEmployed: string;
+	TimeEmployed: import('@jasonbenfield/sharedwebapp/Common').TimeSpan;
+	DateHired: import('@jasonbenfield/sharedwebapp/Common').DateOnly;
+	StartTime: import('@jasonbenfield/sharedwebapp/Common').TimeOnly;
 }
 interface IProduct {
 	ID: number;
@@ -27,21 +30,6 @@ interface IWebContentResult {
 }
 interface IQueryEmployeesRequest {
 	Department: string;
-}
-interface IWebFileResult {
-	FileStream: IStream;
-	ContentType: string;
-	DownloadName: string;
-}
-interface IStream {
-	CanRead: boolean;
-	CanWrite: boolean;
-	CanSeek: boolean;
-	CanTimeout: boolean;
-	Length: number;
-	Position: number;
-	ReadTimeout: number;
-	WriteTimeout: number;
 }
 interface IAddProductModel {
 	Name: string;

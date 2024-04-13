@@ -33,6 +33,10 @@ internal sealed class EntityGenerator
         foreach (var property in objectTemplate.PropertyTemplates)
         {
             var tsType = new TsType(property.ValueTemplate).Value;
+            if (tsType.StartsWith("xti."))
+            {
+                tsType = tsType.Replace("xti.", "import('@jasonbenfield/sharedwebapp/Common').");
+            }
             tsFile.AddLine($"{property.Name}: {tsType};");
         }
         tsFile.Outdent();

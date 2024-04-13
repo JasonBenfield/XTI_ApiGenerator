@@ -1,4 +1,5 @@
 // Generated code
+import * as xti from "@jasonbenfield/sharedwebapp/Common";
 import { BaseForm } from '@jasonbenfield/sharedwebapp/Forms/BaseForm';
 import { AddEmployeeFormView } from './AddEmployeeFormView';
 import { DropDownFieldItem } from "@jasonbenfield/sharedwebapp/Forms/DropDownFieldItem";
@@ -14,10 +15,12 @@ export class AddEmployeeForm extends BaseForm {
 		this.BirthDate.setCaption('Birth Date');
 		this.Department.setCaption('Department');
 		this.Department.constraints.mustNotBeNull();
-		this.Department.setItemCaption('Select...');
 		this.Department.setItems(
-			new DropDownFieldItem(1, 'HR'),
-			new DropDownFieldItem(2, 'IT')
+			'Select...',
+			[
+				new DropDownFieldItem(1, 'HR'),
+				new DropDownFieldItem(2, 'IT')
+			]
 		);
 		this.Address.setCaption('Address');
 		this.SSN.setCaption('SSN');
@@ -26,16 +29,21 @@ export class AddEmployeeForm extends BaseForm {
 		this.SSN.protect();
 		this.HireDate.setCaption('Hire Date');
 		this.HireDate.setItems(
-			new DropDownFieldItem(new Date(Date.UTC(2023, 4, 17, 4, 0, 0, 0)), 'Yesterday'),
-			new DropDownFieldItem(new Date(Date.UTC(2023, 4, 18, 4, 0, 0, 0)), 'Today'),
-			new DropDownFieldItem(new Date(Date.UTC(2023, 4, 19, 4, 0, 0, 0)), 'Tomorrow')
+			'',
+			[
+				new DropDownFieldItem(new xti.DateOnly(2024, xti.Month.fromValue(4), 12), 'Yesterday'),
+				new DropDownFieldItem(new xti.DateOnly(2024, xti.Month.fromValue(4), 13), 'Today'),
+				new DropDownFieldItem(new xti.DateOnly(2024, xti.Month.fromValue(4), 14), 'Tomorrow')
+			]
 		);
 		this.IsTemp.setCaption('Is Temp');
 		this.IsTemp.setItems(
-			new DropDownFieldItem(true, 'Yes'),
-			new DropDownFieldItem(false, 'No')
+			'',
+			[
+				new DropDownFieldItem(true, 'Yes'),
+				new DropDownFieldItem(false, 'No')
+			]
 		);
-		this.EmployeeID.setCaption('Employee ID');
 	}
 	readonly EmployeeName = this.addTextInputFormGroup('EmployeeName', this.view.EmployeeName);
 	readonly BirthDate = this.addDateInputFormGroup('BirthDate', this.view.BirthDate);
@@ -44,5 +52,5 @@ export class AddEmployeeForm extends BaseForm {
 	readonly SSN = this.addNumberInputFormGroup('SSN', this.view.SSN);
 	readonly HireDate = this.addDateDropDownFormGroup('HireDate', this.view.HireDate);
 	readonly IsTemp = this.addBooleanDropDownFormGroup('IsTemp', this.view.IsTemp);
-	readonly EmployeeID = this.addHiddenNumberFormGroup('EmployeeID', this.view.EmployeeID);
+	readonly EmployeeID = this.addHiddenNumber('EmployeeID', this.view.EmployeeID);
 }

@@ -73,6 +73,8 @@ public sealed class TypeSyntaxFromValueTemplate
             (
                 valueTemplate.DataType == typeof(DateTime) || 
                 valueTemplate.DataType == typeof(DateTimeOffset) ||
+                valueTemplate.DataType == typeof(DateOnly) ||
+                valueTemplate.DataType == typeof(TimeOnly) ||
                 valueTemplate.DataType == typeof(TimeSpan) ||
                 valueTemplate.DataType.Name == "IFormFile"
             )

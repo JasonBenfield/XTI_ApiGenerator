@@ -39,7 +39,7 @@ internal sealed class AppVersionClass
                     (
                         Token
                         (
-                            TriviaList(Comment("// Generated Code")),
+                            TriviaList(new GeneratedCodeComment().Value()),
                             SyntaxKind.NamespaceKeyword,
                             TriviaList()
                         )
@@ -53,11 +53,11 @@ internal sealed class AppVersionClass
                             (
                                 TokenList
                                 (
-                                    new[]
-                                    {
+                                    [
                                         Token(SyntaxKind.PublicKeyword),
-                                        Token(SyntaxKind.SealedKeyword)
-                                    }
+                                        Token(SyntaxKind.SealedKeyword),
+                                        Token(SyntaxKind.PartialKeyword)
+                                    ]
                                 )
                             )
                             .WithMembers
@@ -75,11 +75,10 @@ internal sealed class AppVersionClass
                                         (
                                             TokenList
                                             (
-                                                new []
-                                                {
+                                                [
                                                     Token(SyntaxKind.PublicKeyword),
                                                     Token(SyntaxKind.StaticKeyword)
-                                                }
+                                                ]
                                             )
                                         )
                                         .WithParameterList

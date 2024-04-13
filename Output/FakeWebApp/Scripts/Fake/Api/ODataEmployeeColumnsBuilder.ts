@@ -1,4 +1,5 @@
 // Generated code
+import * as xti from "@jasonbenfield/sharedwebapp/Common";
 import { ODataColumnBuilder } from "@jasonbenfield/sharedwebapp/OData/ODataColumnBuilder";
 import { ODataColumnViewBuilder } from "@jasonbenfield/sharedwebapp/OData/ODataColumnViewBuilder";
 import { SourceType } from "@jasonbenfield/sharedwebapp/OData/SourceType";
@@ -14,6 +15,8 @@ export class ODataEmployeeColumnViewsBuilder {
 	readonly Rates = new ODataColumnViewBuilder();
 	readonly Status = new ODataColumnViewBuilder();
 	readonly TimeEmployed = new ODataColumnViewBuilder();
+	readonly DateHired = new ODataColumnViewBuilder();
+	readonly StartTime = new ODataColumnViewBuilder();
 }
 
 export class ODataEmployeeColumnsBuilder {
@@ -31,6 +34,10 @@ export class ODataEmployeeColumnsBuilder {
 		this.Status = new ODataColumnBuilder('Status', new SourceType('Status'), views.Status);
 		this.TimeEmployed = new ODataColumnBuilder('TimeEmployed', new SourceType('TimeSpan'), views.TimeEmployed);
 		this.TimeEmployed.setDisplayText('Time Employed');
+		this.DateHired = new ODataColumnBuilder('DateHired', new SourceType('DateOnly'), views.DateHired);
+		this.DateHired.setDisplayText('Date Hired');
+		this.StartTime = new ODataColumnBuilder('StartTime', new SourceType('TimeOnly'), views.StartTime);
+		this.StartTime.setDisplayText('Start Time');
 	}
 	readonly ID: ODataColumnBuilder;
 	readonly Name: ODataColumnBuilder;
@@ -41,6 +48,8 @@ export class ODataEmployeeColumnsBuilder {
 	readonly Rates: ODataColumnBuilder;
 	readonly Status: ODataColumnBuilder;
 	readonly TimeEmployed: ODataColumnBuilder;
+	readonly DateHired: ODataColumnBuilder;
+	readonly StartTime: ODataColumnBuilder;
 	
 	build() {
 		return {
@@ -52,7 +61,9 @@ export class ODataEmployeeColumnsBuilder {
 			CurrentProduct: this.CurrentProduct.build(),
 			Rates: this.Rates.build(),
 			Status: this.Status.build(),
-			TimeEmployed: this.TimeEmployed.build()
+			TimeEmployed: this.TimeEmployed.build(),
+			DateHired: this.DateHired.build(),
+			StartTime: this.StartTime.build()
 		} as ODataColumns<IEmployee>;
 	}
 }
