@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="XTI_WebAppClient" Version="1.8.40-dev231118172153455" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageReference Include="XTI_WebAppClient" Version="1.8.40" />
   </ItemGroup>
 
 </Project>

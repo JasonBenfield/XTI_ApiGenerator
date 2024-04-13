@@ -16,6 +16,7 @@ internal sealed class ApiGroupClassGenerator
         var groupClassName = new GroupClassName(group).Value;
         var tsFile = new TypeScriptFile(groupClassName, createStream);
         tsFile.AddLine();
+        tsFile.AddXtiCommonImport();
         tsFile.AddLine("import { AppClientGroup } from \"@jasonbenfield/sharedwebapp/Http/AppClientGroup\";");
         tsFile.AddLine("import { AppClientAction } from \"@jasonbenfield/sharedwebapp/Http/AppClientAction\";");
         tsFile.AddLine("import { AppClientView } from \"@jasonbenfield/sharedwebapp/Http/AppClientView\";");

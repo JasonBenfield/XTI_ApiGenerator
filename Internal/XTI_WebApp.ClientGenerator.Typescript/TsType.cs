@@ -31,12 +31,14 @@ internal sealed class TsType
         if 
         (
             type == typeof(string) || 
-            type == typeof(TimeSpan) || 
-            type == typeof(TimeSpan?) ||
             type.Name.StartsWith("ODataQueryOptions") == true
         )
         {
             tsType = "string";
+        }
+        else if(type == typeof(TimeSpan) || type == typeof(TimeSpan?))
+        {
+            tsType = "xti.TimeSpan";
         }
         else if(type.Name == "IFormFile" || type.Name == "FileUpload")
         {
@@ -44,21 +46,29 @@ internal sealed class TsType
         }
         else if
         (
-            type == typeof(short) || type == typeof(int) || type == typeof(long)
-            || type == typeof(double) || type == typeof(decimal) || type == typeof(float)
-            || type == typeof(short?) || type == typeof(int?) || type == typeof(long?)
-            || type == typeof(double?) || type == typeof(decimal?) || type == typeof(float?)
+            type == typeof(short) || type == typeof(int) || type == typeof(long) || 
+            type == typeof(double) || type == typeof(decimal) || type == typeof(float) || 
+            type == typeof(short?) || type == typeof(int?) || type == typeof(long?) || 
+            type == typeof(double?) || type == typeof(decimal?) || type == typeof(float?)
         )
         {
             tsType = "number";
         }
         else if
         (
-            type == typeof(DateTime) || type == typeof(DateTimeOffset)
-            || type == typeof(DateTime?) || type == typeof(DateTimeOffset?)
+            type == typeof(DateTime) || type == typeof(DateTimeOffset) || 
+            type == typeof(DateTime?) || type == typeof(DateTimeOffset?)
         )
         {
-            tsType = "Date";
+            tsType = "xti.DateTimeOffset";
+        }
+        else if(type == typeof(DateOnly) || type == typeof(DateOnly?))
+        {
+            tsType = "xti.DateOnly";
+        }
+        else if (type == typeof(TimeOnly) || type == typeof(TimeOnly?))
+        {
+            tsType = "xti.TimeOnly";
         }
         else if (type == typeof(bool) || type == typeof(bool?))
         {

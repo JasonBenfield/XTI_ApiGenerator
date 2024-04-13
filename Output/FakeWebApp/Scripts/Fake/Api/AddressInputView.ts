@@ -1,23 +1,24 @@
 // Generated code
 import { ComplexFieldFormGroupView } from '@jasonbenfield/sharedwebapp/Views/ComplexFieldFormGroupView';
-import { SimpleFieldFormGroupInputView, SimpleFieldFormGroupSelectView } from '@jasonbenfield/sharedwebapp/Views/FormGroup';
+import * as views from '@jasonbenfield/sharedwebapp/Views/FormGroup';
 import { IFormGroupLayout } from '@jasonbenfield/sharedwebapp/Views/Types';
 import { BasicComponentView } from '@jasonbenfield/sharedwebapp/Views/BasicComponentView';
+import { InputView } from '@jasonbenfield/sharedwebapp/Views/InputView';
 
 export interface IAddressInputView {
-	ID1: SimpleFieldFormGroupInputView;
-	ID2: SimpleFieldFormGroupInputView;
-	Line1: SimpleFieldFormGroupInputView;
-	City: SimpleFieldFormGroupInputView;
-	State: SimpleFieldFormGroupInputView;
-	Zip: SimpleFieldFormGroupInputView;
+	ID1: InputView;
+	ID2: InputView;
+	Line1: views.SimpleFieldFormGroupInputView;
+	City: views.SimpleFieldFormGroupInputView;
+	State: views.SimpleFieldFormGroupInputView;
+	Zip: views.SimpleFieldFormGroupInputView;
 }
 
 export class DefaultAddressInputViewLayout implements IFormGroupLayout<IAddressInputView> {
 	addFormGroups(form: AddressInputView) {
 		return {
-			ID1: form.addInputFormGroup(),
-			ID2: form.addInputFormGroup(),
+			ID1: form.addHiddenInput(),
+			ID2: form.addHiddenInput(),
 			Line1: form.addInputFormGroup(),
 			City: form.addInputFormGroup(),
 			State: form.addInputFormGroup(),

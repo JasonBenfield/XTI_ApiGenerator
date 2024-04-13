@@ -4,17 +4,20 @@ interface ILinkModel {
 	LinkName: string;
 	DisplayText: string;
 	Url: string;
+	IsAuthenticationRequired: boolean;
 }
 interface IEmployee {
 	ID: number;
 	Name: string;
-	BirthDate: Date;
+	BirthDate: import('@jasonbenfield/sharedwebapp/Common').DateTimeOffset;
 	EmployeeType: IEmployeeType;
 	Departments: number[];
 	CurrentProduct: IProduct;
 	Rates: Record<string,number>;
 	Status: Status;
-	TimeEmployed: string;
+	TimeEmployed: import('@jasonbenfield/sharedwebapp/Common').TimeSpan;
+	DateHired: import('@jasonbenfield/sharedwebapp/Common').DateOnly;
+	StartTime: import('@jasonbenfield/sharedwebapp/Common').TimeOnly;
 }
 interface IProduct {
 	ID: number;

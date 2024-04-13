@@ -152,11 +152,69 @@ internal sealed class AppClientExtensionsClass
                                                     (
                                                         SingletonSeparatedList<TypeSyntax>
                                                         (
-                                                            IdentifierName($"{template.Name}AppClient")
+                                                            IdentifierName($"{template.Name}AppClientFactory")
                                                         )
                                                     )
                                                 )
                                             )
+                                    )
+                                ),
+                                ExpressionStatement
+                                (
+                                    InvocationExpression
+                                    (
+                                        MemberAccessExpression
+                                        (
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("services"),
+                                            IdentifierName("AddScoped")
+                                        )
+                                    )
+                                    .WithArgumentList
+                                    (
+                                        ArgumentList
+                                        (
+                                            SingletonSeparatedList
+                                            (
+                                                Argument
+                                                (
+                                                    SimpleLambdaExpression
+                                                    (
+                                                        Parameter(Identifier("sp"))
+                                                    )
+                                                    .WithExpressionBody
+                                                    (
+                                                        InvocationExpression
+                                                        (
+                                                            MemberAccessExpression
+                                                            (
+                                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                                InvocationExpression
+                                                                (
+                                                                    MemberAccessExpression
+                                                                    (
+                                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                                        IdentifierName("sp"),
+                                                                        GenericName(Identifier("GetRequiredService"))
+                                                                        .WithTypeArgumentList
+                                                                        (
+                                                                            TypeArgumentList
+                                                                            (
+                                                                                SingletonSeparatedList<TypeSyntax>
+                                                                                (
+                                                                                    IdentifierName($"{template.Name}AppClientFactory")
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                ),
+                                                                IdentifierName("Create")
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
                                     )
                                 ),
                                 ExpressionStatement

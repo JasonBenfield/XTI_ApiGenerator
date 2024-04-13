@@ -60,6 +60,7 @@ public sealed class CsClient : CodeGenerator
         }
         await new AppVersionClass(ns, createStream, appTemplate, versionKey).Output();
         await new RolesClass(ns, createStream, appTemplate).Output();
+        await new AppClientFactoryClass(ns, createStream, appTemplate).Output();
         await new AppClientClass(ns, createStream, appTemplate).Output();
         if (outputExtensions)
         {
@@ -68,6 +69,7 @@ public sealed class CsClient : CodeGenerator
         var namespaces = new[]
         {
             "XTI_App.Abstractions",
+            "XTI_WebApp.Abstractions",
             "XTI_WebAppClient",
             "Microsoft.Extensions.Hosting"
         };

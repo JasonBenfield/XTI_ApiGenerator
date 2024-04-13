@@ -11,4 +11,6 @@ public sealed class Employee
     public IDictionary<string, int> Rates { get; set; } = new Dictionary<string, int>();
     public Status Status { get; set; }
     public TimeSpan TimeEmployed { get; set; }
+    public DateOnly DateHired { get; set; }
+    public TimeOnly StartTime { get; set; }
 }

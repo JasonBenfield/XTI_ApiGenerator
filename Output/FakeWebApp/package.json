@@ -20,8 +20,7 @@
     "lodash": "^4.17.19",
     "numeral": "^2.0.6",
     "popper.js": "^1.16.1",
-    "tslib": "^2.0.0",
-    "tsyringe": "^4.3.0"
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "css-loader": "^4.2.0",
@@ -31,7 +30,7 @@
     "sass-loader": "^9.0.2",
     "style-loader": "^1.2.1",
     "ts-loader": "^8.0.2",
-    "typescript": "^3.9.7",
+    "typescript": "^5.3.2",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   }

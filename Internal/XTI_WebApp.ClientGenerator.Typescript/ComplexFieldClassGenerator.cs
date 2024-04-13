@@ -19,6 +19,7 @@ internal sealed class ComplexFieldClassGenerator
     {
         var className = complexField.TypeName;
         var tsFile = new TypeScriptFile(className, createStream);
+        tsFile.AddXtiCommonImport();
         if (isForm)
         {
             tsFile.AddLine("import { BaseForm } from '@jasonbenfield/sharedwebapp/Forms/BaseForm';");
@@ -49,7 +50,7 @@ internal sealed class ComplexFieldClassGenerator
         tsFile.Indent();
         var superArgs = isForm ? $"'{className}'" : "prefix, name";
         tsFile.AddLine($"super({superArgs}, view);");
-        foreach (var field in fields)
+        foreach (var field in fields.Where(f => f is not HiddenFieldModel))
         {
             if (!string.IsNullOrWhiteSpace(field.Caption))
             {
@@ -106,29 +107,27 @@ internal sealed class ComplexFieldClassGenerator
             }
             else if (field is DropDownFieldModel dropDownField)
             {
-                if (!string.IsNullOrWhiteSpace(dropDownField.ItemCaption))
-                {
-                    tsFile.AddLine($"this.{field.Name}.setItemCaption('{dropDownField.ItemCaption}');");
-                }
                 var dropDownItems = dropDownField.Items;
-                if (dropDownItems?.Any() == true)
+                tsFile.AddLine($"this.{field.Name}.setItems(");
+                tsFile.Indent();
+                tsFile.AddLine($"'{dropDownField.ItemCaption}',");
+                tsFile.AddLine("[");
+                tsFile.Indent();
+                var inputType = dropDownField.InputDataType;
+                var lastItem = dropDownItems.Last();
+                foreach (var dropDownItem in dropDownItems)
                 {
-                    tsFile.AddLine($"this.{field.Name}.setItems(");
-                    tsFile.Indent();
-                    var inputType = dropDownField.InputDataType;
-                    var lastItem = dropDownItems.Last();
-                    foreach (var dropDownItem in dropDownItems)
+                    var itemValue = valueToJsLiteral(dropDownItem.Value);
+                    tsFile.AddLine($"new DropDownFieldItem({itemValue}, '{dropDownItem.DisplayText}')");
+                    if (dropDownItem != lastItem)
                     {
-                        var itemValue = valueToJsLiteral(dropDownItem.Value);
-                        tsFile.AddLine($"new DropDownFieldItem({itemValue}, '{dropDownItem.DisplayText}')");
-                        if (dropDownItem != lastItem)
-                        {
-                            tsFile.Append(",");
-                        }
+                        tsFile.Append(",");
                     }
-                    tsFile.Outdent();
-                    tsFile.AddLine(");");
                 }
+                tsFile.Outdent();
+                tsFile.AddLine("]");
+                tsFile.Outdent();
+                tsFile.AddLine(");");
             }
         }
         tsFile.Outdent();
@@ -151,9 +150,21 @@ internal sealed class ComplexFieldClassGenerator
                     {
                         addFormGroup = "addNumberInputFormGroup";
                     }
-                    else if (inputType == typeof(DateTimeOffset?))
+                    else if (inputType == typeof(DateOnly?))
                     {
                         addFormGroup = "addDateInputFormGroup";
+                    }
+                    else if (inputType == typeof(TimeOnly?))
+                    {
+                        addFormGroup = "addTimeInputFormGroup";
+                    }
+                    else if (inputType == typeof(TimeSpan?))
+                    {
+                        addFormGroup = "addTimeSpanInputFormGroup";
+                    }
+                    else if (inputType == typeof(DateTimeOffset?) || inputType == typeof(DateTime?))
+                    {
+                        addFormGroup = "addDateTimeInputFormGroup";
                     }
                     else if (inputType == typeof(string))
                     {
@@ -172,9 +183,21 @@ internal sealed class ComplexFieldClassGenerator
                     {
                         addFormGroup = "addNumberDropDownFormGroup";
                     }
-                    else if (inputType == typeof(DateTimeOffset?))
+                    else if (inputType == typeof(DateOnly?))
                     {
                         addFormGroup = "addDateDropDownFormGroup";
+                    }
+                    else if (inputType == typeof(TimeOnly?))
+                    {
+                        addFormGroup = "addTimeDropDownFormGroup";
+                    }
+                    else if (inputType == typeof(TimeSpan?))
+                    {
+                        addFormGroup = "addTimeSpanDropDownFormGroup";
+                    }
+                    else if (inputType == typeof(DateTimeOffset?) || inputType == typeof(DateTime?))
+                    {
+                        addFormGroup = "addDateTimeDropDownFormGroup";
                     }
                     else if (inputType == typeof(string))
                     {
@@ -189,20 +212,32 @@ internal sealed class ComplexFieldClassGenerator
                         throw new NotSupportedException($"DropDown field with input type {inputType} is not supported");
                     }
                 }
-                else if (field is SimpleFieldModel hiddenField)
+                else if (field is HiddenFieldModel hiddenField)
                 {
                     var inputType = hiddenField.InputDataType;
                     if (inputType == typeof(int?) || inputType == typeof(decimal?))
                     {
-                        addFormGroup = "addHiddenNumberFormGroup";
+                        addFormGroup = "addHiddenNumber";
                     }
-                    else if (inputType == typeof(DateTimeOffset?))
+                    else if (inputType == typeof(DateTime?) || inputType == typeof(DateTimeOffset?))
                     {
-                        addFormGroup = "addHiddenDateFormGroup";
+                        addFormGroup = "addHiddenDateTime";
+                    }
+                    else if (inputType == typeof(DateOnly?))
+                    {
+                        addFormGroup = "addHiddenDate";
+                    }
+                    else if (inputType == typeof(TimeOnly?))
+                    {
+                        addFormGroup = "addHiddenTime";
+                    }
+                    else if (inputType == typeof(TimeSpan?))
+                    {
+                        addFormGroup = "addHiddenTimeSpan";
                     }
                     else if (inputType == typeof(string))
                     {
-                        addFormGroup = "addHiddenTextFormGroup";
+                        addFormGroup = "addHiddenText";
                     }
                     else
                     {
@@ -248,7 +283,22 @@ internal sealed class ComplexFieldClassGenerator
                     dateTime = dateTimeOffset.Value.DateTime;
                 }
                 dateTime = dateTime.Value.ToUniversalTime();
-                jsLiteral = $"new Date(Date.UTC({dateTime.Value.Year}, {dateTime.Value.Month - 1}, {dateTime.Value.Day}, {dateTime.Value.Hour}, {dateTime.Value.Minute}, {dateTime.Value.Second}, {dateTime.Value.Millisecond}))";
+                jsLiteral = $"xti.DateTimeOffset.UTC({dateTime.Value.Year}, xti.Month.fromValue({dateTime.Value.Month}), {dateTime.Value.Day}, {dateTime.Value.Hour}, {dateTime.Value.Minute}, {dateTime.Value.Second}, {dateTime.Value.Millisecond})";
+            }
+            else if (value is DateOnly?)
+            {
+                var date = (DateOnly?)value;
+                jsLiteral = $"new xti.DateOnly({date.Value.Year}, xti.Month.fromValue({date.Value.Month}), {date.Value.Day})";
+            }
+            else if (value is TimeOnly?)
+            {
+                var time = (TimeOnly?)value;
+                jsLiteral = $"new xti.TimeOnly({time.Value.Hour}, {time.Value.Minute}, {time.Value.Second}, {time.Value.Millisecond})";
+            }
+            else if (value is TimeSpan?)
+            {
+                var timeSpan = (TimeSpan?)value;
+                jsLiteral = $"new xti.TimeSpan({timeSpan.Value.Days}, {timeSpan.Value.Hours}, {timeSpan.Value.Minutes}, {timeSpan.Value.Seconds}, {timeSpan.Value.Milliseconds * 10000})";
             }
             else if (value is bool?)
             {

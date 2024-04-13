@@ -22,6 +22,7 @@ internal sealed class ODataColumnsBuilderGenerator
         var properties = entityType.GetProperties();
         var className = $"OData{entityName}ColumnsBuilder";
         var tsFile = new TypeScriptFile(className, createStream);
+        tsFile.AddXtiCommonImport();
         tsFile.AddLine("import { ODataColumnBuilder } from \"@jasonbenfield/sharedwebapp/OData/ODataColumnBuilder\";");
         tsFile.AddLine("import { ODataColumnViewBuilder } from \"@jasonbenfield/sharedwebapp/OData/ODataColumnViewBuilder\";");
         tsFile.AddLine("import { SourceType } from \"@jasonbenfield/sharedwebapp/OData/SourceType\";");

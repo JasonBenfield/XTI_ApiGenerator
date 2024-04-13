@@ -40,7 +40,7 @@ public sealed class AppClientClass
                         (
                             Token
                             (
-                                TriviaList(Comment("// Generated Code")),
+                                TriviaList(new GeneratedCodeComment().Value()),
                                 SyntaxKind.NamespaceKeyword,
                                 TriviaList()
                             )
@@ -391,8 +391,8 @@ public sealed class AppClientClass
                 Parameter(Identifier("httpClientFactory"))
                     .WithType(IdentifierName("IHttpClientFactory")),
                 Token(SyntaxKind.CommaToken),
-                Parameter(Identifier("xtiTokenAccessor"))
-                    .WithType(IdentifierName("XtiTokenAccessor")),
+                Parameter(Identifier("xtiTokenAccessorFactory"))
+                    .WithType(IdentifierName("XtiTokenAccessorFactory")),
                 Token(SyntaxKind.CommaToken),
                 Parameter(Identifier("clientUrl"))
                     .WithType(IdentifierName("AppClientUrl")),
@@ -416,7 +416,7 @@ public sealed class AppClientClass
             {
                 Argument(IdentifierName("httpClientFactory")),
                 Token(SyntaxKind.CommaToken),
-                Argument(IdentifierName("xtiTokenAccessor")),
+                Argument(IdentifierName("xtiTokenAccessorFactory")),
                 Token(SyntaxKind.CommaToken),
                 Argument(IdentifierName("clientUrl")),
                 Token(SyntaxKind.CommaToken),
