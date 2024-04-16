@@ -12,7 +12,7 @@ export class FakeAppClient extends AppClient {
 		super(
 			events, 
 			'Fake', 
-			pageContext.EnvironmentName === 'Production' || pageContext.EnvironmentName === 'Staging' ? 'V00000' : 'Current'
+			pageContext.EnvironmentName === 'Production' || pageContext.EnvironmentName === 'Staging' ? 'V0' : 'Current'
 		);
 		this.Employee = this.addGroup((evts, resourceUrl) => new EmployeeGroup(evts, resourceUrl));
 		this.EmployeeQuery = this.addODataGroup((evts, resourceUrl) => new AppClientQuery<IQueryEmployeesRequest, IEmployee>(evts, resourceUrl.odata('EmployeeQuery'), 'EmployeeQuery'));
