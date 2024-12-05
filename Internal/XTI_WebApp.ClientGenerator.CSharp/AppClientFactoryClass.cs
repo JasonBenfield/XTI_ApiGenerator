@@ -130,12 +130,12 @@ internal sealed class AppClientFactoryClass
                                     ),
                                     FieldDeclaration
                                     (
-                                        VariableDeclaration(IdentifierName("IAppClientRequestKey"))
+                                        VariableDeclaration(IdentifierName("AppClientOptions"))
                                         .WithVariables
                                         (
                                             SingletonSeparatedList
                                             (
-                                                VariableDeclarator(Identifier("requestKey"))
+                                                VariableDeclarator(Identifier("options"))
                                             )
                                         )
                                     )
@@ -192,8 +192,8 @@ internal sealed class AppClientFactoryClass
                                                     Parameter(Identifier("clientUrl"))
                                                         .WithType(IdentifierName("AppClientUrl")),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Parameter(Identifier("requestKey"))
-                                                        .WithType(IdentifierName("IAppClientRequestKey")),
+                                                    Parameter(Identifier("options"))
+                                                        .WithType(IdentifierName("AppClientOptions")),
                                                     Token(SyntaxKind.CommaToken),
                                                     Parameter(Identifier("version"))
                                                         .WithType(IdentifierName($"{template.Name}AppClientVersion"))
@@ -256,9 +256,9 @@ internal sealed class AppClientFactoryClass
                                                     (
                                                         SyntaxKind.SimpleMemberAccessExpression,
                                                         ThisExpression(),
-                                                        IdentifierName("requestKey")
+                                                        IdentifierName("options")
                                                     ),
-                                                    IdentifierName("requestKey")
+                                                    IdentifierName("options")
                                                 )
                                             ),
                                             ExpressionStatement
@@ -305,7 +305,7 @@ internal sealed class AppClientFactoryClass
                                                             Token(SyntaxKind.CommaToken),
                                                             Argument(IdentifierName("clientUrl")),
                                                             Token(SyntaxKind.CommaToken),
-                                                            Argument(IdentifierName("requestKey")),
+                                                            Argument(IdentifierName("options")),
                                                             Token(SyntaxKind.CommaToken),
                                                             Argument(IdentifierName("version"))
                                                         }
