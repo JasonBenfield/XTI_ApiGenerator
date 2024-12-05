@@ -2,7 +2,7 @@
 namespace FakeWebAppClient;
 public sealed partial class FakeAppClient : AppClient
 {
-    public FakeAppClient(IHttpClientFactory httpClientFactory, XtiTokenAccessorFactory xtiTokenAccessorFactory, AppClientUrl clientUrl, IAppClientRequestKey requestKey, FakeAppClientVersion version) : base(httpClientFactory, xtiTokenAccessorFactory, clientUrl, requestKey, "Fake", version.Value)
+    public FakeAppClient(IHttpClientFactory httpClientFactory, XtiTokenAccessorFactory xtiTokenAccessorFactory, AppClientUrl clientUrl, AppClientOptions options, FakeAppClientVersion version) : base(httpClientFactory, xtiTokenAccessorFactory, clientUrl, options, "Fake", version.Value)
     {
         Employee = CreateGroup((_clientFactory, _tokenAccessor, _url, _options) => new EmployeeGroup(_clientFactory, _tokenAccessor, _url, _options));
         EmployeeQuery = CreateODataGroup<QueryEmployeesRequest, Employee>("EmployeeQuery");

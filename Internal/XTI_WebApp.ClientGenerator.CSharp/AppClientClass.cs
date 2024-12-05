@@ -54,12 +54,11 @@ public sealed class AppClientClass
                                     (
                                         TokenList
                                         (
-                                            new[]
-                                            {
+                                            [
                                                 Token(SyntaxKind.PublicKeyword),
                                                 Token(SyntaxKind.SealedKeyword),
                                                 Token(SyntaxKind.PartialKeyword)
-                                            }
+                                            ]
                                         )
                                     )
                                     .WithBaseList
@@ -397,8 +396,8 @@ public sealed class AppClientClass
                 Parameter(Identifier("clientUrl"))
                     .WithType(IdentifierName("AppClientUrl")),
                 Token(SyntaxKind.CommaToken),
-                Parameter(Identifier("requestKey"))
-                    .WithType(IdentifierName("IAppClientRequestKey")),
+                Parameter(Identifier("options"))
+                    .WithType(IdentifierName("AppClientOptions")),
                 Token(SyntaxKind.CommaToken),
                 Parameter(Identifier("version"))
                     .WithType(IdentifierName($"{template.Name}AppClientVersion"))
@@ -412,15 +411,14 @@ public sealed class AppClientClass
         var args = new List<SyntaxNodeOrToken>();
         args.AddRange
         (
-            new SyntaxNodeOrToken[]
-            {
+            [
                 Argument(IdentifierName("httpClientFactory")),
                 Token(SyntaxKind.CommaToken),
                 Argument(IdentifierName("xtiTokenAccessorFactory")),
                 Token(SyntaxKind.CommaToken),
                 Argument(IdentifierName("clientUrl")),
                 Token(SyntaxKind.CommaToken),
-                Argument(IdentifierName("requestKey")),
+                Argument(IdentifierName("options")),
                 Token(SyntaxKind.CommaToken),
                 Argument
                 (
@@ -440,7 +438,7 @@ public sealed class AppClientClass
                         IdentifierName("Value")
                     )
                 )
-            }
+            ]
         );
         return args.ToArray();
     }
