@@ -11,25 +11,25 @@ public sealed partial class ProductController : Controller
 
     public async Task<IActionResult> Index(CancellationToken ct)
     {
-        var result = await api.Group("Product").Action<EmptyRequest, WebViewResult>("Index").Execute(new EmptyRequest(), ct);
+        var result = await api.Product.Index.Execute(new EmptyRequest(), ct);
         return View(result.Data!.ViewName);
     }
 
     [HttpPost]
     public Task<ResultContainer<string>> GetInfo(CancellationToken ct)
     {
-        return api.Group("Product").Action<EmptyRequest, string>("GetInfo").Execute(new EmptyRequest(), ct);
+        return api.Product.GetInfo.Execute(new EmptyRequest(), ct);
     }
 
     [HttpPost]
-    public Task<ResultContainer<int>> AddProduct(AddProductModel model, CancellationToken ct)
+    public Task<ResultContainer<int>> AddProduct(AddProductModel requestData, CancellationToken ct)
     {
-        return api.Group("Product").Action<AddProductModel, int>("AddProduct").Execute(model, ct);
+        return api.Product.AddProduct.Execute(requestData, ct);
     }
 
     [HttpPost]
-    public Task<ResultContainer<Product>> Product([FromBody] int model, CancellationToken ct)
+    public Task<ResultContainer<Product>> Product([FromBody] int requestData, CancellationToken ct)
     {
-        return api.Group("Product").Action<int, Product>("Product").Execute(model, ct);
+        return api.Product.Product.Execute(requestData, ct);
     }
 }
