@@ -1,18 +1,20 @@
 ﻿using System;
 
-namespace XTI_ApiGenerator
+namespace XTI_ApiGeneratorTask
 {
     public sealed class AppDefinition
     {
-        public AppDefinition(string name, string type, GroupDefinition[] groups)
+        public AppDefinition(string name, string type, GroupDefinition[] groups, QueryDefinition[] queries)
         {
             Name = name;
             Type = type;
             BuilderClassName = $"{name}AppApiBuilder";
             ClassName = $"{name}AppApi";
             Groups = groups;
-            IsWebApp = type.Replace(" ", "").Equals("WebApp", StringComparison.OrdinalIgnoreCase);
+            Queries = queries; 
             IsConsoleApp = type.Replace(" ", "").Equals("ConsoleApp", StringComparison.OrdinalIgnoreCase);
+            IsServiceApp = type.Replace(" ", "").Equals("ServiceApp", StringComparison.OrdinalIgnoreCase);
+            IsWebApp = type.Replace(" ", "").Equals("WebApp", StringComparison.OrdinalIgnoreCase);
         }
 
         public string Name { get; }
@@ -20,7 +22,9 @@ namespace XTI_ApiGenerator
         public string BuilderClassName { get; }
         public string ClassName { get; }
         public GroupDefinition[] Groups { get; }
+        public QueryDefinition[] Queries { get; }
         public bool IsWebApp { get; }
+        public bool IsServiceApp { get; }
         public bool IsConsoleApp { get; }
     }
 }

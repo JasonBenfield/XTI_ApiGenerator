@@ -1,4 +1,4 @@
-﻿namespace XTI_ApiGenerator
+﻿namespace XTI_ApiGeneratorTask
 {
     public sealed class ClassDefinition
     {

@@ -1,4 +1,4 @@
-﻿using XTI_ApiGenerator;
+﻿using XTI_ApiGeneratorTask;
 using XTI_Core.Extensions;
 
 namespace XTI_ApiGeneratorTests;
@@ -38,7 +38,7 @@ public sealed class ApiGeneratorTest
     {
         var appDefinition = GenerateAppDefinition();
         var homeGroup = appDefinition.Groups
-            .FirstOrDefault(g => g.Name.Equals("Home", StringComparison.OrdinalIgnoreCase)) ??
+            .FirstOrDefault(g => g.Name.Equals("Jobs", StringComparison.OrdinalIgnoreCase)) ??
             new();
         var groupBuilderClass = new GeneratedGroupBuilderClass(homeGroup, "XTI_ApiGeneratorTests").Value();
         Console.WriteLine(groupBuilderClass.Contents);
@@ -69,6 +69,30 @@ public sealed class ApiGeneratorTest
         var appDefinition = GenerateAppDefinition();
         var appClass = new GeneratedAppClass(appDefinition, "XTI_ApiGeneratorTests").Value();
         Console.WriteLine(appClass.Contents);
+    }
+
+    [Test]
+    public void ShouldGenerateAppKeyClass()
+    {
+        var appDefinition = GenerateAppDefinition();
+        var appKeyClass = new GeneratedAppKeyClass(appDefinition, "XTI_ApiGeneratorTests").Value();
+        Console.WriteLine(appKeyClass.Contents);
+    }
+
+    [Test]
+    public void ShouldGenerateAppFactoryClass()
+    {
+        var appDefinition = GenerateAppDefinition();
+        var appFactoryClass = new GeneratedAppFactoryClass(appDefinition, "XTI_ApiGeneratorTests").Value();
+        Console.WriteLine(appFactoryClass.Contents);
+    }
+
+    [Test]
+    public void ShouldGenerateApiExtensions()
+    {
+        var appDefinition = GenerateAppDefinition();
+        var extensionsClass = new GeneratedApiExtensionsClass(appDefinition, "XTI_ApiGeneratorTests").Value();
+        Console.WriteLine(extensionsClass.Contents);
     }
 
     private static AppDefinition GenerateAppDefinition()

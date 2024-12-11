@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace XTI_ApiGenerator
+namespace XTI_ApiGeneratorTask
 {
     public sealed class GeneratedGroupBuilderClass
     {
@@ -23,7 +23,7 @@ namespace XTI_ApiGenerator
         public ClassDefinition Value()
         {
             var contents = GenerateCode()
-                .NormalizeWhitespace()
+                .NormalizeWhitespace(elasticTrivia: true)
                 .ToFullString();
             return new ClassDefinition(className, contents);
         }
@@ -49,14 +49,14 @@ namespace XTI_ApiGenerator
                         (
                             List
                             (
-                                GetClassDeclaration()
+                                DeclarationForClass()
                             )
                         )
                 )
             );
         }
 
-        private MemberDeclarationSyntax[] GetClassDeclaration()
+        private MemberDeclarationSyntax[] DeclarationForClass()
         {
             return new[]
             {
@@ -77,28 +77,29 @@ namespace XTI_ApiGenerator
                     (
                         List
                         (
-                            GetClassMembers()
+                            MembersForClass()
                         )
                     )
             };
         }
 
-        private MemberDeclarationSyntax[] GetClassMembers()
+        private MemberDeclarationSyntax[] MembersForClass()
         {
             var members = new List<MemberDeclarationSyntax>
             {
-                GetSourceDeclaration(),
-                GetCtorDeclaration()
+                DeclarationForSourceField(),
+                DeclarationForCtor(),
+                GeneratedConfigureMethod.Declaration()
             };
             foreach (var action in group.Actions)
             {
-                members.Add(GetActionDeclaration(action));
+                members.Add(DeclarationForAction(action));
             }
-            members.Add(GetBuildMethodDeclaration());
+            members.Add(DeclarationForBuildMethod());
             return members.ToArray();
         }
 
-        private FieldDeclarationSyntax GetSourceDeclaration()
+        private FieldDeclarationSyntax DeclarationForSourceField()
         {
             return FieldDeclaration
             (
@@ -124,13 +125,13 @@ namespace XTI_ApiGenerator
             );
         }
 
-        private ConstructorDeclarationSyntax GetCtorDeclaration()
+        private ConstructorDeclarationSyntax DeclarationForCtor()
         {
             return
                 ConstructorDeclaration(Identifier(className))
                 .WithModifiers
                 (
-                    TokenList(Token(SyntaxKind.PublicKeyword))
+                    TokenList(Token(SyntaxKind.InternalKeyword))
                 )
                 .WithParameterList
                 (
@@ -149,14 +150,15 @@ namespace XTI_ApiGenerator
                     (
                         SeparatedList
                         (
-                            new[] { GetSourceAssignment() }
-                                .Union(GetActionInitializations())
+                            new[] { AssignmentForSource() }
+                            .Union(AssignmentsForAction())
+                            .Union(new[] { GeneratedConfigureMethod.Invocation() })
                         )
                     )
                 );
         }
 
-        private StatementSyntax GetSourceAssignment()
+        private StatementSyntax AssignmentForSource()
         {
             return ExpressionStatement
             (
@@ -174,11 +176,14 @@ namespace XTI_ApiGenerator
             );
         }
 
-        private StatementSyntax[] GetActionInitializations()
+        private StatementSyntax[] AssignmentsForAction()
         {
             var statements = new List<StatementSyntax>();
             foreach (var action in group.Actions)
             {
+                var invocation = string.IsNullOrWhiteSpace(action.ValidationClassName) ?
+                    InvocationForAddActionWithExecution(action) :
+                    InvocationForAddActionWithExecutionAndValidation(action);
                 statements.Add
                 (
                     ExpressionStatement
@@ -187,65 +192,7 @@ namespace XTI_ApiGenerator
                         (
                             SyntaxKind.SimpleAssignmentExpression,
                             IdentifierName(action.Name),
-                            InvocationExpression
-                            (
-                                MemberAccessExpression
-                                (
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    InvocationExpression
-                                    (
-                                        MemberAccessExpression
-                                        (
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName("source"),
-                                            GenericName(Identifier("AddAction"))
-                                                .WithTypeArgumentList
-                                                (
-                                                    TypeArgumentList
-                                                    (
-                                                        SeparatedList<TypeSyntax>
-                                                        (
-                                                            new SyntaxNodeOrToken[]
-                                                            {
-                                                                IdentifierName(action.RequestDataName),
-                                                                Token(SyntaxKind.CommaToken),
-                                                                IdentifierName(action.ResultDataName)
-                                                            }
-                                                        )
-                                                    )
-                                                )
-                                        )
-                                    ),
-                                    GenericName(Identifier("WithExecution"))
-                                        .WithTypeArgumentList
-                                        (
-                                            TypeArgumentList
-                                            (
-                                                SingletonSeparatedList<TypeSyntax>
-                                                (
-                                                    IdentifierName(action.ClassName)
-                                                )
-                                            )
-                                        )
-                                )
-                            )
-                            .WithArgumentList
-                            (
-                                ArgumentList
-                                (
-                                    SingletonSeparatedList
-                                    (
-                                        Argument
-                                        (
-                                            LiteralExpression
-                                            (
-                                                SyntaxKind.StringLiteralExpression,
-                                                Literal(action.Name)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
+                            invocation
                         )
                     )
                 );
@@ -253,7 +200,93 @@ namespace XTI_ApiGenerator
             return statements.ToArray();
         }
 
-        private PropertyDeclarationSyntax GetActionDeclaration(ActionDefinition action)
+        private static InvocationExpressionSyntax InvocationForAddActionWithExecutionAndValidation(ActionDefinition action)
+        {
+            return InvocationExpression
+            (
+                MemberAccessExpression
+                (
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    InvocationForAddActionWithExecution(action),
+                    GenericName(Identifier("WithValidation"))
+                        .WithTypeArgumentList
+                        (
+                            TypeArgumentList
+                            (
+                                SingletonSeparatedList
+                                (
+                                    (TypeSyntax)IdentifierName(action.ValidationClassName)
+                                )
+                            )
+                        )
+                )
+            );
+        }
+
+        private static InvocationExpressionSyntax InvocationForAddActionWithExecution(ActionDefinition action)
+        {
+            return InvocationExpression
+            (
+                MemberAccessExpression
+                (
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    InvocationExpression
+                    (
+                        MemberAccessExpression
+                        (
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("source"),
+                            GenericName(Identifier("AddAction"))
+                                .WithTypeArgumentList
+                                (
+                                    TypeArgumentList
+                                    (
+                                        SeparatedList<TypeSyntax>
+                                        (
+                                            new SyntaxNodeOrToken[]
+                                            {
+                                                IdentifierName(action.RequestDataName),
+                                                Token(SyntaxKind.CommaToken),
+                                                IdentifierName(action.ResultDataName)
+                                            }
+                                        )
+                                    )
+                                )
+                        )
+                    )
+                    .WithArgumentList
+                    (
+                        ArgumentList
+                        (
+                            SingletonSeparatedList
+                            (
+                                Argument
+                                (
+                                    LiteralExpression
+                                    (
+                                        SyntaxKind.StringLiteralExpression,
+                                        Literal(action.Name)
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    GenericName(Identifier("WithExecution"))
+                        .WithTypeArgumentList
+                        (
+                            TypeArgumentList
+                            (
+                                SingletonSeparatedList<TypeSyntax>
+                                (
+                                    IdentifierName(action.ClassName)
+                                )
+                            )
+                        )
+                )
+            );
+        }
+
+        private PropertyDeclarationSyntax DeclarationForAction(ActionDefinition action)
         {
             return PropertyDeclaration
             (
@@ -292,7 +325,7 @@ namespace XTI_ApiGenerator
             );
         }
 
-        private MethodDeclarationSyntax GetBuildMethodDeclaration()
+        private MethodDeclarationSyntax DeclarationForBuildMethod()
         {
             return MethodDeclaration
             (
