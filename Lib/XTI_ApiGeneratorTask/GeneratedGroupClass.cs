@@ -13,10 +13,10 @@ namespace XTI_ApiGeneratorTask
         private readonly string ns;
         private readonly string className;
 
-        public GeneratedGroupClass(GroupDefinition group, string ns)
+        public GeneratedGroupClass(GroupDefinition group, string baseNS)
         {
             this.group = group;
-            this.ns = ns;
+            ns = $"{baseNS}.{group.Name}";
             className = group.ClassName;
         }
 
@@ -31,6 +31,13 @@ namespace XTI_ApiGeneratorTask
         private CompilationUnitSyntax GenerateCode()
         {
             return CompilationUnit()
+            .WithUsings
+            (
+                List
+                (
+                    group.Namespaces().Select(u => UsingDirective(IdentifierName(u))).ToArray()
+                )
+            )
             .WithMembers
             (
                 SingletonList<MemberDeclarationSyntax>
@@ -40,7 +47,18 @@ namespace XTI_ApiGeneratorTask
                         (
                             Token
                             (
-                                TriviaList(new GeneratedCodeComment().Value()),
+                                TriviaList
+                                (
+                                    new GeneratedCodeComment().Value(),
+                                    Trivia
+                                    (
+                                        NullableDirectiveTrivia
+                                        (
+                                            Token(SyntaxKind.EnableKeyword),
+                                            true
+                                        )
+                                    )
+                                ),
                                 SyntaxKind.NamespaceKeyword,
                                 TriviaList()
                             )
@@ -119,10 +137,15 @@ namespace XTI_ApiGeneratorTask
                 (
                     ParameterList
                     (
-                        SingletonSeparatedList
+                        SeparatedList
                         (
-                            Parameter(Identifier("source"))
-                                .WithType(IdentifierName("AppApiGroup"))
+                            new[]
+                            {
+                                Parameter(Identifier("source"))
+                                    .WithType(IdentifierName("AppApiGroup")),
+                                Parameter(Identifier("builder"))
+                                    .WithType(IdentifierName(group.BuilderClassName))
+                            }
                         )
                     )
                 )
@@ -171,25 +194,13 @@ namespace XTI_ApiGeneratorTask
                                 MemberAccessExpression
                                 (
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("source"),
-                                    IdentifierName("Action")
-                                )
-                            )
-                            .WithArgumentList
-                            (
-                                ArgumentList
-                                (
-                                    SingletonSeparatedList
+                                    MemberAccessExpression
                                     (
-                                        Argument
-                                        (
-                                            LiteralExpression
-                                            (
-                                                SyntaxKind.StringLiteralExpression,
-                                                Literal(action.Name)
-                                            )
-                                        )
-                                    )
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("builder"),
+                                        IdentifierName(action.Name)
+                                    ),
+                                    IdentifierName("Build")
                                 )
                             )
                         )

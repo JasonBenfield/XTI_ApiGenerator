@@ -5,18 +5,20 @@ namespace XTI_ApiGeneratorTask
     public sealed class ActionDefinition
     {
         public ActionDefinition()
-            : this("", "", "", "")
+            : this("", "", "", "", "")
         {
         }
 
         public ActionDefinition
         (
+            string ns,
             string className, 
             string requestDataName, 
             string resultDataName, 
             string validationClassName = ""
         )
         {
+            Namespace = ns;
             Name = GetName(className);
             ClassName = className;
             RequestDataName = requestDataName;
@@ -41,6 +43,7 @@ namespace XTI_ApiGeneratorTask
             return name;
         }
 
+        public string Namespace { get; }
         public string Name { get; }
         public string ClassName { get; }
         public string RequestDataName { get; }
@@ -50,10 +53,11 @@ namespace XTI_ApiGeneratorTask
         public ActionDefinition WithValidationClassName(string validationClassName) =>
             new ActionDefinition
             (
-                ClassName, 
-                RequestDataName, 
-                ResultDataName, 
-                validationClassName
+                ns: Namespace,
+                className: ClassName, 
+                requestDataName: RequestDataName, 
+                resultDataName: ResultDataName, 
+                validationClassName: validationClassName
             );
 
         public bool IsEmpty() => string.IsNullOrWhiteSpace(Name);

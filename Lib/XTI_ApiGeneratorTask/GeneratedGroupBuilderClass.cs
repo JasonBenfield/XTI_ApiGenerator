@@ -13,10 +13,10 @@ namespace XTI_ApiGeneratorTask
         private readonly string ns;
         private readonly string className;
 
-        public GeneratedGroupBuilderClass(GroupDefinition group, string ns)
+        public GeneratedGroupBuilderClass(GroupDefinition group, string baseNS)
         {
             this.group = group;
-            this.ns = ns;
+            ns = $"{baseNS}.{group.Name}";
             className = group.BuilderClassName;
         }
 
@@ -31,6 +31,13 @@ namespace XTI_ApiGeneratorTask
         private CompilationUnitSyntax GenerateCode()
         {
             return CompilationUnit()
+            .WithUsings
+            (
+                List
+                (
+                    group.Namespaces().Select(u => UsingDirective(IdentifierName(u))).ToArray()
+                )
+            )
             .WithMembers
             (
                 SingletonList<MemberDeclarationSyntax>
@@ -40,7 +47,18 @@ namespace XTI_ApiGeneratorTask
                         (
                             Token
                             (
-                                TriviaList(new GeneratedCodeComment().Value()),
+                                TriviaList
+                                (
+                                    new GeneratedCodeComment().Value(),
+                                    Trivia
+                                    (
+                                        NullableDirectiveTrivia
+                                        (
+                                            Token(SyntaxKind.EnableKeyword),
+                                            true
+                                        )
+                                    )
+                                ),
                                 SyntaxKind.NamespaceKeyword,
                                 TriviaList()
                             )
@@ -351,12 +369,13 @@ namespace XTI_ApiGeneratorTask
                         (
                             ArgumentList
                             (
-                                SingletonSeparatedList
+                                SeparatedList
                                 (
-                                    Argument
-                                    (
-                                        IdentifierName("source")
-                                    )
+                                    new[]
+                                    {
+                                        Argument(IdentifierName("source")),
+                                        Argument(ThisExpression())
+                                    }
                                 )
                             )
                         )

@@ -33,7 +33,7 @@ namespace XTI_ApiGeneratorTask
                 .Where(c => c.IsAction)
                 .ToArray();
             var groups = csClasses
-                .ToLookup(c => new { c.ParentDirectoryName, c.ParentDirectoryPath })
+                .ToLookup(c => new { c.DirectoryName, c.DirectoryPath })
                 .Select
                 (
                     g =>
@@ -61,7 +61,7 @@ namespace XTI_ApiGeneratorTask
                                 }
                             )
                             .ToArray();
-                        return new GroupDefinition(g.Key.ParentDirectoryName, actions);
+                        return new GroupDefinition(g.Key.DirectoryName, actions);
                     }
                 )
                 .Where(g => g.Actions.Any())

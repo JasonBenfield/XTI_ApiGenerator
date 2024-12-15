@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -31,6 +32,15 @@ namespace XTI_ApiGeneratorTask
         private CompilationUnitSyntax GenerateCode()
         {
             return CompilationUnit()
+            .WithUsings
+            (
+                List
+                (
+                    app.GetTargetNamespaces(ns)
+                        .Select(u => UsingDirective(IdentifierName(u)))
+                        .ToArray()
+                )
+            )
             .WithMembers
             (
                 SingletonList<MemberDeclarationSyntax>
@@ -40,7 +50,18 @@ namespace XTI_ApiGeneratorTask
                         (
                             Token
                             (
-                                TriviaList(new GeneratedCodeComment().Value()),
+                                TriviaList
+                                (
+                                    new GeneratedCodeComment().Value(),
+                                    Trivia
+                                    (
+                                        NullableDirectiveTrivia
+                                        (
+                                            Token(SyntaxKind.EnableKeyword),
+                                            true
+                                        )
+                                    )
+                                ),
                                 SyntaxKind.NamespaceKeyword,
                                 TriviaList()
                             )
@@ -88,6 +109,7 @@ namespace XTI_ApiGeneratorTask
             var members = new List<MemberDeclarationSyntax>
             {
                 DeclarationForSourceField(),
+                DeclarationForServiceProviderField(),
                 DeclarationForCtor(),
                 GeneratedConfigureMethod.Declaration()
             };
@@ -101,6 +123,32 @@ namespace XTI_ApiGeneratorTask
             }
             members.Add(DeclarationForBuildMethod());
             return members.ToArray();
+        }
+
+        private FieldDeclarationSyntax DeclarationForServiceProviderField()
+        {
+            return FieldDeclaration
+            (
+                VariableDeclaration(IdentifierName("IServiceProvider"))
+                    .WithVariables
+                    (
+                        SingletonSeparatedList
+                        (
+                            VariableDeclarator(Identifier("sp"))
+                        )
+                    )
+            )
+            .WithModifiers
+            (
+                TokenList
+                (
+                    new[]
+                    {
+                        Token(SyntaxKind.PrivateKeyword),
+                        Token(SyntaxKind.ReadOnlyKeyword)
+                    }
+                )
+            );
         }
 
         private FieldDeclarationSyntax DeclarationForSourceField()
@@ -159,7 +207,7 @@ namespace XTI_ApiGeneratorTask
                     (
                         SeparatedList
                         (
-                            new[] { AssignmentForSource() }
+                            new[] { AssignmentForSource(), AssignmentForServiceProvider() }
                             .Union(AssignmentsForGroupBuilders())
                             .Union(AssignmentsForQueryBuilders())
                             .Union(new[] { GeneratedConfigureMethod.Invocation() })
@@ -203,6 +251,24 @@ namespace XTI_ApiGeneratorTask
                             )
                         )
                     )
+                )
+            );
+        }
+
+        private StatementSyntax AssignmentForServiceProvider()
+        {
+            return ExpressionStatement
+            (
+                AssignmentExpression
+                (
+                    SyntaxKind.SimpleAssignmentExpression,
+                    MemberAccessExpression
+                    (
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        ThisExpression(),
+                        IdentifierName("sp")
+                    ),
+                    IdentifierName("sp")
                 )
             );
         }
@@ -293,53 +359,59 @@ namespace XTI_ApiGeneratorTask
             (
                 SyntaxKind.SimpleAssignmentExpression,
                 IdentifierName(query.Name),
-                ObjectCreationExpression
+                InvocationExpression
                 (
-                    GenericName(Identifier("ODataGroupBuilder"))
-                        .WithTypeArgumentList
-                        (
-                            TypeArgumentList
-                            (
-                                SeparatedList<TypeSyntax>
-                                (
-                                    new[]
-                                    {
-                                        IdentifierName(query.RequestDataName),
-                                        IdentifierName(query.EntityName)
-                                    }
-                                )
-                            )
-                        )
-                )
-                    .WithArgumentList
+                    MemberAccessExpression
                     (
-                        ArgumentList
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        ObjectCreationExpression
                         (
-                            SingletonSeparatedList
-                            (
-                                Argument
+                            GenericName(Identifier("ODataGroupBuilder"))
+                                .WithTypeArgumentList
                                 (
-                                    InvocationExpression
+                                    TypeArgumentList
                                     (
-                                        MemberAccessExpression
+                                        SeparatedList<TypeSyntax>
                                         (
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName("source"),
-                                            IdentifierName(Identifier("AddGroup"))
+                                            new[]
+                                            {
+                                                IdentifierName(query.RequestDataName),
+                                                IdentifierName(query.EntityName)
+                                            }
                                         )
                                     )
-                                    .WithArgumentList
+                                )
+                        )
+                        .WithArgumentList
+                        (
+                            ArgumentList
+                            (
+                                SingletonSeparatedList
+                                (
+                                    Argument
                                     (
-                                        ArgumentList
+                                        InvocationExpression
                                         (
-                                            SingletonSeparatedList
+                                            MemberAccessExpression
                                             (
-                                                Argument
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("source"),
+                                                IdentifierName(Identifier("AddGroup"))
+                                            )
+                                        )
+                                        .WithArgumentList
+                                        (
+                                            ArgumentList
+                                            (
+                                                SingletonSeparatedList
                                                 (
-                                                    LiteralExpression
+                                                    Argument
                                                     (
-                                                        SyntaxKind.StringLiteralExpression,
-                                                        Literal(query.Name)
+                                                        LiteralExpression
+                                                        (
+                                                            SyntaxKind.StringLiteralExpression,
+                                                            Literal(query.Name)
+                                                        )
                                                     )
                                                 )
                                             )
@@ -347,8 +419,28 @@ namespace XTI_ApiGeneratorTask
                                     )
                                 )
                             )
-                        )
+                        ),
+                        GenericName(Identifier("WithQuery"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SingletonSeparatedList<TypeSyntax>
+                                    (
+                                        IdentifierName
+                                        (
+                                            new QualifiedClassName
+                                            (
+                                                query.Namespace, 
+                                                query.ClassName
+                                            )
+                                            .Value
+                                        )
+                                    )
+                                )
+                            )
                     )
+                )
             );
         }
 

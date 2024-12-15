@@ -334,8 +334,7 @@ internal class ControllerClassGenerator
                             (
                                 SeparatedList
                                 (
-                                    new ArgumentSyntax[]
-                                    {
+                                    [
                                         Argument
                                         (
                                             MemberAccessExpression
@@ -390,7 +389,7 @@ internal class ControllerClassGenerator
                                                 IdentifierName("DownloadName")
                                             )
                                         )
-                                    }
+                                    ]
                                 )
                             )
                         )
@@ -454,8 +453,7 @@ internal class ControllerClassGenerator
                             (
                                 SeparatedList
                                 (
-                                    new ArgumentSyntax[]
-                                    {
+                                    [
                                         Argument
                                         (
                                             MemberAccessExpression
@@ -488,7 +486,7 @@ internal class ControllerClassGenerator
                                                 IdentifierName("ContentType")
                                             )
                                         )
-                                    }
+                                    ]
                                 )
                             )
                         )

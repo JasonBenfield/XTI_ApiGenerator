@@ -1,4 +1,6 @@
-﻿namespace XTI_ApiGeneratorTask
+﻿using System.Linq;
+
+namespace XTI_ApiGeneratorTask
 {
     public sealed class GroupDefinition
     {
@@ -19,5 +21,13 @@
         public string BuilderClassName { get; }
         public string ClassName { get; }
         public ActionDefinition[] Actions { get; }
+
+        public string[] Namespaces() =>
+            Actions
+                .Select(a => a.Namespace)
+                .Where(ns => !string.IsNullOrWhiteSpace(ns))
+                .Distinct()
+                .OrderBy(ns => ns)
+                .ToArray();
     }
 }

@@ -5,12 +5,13 @@ namespace XTI_ApiGeneratorTask
     public sealed class QueryDefinition
     {
         public QueryDefinition()
-            : this("", "", "")
+            : this("", "", "", "")
         {
         }
 
-        public QueryDefinition(string className, string requestDataName, string entityName)
+        public QueryDefinition(string ns, string className, string requestDataName, string entityName)
         {
+            Namespace = ns;
             Name = GetName(className);
             ClassName = className;
             RequestDataName = requestDataName;
@@ -34,6 +35,7 @@ namespace XTI_ApiGeneratorTask
             return name;
         }
 
+        public string Namespace { get; }
         public string Name { get; }
         public string ClassName { get; }
         public string RequestDataName { get; }

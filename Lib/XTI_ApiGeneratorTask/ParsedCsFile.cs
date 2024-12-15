@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -18,25 +20,38 @@ namespace XTI_ApiGeneratorTask
         {
             var code = File.ReadAllText(filePath);
             var tree = ParseCompilationUnit(code);
+            var ns = GetNamespace(tree);
             return tree.DescendantNodes()
                 .OfType<ClassDeclarationSyntax>()
-                .Select(c => GetCsClass(c))
+                .Select(c => GetCsClass(ns, c))
                 .ToArray();
         }
 
-        private CsClass GetCsClass(ClassDeclarationSyntax classDeclaration)
+        private string GetNamespace(CompilationUnitSyntax tree) =>
+            tree.DescendantNodes()
+                .OfType<BaseNamespaceDeclarationSyntax>()
+                .FirstOrDefault()?
+                .Name
+                .ToString() ??
+                "";
+
+
+        private CsClass GetCsClass(string ns, ClassDeclarationSyntax classDeclaration)
         {
             var baseClass = GetGenericBaseClass(classDeclaration);
+            var baseTypeArguments = baseClass?.TypeArgumentList.Arguments ?? new SeparatedSyntaxList<TypeSyntax>();
+            var baseTypeArgs = new List<string>();
+            foreach (var baseTypeArgument in baseTypeArguments)
+            {
+                baseTypeArgs.Add($"{baseTypeArgument}");
+            }
             return new CsClass
             (
+                ns: ns,
                 filePath: filePath,
                 className: classDeclaration.Identifier.Text,
                 baseClassName: baseClass?.Identifier.Text ?? "",
-                baseClassTypeArgs: baseClass?.TypeArgumentList.Arguments
-                    .OfType<IdentifierNameSyntax>()
-                    .Select(a => a.Identifier.Text)
-                    .ToArray() ??
-                    new string[0]
+                baseClassTypeArgs: baseTypeArgs.ToArray()
             );
         }
 

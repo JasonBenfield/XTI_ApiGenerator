@@ -4,7 +4,9 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<PackageOutputPath>C:\XTI\Packages\Development</PackageOutputPath>
 		<Timestamp>$([System.DateTime]::Now.ToString("yyyyMMddHHmmss"))</Timestamp>
-		<Version>1.0.3-dev$(Timestamp)</Version>
+		<VersionPrefix>1.0.3</VersionPrefix>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<!--<Version>1.0.3-dev$(Timestamp)</Version>-->
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -20,14 +22,28 @@
 		<Content Include="build\XTI_ApiGeneratorTask.targets" PackagePath="build\" />
 	</ItemGroup>
 
+	<PropertyGroup>
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="$(PackAsComponent) != ''">
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CustomBuildOutput</TargetsForTfmSpecificBuildOutput>
+	</PropertyGroup>
+
+	<Target Name="CustomBuildOutput">
+		<ItemGroup>
+			<BuildOutputInPackage Include="$(OutputPath)*.dll" Exclude="$(TargetPath)" />
+		</ItemGroup>
+	</Target>
+
 	<Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
 		<ItemGroup>
-			<!-- The dependencies of your MSBuild task must be packaged inside the package, they cannot be expressed as normal PackageReferences -->
+			<!--The dependencies of your MSBuild task must be packaged inside the package, they cannot be expressed as normal PackageReferences-->
 			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" TargetPath="%(ReferenceCopyLocalPaths.DestinationSubPath)" />
 		</ItemGroup>
 	</Target>
 
-	<!-- This target adds the generated deps.json file to our package output -->
+	<!--This target adds the generated deps.json file to our package output-->
 	<Target Name="AddBuildDependencyFileToBuiltProjectOutputGroupOutput" BeforeTargets="BuiltProjectOutputGroup" Condition=" '$(GenerateDependencyFile)' == 'true'">
 
 		<ItemGroup>

@@ -10,5 +10,8 @@
 	<!--Task parameters default values, this can be overridden-->
 	<PropertyGroup>
 		<XTI_ApiDirectory Condition="'$(XTI_ApiDirectory)' == ''">$(MSBuildProjectDirectory)</XTI_ApiDirectory>
+		<XTI_ApiActionsDirectory Condition="'$(XTI_ApiActionsDirectory)' == ''">..\$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)'))Actions</XTI_ApiActionsDirectory>
+		<XTI_ApiAppName Condition="'$(XTI_ApiAppName)' == ''">[Default]</XTI_ApiAppName>
+		<XTI_ApiAppType Condition="'$(XTI_ApiAppType)' == ''">[Default]</XTI_ApiAppType>
 	</PropertyGroup>
 </Project>

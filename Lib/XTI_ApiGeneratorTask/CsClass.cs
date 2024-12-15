@@ -1,27 +1,28 @@
 ﻿using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace XTI_ApiGeneratorTask
 {
     internal sealed class CsClass
     {
-        public CsClass(string filePath, string className, string baseClassName, string[] baseClassTypeArgs)
+        public CsClass(string ns, string filePath, string className, string baseClassName, string[] baseClassTypeArgs)
         {
+            Namespace = ns;
             FilePath = filePath;
             ClassName = className;
             BaseClassName = baseClassName;
             BaseClassTypeArgs = baseClassTypeArgs;
-            ParentDirectoryPath = Path.GetDirectoryName(filePath);
-            ParentDirectoryName = new DirectoryInfo(ParentDirectoryPath).Name;
+            DirectoryPath = Path.GetDirectoryName(filePath);
+            DirectoryName = new DirectoryInfo(DirectoryPath).Name;
             IsAction = BaseClassName.Equals("AppAction");
             IsActionValidation = BaseClassName.Equals("AppActionValidation");
             IsQuery = BaseClassName.Equals("QueryAction");
         }
 
+        public string Namespace { get; }
         public string FilePath { get; }
-        public string ParentDirectoryPath { get; }
-        public string ParentDirectoryName { get; }
+        public string DirectoryPath { get; }
+        public string DirectoryName { get; }
         public string ClassName { get; }
         public string BaseClassName { get; }
         public string[] BaseClassTypeArgs { get; }
@@ -34,6 +35,7 @@ namespace XTI_ApiGeneratorTask
             return IsAction ?
                 new ActionDefinition
                 (
+                    ns: Namespace,
                     className: ClassName,
                     requestDataName: BaseClassTypeArgs.ElementAtOrDefault(0) ?? "",
                     resultDataName: BaseClassTypeArgs.ElementAtOrDefault(1) ?? ""
@@ -57,6 +59,7 @@ namespace XTI_ApiGeneratorTask
             return IsQuery ?
                 new QueryDefinition
                 (
+                    ns: Namespace,
                     className: ClassName,
                     requestDataName: BaseClassTypeArgs.ElementAtOrDefault(0) ?? "",
                     entityName: BaseClassTypeArgs.ElementAtOrDefault(1) ?? ""

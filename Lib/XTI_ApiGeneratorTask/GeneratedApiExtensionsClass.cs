@@ -87,13 +87,9 @@ namespace XTI_ApiGeneratorTask
         {
             var members = new List<MemberDeclarationSyntax>
             {
-                DeclarationForAddServicesMethod()
+                DeclarationForAddServicesMethod(),
+                DeclarationForAddMoreServicesMethod()
             };
-            foreach (var group in app.Groups)
-            {
-                members.Add(DeclarationForAddGroupServicesMethod(group));
-            }
-            members.Add(DeclarationForAddMoreServicesMethod());
             return members.ToArray();
         }
 
@@ -102,7 +98,7 @@ namespace XTI_ApiGeneratorTask
             return MethodDeclaration
             (
                 PredefinedType(Token(SyntaxKind.VoidKeyword)),
-                Identifier($"Add{app.Name}ApiServices")
+                Identifier($"Add{app.Name}AppApiServices")
             )
             .WithModifiers
             (
@@ -134,56 +130,12 @@ namespace XTI_ApiGeneratorTask
                     SeparatedList
                     (
                         app.Groups.Select(g => InvocationForAddGroupServicesMethod(g))
+                        .Union(new[] { InvocationForAddAppFactory() })
                         .Union
                         (
-                            new[] 
-                            { 
-                                InvocationForAddAppFactory(),
-                                InvocationForAddMoreServicesMethod() 
-                            }
+                            app.Queries.Select(q => InvocationForAddQuery(q))
                         )
-                    )
-                )
-            );
-        }
-
-        private MethodDeclarationSyntax DeclarationForAddGroupServicesMethod(GroupDefinition group)
-        {
-            return MethodDeclaration
-            (
-                PredefinedType(Token(SyntaxKind.VoidKeyword)),
-                Identifier($"Add{group.Name}Services")
-            )
-            .WithModifiers
-            (
-                TokenList
-                (
-                    new[]
-                    {
-                        Token(SyntaxKind.PrivateKeyword),
-                        Token(SyntaxKind.StaticKeyword)
-                    }
-                )
-            )
-            .WithParameterList
-            (
-                ParameterList
-                (
-                    SingletonSeparatedList
-                    (
-                        Parameter(Identifier("services"))
-                            .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)))
-                            .WithType(IdentifierName("IServiceCollection"))
-                    )
-                )
-            )
-            .WithBody
-            (
-                Block
-                (
-                    SeparatedList
-                    (
-                        group.Actions.Select(a => InvocationForAddActionServiceMethod(a))
+                        .Union(new[] { InvocationForAddMoreServicesMethod() })
                     )
                 )
             );
@@ -238,32 +190,6 @@ namespace XTI_ApiGeneratorTask
             );
         }
 
-        private ExpressionStatementSyntax InvocationForAddActionServiceMethod(ActionDefinition action)
-        {
-            return ExpressionStatement
-            (
-                InvocationExpression
-                (
-                    MemberAccessExpression
-                    (
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("services"),
-                        GenericName("AddService")
-                            .WithTypeArgumentList
-                            (
-                                TypeArgumentList
-                                (
-                                    SingletonSeparatedList<TypeSyntax>
-                                    (
-                                        IdentifierName(Identifier(action.ClassName))
-                                    )
-                                )
-                            )
-                    )
-                )
-            );
-        }
-
         private ExpressionStatementSyntax InvocationForAddAppFactory()
         {
             return ExpressionStatement
@@ -287,6 +213,40 @@ namespace XTI_ApiGeneratorTask
                                             Token(SyntaxKind.CommaToken),
                                             IdentifierName($"{app.Name}AppApiFactory")
                                         }
+                                    )
+                                )
+                            )
+                        )
+                )
+            );
+        }
+
+        private ExpressionStatementSyntax InvocationForAddQuery(QueryDefinition query)
+        {
+            return ExpressionStatement
+            (
+                InvocationExpression
+                (
+                    MemberAccessExpression
+                    (
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("services"),
+                        GenericName(Identifier("AddScoped"))
+                            .WithTypeArgumentList
+                            (
+                                TypeArgumentList
+                                (
+                                    SingletonSeparatedList<TypeSyntax>
+                                    (
+                                        IdentifierName
+                                        (
+                                            new QualifiedClassName
+                                            (
+                                                query.Namespace, 
+                                                query.ClassName
+                                            )
+                                            .Value
+                                        )
                                     )
                                 )
                             )

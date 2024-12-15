@@ -31,6 +31,15 @@ namespace XTI_ApiGeneratorTask
         private CompilationUnitSyntax GenerateCode()
         {
             return CompilationUnit()
+            .WithUsings
+            (
+                List
+                (
+                    app.GetTargetNamespaces(ns)
+                        .Select(u => UsingDirective(IdentifierName(u)))
+                        .ToArray()
+                )
+            )
             .WithMembers
             (
                 SingletonList<MemberDeclarationSyntax>
@@ -40,7 +49,18 @@ namespace XTI_ApiGeneratorTask
                         (
                             Token
                             (
-                                TriviaList(new GeneratedCodeComment().Value()),
+                                TriviaList
+                                (
+                                    new GeneratedCodeComment().Value(),
+                                    Trivia
+                                    (
+                                        NullableDirectiveTrivia
+                                        (
+                                            Token(SyntaxKind.EnableKeyword),
+                                            true
+                                        )
+                                    )
+                                ),
                                 SyntaxKind.NamespaceKeyword,
                                 TriviaList()
                             )
@@ -160,9 +180,12 @@ namespace XTI_ApiGeneratorTask
                         SyntaxKind.BaseConstructorInitializer,
                         ArgumentList
                         (
-                            SingletonSeparatedList
+                            SeparatedList
                             (
-                                Argument(IdentifierName("source"))
+                                new[]
+                                {
+                                    Argument(IdentifierName("source"))
+                                }
                             )
                         )
                     )

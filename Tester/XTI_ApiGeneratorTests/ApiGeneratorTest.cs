@@ -38,7 +38,7 @@ public sealed class ApiGeneratorTest
     {
         var appDefinition = GenerateAppDefinition();
         var homeGroup = appDefinition.Groups
-            .FirstOrDefault(g => g.Name.Equals("Jobs", StringComparison.OrdinalIgnoreCase)) ??
+            .FirstOrDefault(g => g.Name.Equals("Home", StringComparison.OrdinalIgnoreCase)) ??
             new();
         var groupBuilderClass = new GeneratedGroupBuilderClass(homeGroup, "XTI_ApiGeneratorTests").Value();
         Console.WriteLine(groupBuilderClass.Contents);
@@ -52,6 +52,17 @@ public sealed class ApiGeneratorTest
             .FirstOrDefault(g => g.Name.Equals("Home", StringComparison.OrdinalIgnoreCase)) ??
             new();
         var groupClass = new GeneratedGroupClass(homeGroup, "XTI_ApiGeneratorTests").Value();
+        Console.WriteLine(groupClass.Contents);
+    }
+
+    [Test]
+    public void ShouldGenerateApiGroupExtensionsClass()
+    {
+        var appDefinition = GenerateAppDefinition();
+        var jobsGroup = appDefinition.Groups
+            .FirstOrDefault(g => g.Name.Equals("Jobs", StringComparison.OrdinalIgnoreCase)) ??
+            new();
+        var groupClass = new GeneratedApiGroupExtensionsClass(jobsGroup, "XTI_ApiGeneratorTests").Value();
         Console.WriteLine(groupClass.Contents);
     }
 

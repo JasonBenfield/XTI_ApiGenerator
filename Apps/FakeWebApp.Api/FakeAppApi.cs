@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.OData.Query;
-using Microsoft.Extensions.DependencyInjection;
 using XTI_App.Abstractions;
 using XTI_App.Api;
 using XTI_Core;
@@ -14,16 +13,16 @@ public static class FakeAppKey
 }
 public sealed class FakeAppApi : WebAppApiWrapper
 {
-
-    public FakeAppApi(IAppApiUser user, ResourceAccess access, IServiceProvider sp)
-        : base(new AppApi(sp, FakeAppKey.AppKey, user, access, ""), sp)
+    public FakeAppApi(IAppApiUser user, IServiceProvider sp)
+        : base(new AppApi(sp, FakeAppKey.AppKey, user, "").ResetAccess())
     {
         Employee = new EmployeeGroup(source.AddGroup(nameof(Employee), new ModifierCategoryName("Department")));
-        EmployeeQuery = new ODataGroup<QueryEmployeesRequest, Employee>
+        EmployeeQuery = new ODataGroupBuilder<QueryEmployeesRequest, Employee>
         (
-            source.AddGroup(nameof(EmployeeQuery)),
-            () => sp.GetRequiredService<QueryEmployeesAction>()
-        );
+            source.AddGroup(nameof(EmployeeQuery))
+        )
+        .WithQuery<QueryEmployeesAction>()
+        .Build();
         Product = new ProductGroup(source.AddGroup(nameof(Product)));
     }
     public EmployeeGroup Employee { get; }
@@ -70,7 +69,7 @@ public sealed class EmployeeGroup : AppApiGroupWrapper
     }
     public AppApiAction<EmptyRequest, WebViewResult> Index { get; }
     public AppApiAction<AddEmployeeForm, int> AddEmployee { get; }
-    public AppApiAction<EmptyRequest, IDictionary<string, object?>> AddEmployeeForm { get; }
+    public AppApiAction<EmptyRequest, IDictionary<string, object>> AddEmployeeForm { get; }
     public AppApiAction<EmptyRequest, WebPartialViewResult> AddEmployeeFormView { get; }
     public AppApiAction<int, Employee> Employee { get; }
     public AppApiAction<EmptyRequest, WebFileResult> DownloadAttachment { get; }
@@ -122,9 +121,9 @@ public sealed class AddEmployeeAction : AppAction<AddEmployeeForm, int>
     }
 }
 
-public sealed class AddEmployeeFormAction : AppAction<EmptyRequest, IDictionary<string, object?>>
+public sealed class AddEmployeeFormAction : AppAction<EmptyRequest, IDictionary<string, object>>
 {
-    public Task<IDictionary<string, object?>> Execute(EmptyRequest model, CancellationToken ct)
+    public Task<IDictionary<string, object>> Execute(EmptyRequest model, CancellationToken ct)
     {
         var form = new AddEmployeeForm();
         return Task.FromResult(form.Export());
