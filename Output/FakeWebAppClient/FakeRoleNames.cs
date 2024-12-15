@@ -7,5 +7,6 @@ public sealed partial class FakeRoleNames
     {
     }
 
+    public string Admin { get; } = "Admin";
     public string ManageUserCache { get; } = "Manage User Cache";
 }

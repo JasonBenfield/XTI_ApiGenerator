@@ -48,7 +48,7 @@ public sealed class CsClient : CodeGenerator
         }
         foreach (var groupTemplate in appTemplate.GroupTemplates.Where(gt => !gt.IsODataGroup() && !gt.IsUser() && !gt.IsUserCache()))
         {
-            await new AppClientGroupClass(ns, createStream, groupTemplate).Output();
+            await new AppClientGroupBuilderClass(ns, createStream, groupTemplate).Output();
         }
         foreach (var numericValueTemplate in appTemplate.NumericValueTemplates(ApiCodeGenerators.Dotnet))
         {
