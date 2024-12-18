@@ -31,9 +31,9 @@ export class AddEmployeeForm extends BaseForm {
 		this.HireDate.setItems(
 			'',
 			[
-				new DropDownFieldItem(new xti.DateOnly(2024, xti.Month.fromValue(12), 3), 'Yesterday'),
-				new DropDownFieldItem(new xti.DateOnly(2024, xti.Month.fromValue(12), 4), 'Today'),
-				new DropDownFieldItem(new xti.DateOnly(2024, xti.Month.fromValue(12), 5), 'Tomorrow')
+				new DropDownFieldItem(new xti.DateOnly(2024, xti.Month.fromValue(12), 17), 'Yesterday'),
+				new DropDownFieldItem(new xti.DateOnly(2024, xti.Month.fromValue(12), 18), 'Today'),
+				new DropDownFieldItem(new xti.DateOnly(2024, xti.Month.fromValue(12), 19), 'Tomorrow')
 			]
 		);
 		this.IsTemp.setCaption('Is Temp');

@@ -7,13 +7,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace XTI_WebApp.ClientGenerator.CSharp;
 
-public sealed class AppClientGroupClass
+public sealed class AppClientGroupBuilderClass
 {
     private readonly string ns;
     private readonly Func<string, Stream> createStream;
     private readonly AppApiGroupTemplate template;
 
-    public AppClientGroupClass(string ns, Func<string, Stream> createStream, AppApiGroupTemplate template)
+    public AppClientGroupBuilderClass(string ns, Func<string, Stream> createStream, AppApiGroupTemplate template)
     {
         this.ns = ns;
         this.createStream = createStream;
@@ -397,7 +397,7 @@ public sealed class AppClientGroupClass
         {
             parameters.Add
             (
-                Parameter(Identifier("model"))
+                Parameter(Identifier("requestData"))
                     .WithType
                     (
                         new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
@@ -510,8 +510,7 @@ public sealed class AppClientGroupClass
         var args = new List<SyntaxNodeOrToken>();
         args.AddRange
         (
-            new SyntaxNodeOrToken[]
-            {
+            [
                 Argument
                 (
                     includeModifier
@@ -523,7 +522,7 @@ public sealed class AppClientGroupClass
                         )
                 ),
                 Token(SyntaxKind.CommaToken)
-            }
+            ]
         );
         if (actionTemplate.HasEmptyModel())
         {
@@ -538,7 +537,7 @@ public sealed class AppClientGroupClass
         }
         else
         {
-            args.Add(Argument(IdentifierName("model")));
+            args.Add(Argument(IdentifierName("requestData")));
         }
         args.Add(Token(SyntaxKind.CommaToken));
         args.Add(Argument(IdentifierName("ct")));

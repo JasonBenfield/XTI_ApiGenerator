@@ -104,31 +104,11 @@ internal class ODataControllerClassGenerator
                         (
                             Argument
                             (
-                                InvocationExpression
+                                MemberAccessExpression
                                 (
-                                    MemberAccessExpression
-                                    (
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("api"),
-                                        IdentifierName("Group")
-                                    )
-                                )
-                                .WithArgumentList
-                                (
-                                    ArgumentList
-                                    (
-                                        SingletonSeparatedList
-                                        (
-                                            Argument
-                                            (
-                                                LiteralExpression
-                                                (
-                                                    SyntaxKind.StringLiteralExpression,
-                                                    Literal(groupTemplate.Name)
-                                                )
-                                            )
-                                        )
-                                    )
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("api"),
+                                    IdentifierName(groupTemplate.Name)
                                 )
                             )
                         )

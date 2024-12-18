@@ -188,7 +188,7 @@ internal class ControllerClassGenerator
         var parameters = new List<ParameterSyntax>();
         if (!action.HasEmptyModel())
         {
-            var modelParameter = Parameter(Identifier("model"))
+            var modelParameter = Parameter(Identifier("requestData"))
                 .WithType(typeSyntax(action.ModelTemplate));
             if (IsPost(action) && !action.HasFileUploadTemplates())
             {
@@ -257,7 +257,7 @@ internal class ControllerClassGenerator
                                     (
                                         MemberAccessExpression
                                         (
-                                            SyntaxKind.SimpleMemberAccessExpression, 
+                                            SyntaxKind.SimpleMemberAccessExpression,
                                             PostfixUnaryExpression
                                             (
                                                 SyntaxKind.SuppressNullableWarningExpression,
@@ -334,8 +334,7 @@ internal class ControllerClassGenerator
                             (
                                 SeparatedList
                                 (
-                                    new ArgumentSyntax[]
-                                    {
+                                    [
                                         Argument
                                         (
                                             MemberAccessExpression
@@ -390,7 +389,7 @@ internal class ControllerClassGenerator
                                                 IdentifierName("DownloadName")
                                             )
                                         )
-                                    }
+                                    ]
                                 )
                             )
                         )
@@ -454,8 +453,7 @@ internal class ControllerClassGenerator
                             (
                                 SeparatedList
                                 (
-                                    new ArgumentSyntax[]
-                                    {
+                                    [
                                         Argument
                                         (
                                             MemberAccessExpression
@@ -488,7 +486,7 @@ internal class ControllerClassGenerator
                                                 IdentifierName("ContentType")
                                             )
                                         )
-                                    }
+                                    ]
                                 )
                             )
                         )
@@ -721,56 +719,16 @@ internal class ControllerClassGenerator
             MemberAccessExpression
             (
                 SyntaxKind.SimpleMemberAccessExpression,
-                InvocationExpression
+                MemberAccessExpression
                 (
+                    SyntaxKind.SimpleMemberAccessExpression,
                     MemberAccessExpression
                     (
                         SyntaxKind.SimpleMemberAccessExpression,
-                        InvocationExpression
-                        (
-                            MemberAccessExpression
-                            (
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName("api"),
-                                IdentifierName("Group")
-                            )
-                        )
-                        .WithArgumentList
-                        (
-                            ArgumentList
-                            (
-                                SingletonSeparatedList
-                                (
-                                    Argument
-                                    (
-                                        LiteralExpression
-                                        (
-                                            SyntaxKind.StringLiteralExpression,
-                                            Literal(group.Name)
-                                        )
-                                    )
-                                )
-                            )
-                        ),
-                        actionAccessor
-                    )
-                )
-                .WithArgumentList
-                (
-                    ArgumentList
-                    (
-                        SingletonSeparatedList
-                        (
-                            Argument
-                            (
-                                LiteralExpression
-                                (
-                                    SyntaxKind.StringLiteralExpression,
-                                    Literal(action.Name)
-                                )
-                            )
-                        )
-                    )
+                        IdentifierName("api"),
+                        IdentifierName(group.Name)
+                    ),
+                    IdentifierName(action.Name)
                 ),
                 IdentifierName("Execute")
             )
@@ -785,9 +743,9 @@ internal class ControllerClassGenerator
                     {
                         Argument
                         (
-                            action.HasEmptyModel()
-                                ? newEmptyRequest()
-                                : IdentifierName("model")
+                            action.HasEmptyModel() ?
+                                newEmptyRequest() :
+                                IdentifierName("requestData")
                         ),
                         Argument(IdentifierName("ct"))
                     }
