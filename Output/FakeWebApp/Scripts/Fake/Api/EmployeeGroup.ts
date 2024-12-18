@@ -28,14 +28,14 @@ export class EmployeeGroup extends AppClientGroup {
 	readonly DownloadAttachment: AppClientView<IEmptyRequest>;
 	readonly GetContentAction: AppClientAction<IEmptyRequest,IWebContentResult>;
 	
-	AddEmployee(model: AddEmployeeForm, errorOptions?: IActionErrorOptions) {
-		return this.AddEmployeeAction.execute(model, errorOptions || {});
+	AddEmployee(requestData: AddEmployeeForm, errorOptions?: IActionErrorOptions) {
+		return this.AddEmployeeAction.execute(requestData, errorOptions || {});
 	}
 	AddEmployeeForm(errorOptions?: IActionErrorOptions) {
 		return this.AddEmployeeFormAction.execute({}, errorOptions || {});
 	}
-	Employee(model: number, errorOptions?: IActionErrorOptions) {
-		return this.EmployeeAction.execute(model, errorOptions || {});
+	Employee(requestData: number, errorOptions?: IActionErrorOptions) {
+		return this.EmployeeAction.execute(requestData, errorOptions || {});
 	}
 	GetContent(errorOptions?: IActionErrorOptions) {
 		return this.GetContentAction.execute({}, errorOptions || {});

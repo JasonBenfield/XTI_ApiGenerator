@@ -67,8 +67,8 @@ internal sealed class ApiGroupClassGenerator
             if (!IsWebPage(action))
             {
                 var modelType = new TsType(action.ModelTemplate.DataType).Value;
-                var modelDecl = action.HasEmptyModel() ? "" : $"model: {modelType}, ";
-                var modelParm = action.HasEmptyModel() ? "{}" : "model";
+                var modelDecl = action.HasEmptyModel() ? "" : $"requestData: {modelType}, ";
+                var modelParm = action.HasEmptyModel() ? "{}" : "requestData";
                 tsFile.AddLine($"{action.Name}({modelDecl}errorOptions?: IActionErrorOptions) {{");
                 tsFile.Indent();
                 tsFile.AddLine($"return this.{action.Name}Action.execute({modelParm}, errorOptions || {{}});");

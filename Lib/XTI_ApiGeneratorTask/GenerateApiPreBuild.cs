@@ -59,7 +59,7 @@ namespace XTI_ApiGeneratorTask
                     OutputClass(groupBuilderClass, group.Name);
                     var groupClass = new GeneratedGroupClass(group, ns).Value();
                     OutputClass(groupClass, group.Name);
-                    var groupExtensionsClass = new GeneratedApiGroupExtensionsClass(group, ns).Value();
+                    var groupExtensionsClass = new GeneratedGroupExtensionsClass(group, ns).Value();
                     OutputClass(groupExtensionsClass, group.Name);
                 }
                 var appBuilderClass = new GeneratedAppBuilderClass(appDefinition, ns).Value();

@@ -24,10 +24,10 @@ export class ProductGroup extends AppClientGroup {
 	GetInfo(errorOptions?: IActionErrorOptions) {
 		return this.GetInfoAction.execute({}, errorOptions || {});
 	}
-	AddProduct(model: IAddProductModel, errorOptions?: IActionErrorOptions) {
-		return this.AddProductAction.execute(model, errorOptions || {});
+	AddProduct(requestData: IAddProductModel, errorOptions?: IActionErrorOptions) {
+		return this.AddProductAction.execute(requestData, errorOptions || {});
 	}
-	Product(model: number, errorOptions?: IActionErrorOptions) {
-		return this.ProductAction.execute(model, errorOptions || {});
+	Product(requestData: number, errorOptions?: IActionErrorOptions) {
+		return this.ProductAction.execute(requestData, errorOptions || {});
 	}
 }

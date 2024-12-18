@@ -62,7 +62,7 @@ public sealed class ApiGeneratorTest
         var jobsGroup = appDefinition.Groups
             .FirstOrDefault(g => g.Name.Equals("Jobs", StringComparison.OrdinalIgnoreCase)) ??
             new();
-        var groupClass = new GeneratedApiGroupExtensionsClass(jobsGroup, "XTI_ApiGeneratorTests").Value();
+        var groupClass = new GeneratedGroupExtensionsClass(jobsGroup, "XTI_ApiGeneratorTests").Value();
         Console.WriteLine(groupClass.Contents);
     }
 

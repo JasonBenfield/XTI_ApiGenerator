@@ -9,9 +9,9 @@ public sealed partial class EmployeeGroup : AppClientGroup
 
     public EmployeeGroupActions Actions { get; }
 
-    public Task<int> AddEmployee(string modifier, AddEmployeeForm model, CancellationToken ct = default) => Actions.AddEmployee.Post(modifier, model, ct);
+    public Task<int> AddEmployee(string modifier, AddEmployeeForm requestData, CancellationToken ct = default) => Actions.AddEmployee.Post(modifier, requestData, ct);
     public Task<IDictionary<string, object>> AddEmployeeForm(string modifier, CancellationToken ct = default) => Actions.AddEmployeeForm.Post(modifier, new EmptyRequest(), ct);
-    public Task<Employee> Employee(string modifier, int model, CancellationToken ct = default) => Actions.Employee.Post(modifier, model, ct);
+    public Task<Employee> Employee(string modifier, int requestData, CancellationToken ct = default) => Actions.Employee.Post(modifier, requestData, ct);
     public Task<AppClientFileResult> DownloadAttachment(string modifier, CancellationToken ct = default) => Actions.DownloadAttachment.GetFile(modifier, new EmptyRequest(), ct);
     public Task<WebContentResult> GetContent(string modifier, CancellationToken ct = default) => Actions.GetContent.Post(modifier, new EmptyRequest(), ct);
     public sealed record EmployeeGroupActions(AppClientGetAction<EmptyRequest> Index, AppClientPostAction<AddEmployeeForm, int> AddEmployee, AppClientGetAction<EmptyRequest> AddEmployeeFormView, AppClientPostAction<EmptyRequest, IDictionary<string, object>> AddEmployeeForm, AppClientPostAction<int, Employee> Employee, AppClientFileAction<EmptyRequest> DownloadAttachment, AppClientContentAction<EmptyRequest> GetContent);

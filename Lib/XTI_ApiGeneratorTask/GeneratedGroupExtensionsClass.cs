@@ -7,17 +7,17 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace XTI_ApiGeneratorTask
 {
-    public sealed class GeneratedApiGroupExtensionsClass
+    public sealed class GeneratedGroupExtensionsClass
     {
         private readonly GroupDefinition group;
         private readonly string ns;
         private readonly string className;
 
-        public GeneratedApiGroupExtensionsClass(GroupDefinition group, string ns)
+        public GeneratedGroupExtensionsClass(GroupDefinition group, string ns)
         {
             this.group = group;
             this.ns = ns;
-            className = $"{group.Name}ApiGroupExtensions";
+            className = $"{group.Name}GroupExtensions";
         }
 
         public ClassDefinition Value()

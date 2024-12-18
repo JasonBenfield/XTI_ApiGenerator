@@ -397,7 +397,7 @@ public sealed class AppClientGroupBuilderClass
         {
             parameters.Add
             (
-                Parameter(Identifier("model"))
+                Parameter(Identifier("requestData"))
                     .WithType
                     (
                         new TypeSyntaxFromValueTemplate(actionTemplate.ModelTemplate).Value()
@@ -510,8 +510,7 @@ public sealed class AppClientGroupBuilderClass
         var args = new List<SyntaxNodeOrToken>();
         args.AddRange
         (
-            new SyntaxNodeOrToken[]
-            {
+            [
                 Argument
                 (
                     includeModifier
@@ -523,7 +522,7 @@ public sealed class AppClientGroupBuilderClass
                         )
                 ),
                 Token(SyntaxKind.CommaToken)
-            }
+            ]
         );
         if (actionTemplate.HasEmptyModel())
         {
@@ -538,7 +537,7 @@ public sealed class AppClientGroupBuilderClass
         }
         else
         {
-            args.Add(Argument(IdentifierName("model")));
+            args.Add(Argument(IdentifierName("requestData")));
         }
         args.Add(Token(SyntaxKind.CommaToken));
         args.Add(Argument(IdentifierName("ct")));
