@@ -1,32 +1,34 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace XTI_ApiGeneratorTask
 {
     public sealed class ActionDefinition
     {
+        private readonly CsClass csClass;
+
+        private static readonly Regex nameRegex = new Regex("^(?<Name>([a-z]|\\d)+)(Action|Page)$", RegexOptions.IgnoreCase);
+
         public ActionDefinition()
-            : this("", "", "", "", "")
+            : this(new CsClass(), "")
         {
         }
 
-        public ActionDefinition
+        internal ActionDefinition
         (
-            string ns,
-            string className, 
-            string requestDataName, 
-            string resultDataName, 
+            CsClass csClass,
             string validationClassName = ""
         )
         {
-            Namespace = ns;
-            Name = GetName(className);
-            ClassName = className;
-            RequestDataName = requestDataName;
-            ResultDataName = resultDataName;
+            this.csClass = csClass;
+            Namespace = csClass.Namespace;
+            Name = GetName(csClass.ClassName);
+            ClassName = csClass.ClassName;
+            IsPublic = csClass.IsPublic;
+            RequestDataName = csClass.BaseClassTypeArgs.ElementAtOrDefault(0) ?? "";
+            ResultDataName = csClass.BaseClassTypeArgs.ElementAtOrDefault(1) ?? "";
             ValidationClassName = validationClassName;
         }
-
-        private static readonly Regex nameRegex = new Regex("^(?<Name>([a-z]|\\d)+)(Action|Page)$", RegexOptions.IgnoreCase);
 
         private static string GetName(string className)
         {
@@ -46,6 +48,7 @@ namespace XTI_ApiGeneratorTask
         public string Namespace { get; }
         public string Name { get; }
         public string ClassName { get; }
+        public bool IsPublic { get; }
         public string RequestDataName { get; }
         public string ResultDataName { get; }
         public string ValidationClassName { get; }
@@ -53,10 +56,7 @@ namespace XTI_ApiGeneratorTask
         public ActionDefinition WithValidationClassName(string validationClassName) =>
             new ActionDefinition
             (
-                ns: Namespace,
-                className: ClassName, 
-                requestDataName: RequestDataName, 
-                resultDataName: ResultDataName, 
+                csClass: csClass,
                 validationClassName: validationClassName
             );
 

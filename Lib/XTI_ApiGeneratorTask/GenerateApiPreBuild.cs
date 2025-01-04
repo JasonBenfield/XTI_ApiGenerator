@@ -1,5 +1,6 @@
 ﻿using Microsoft.Build.Framework;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -40,42 +41,43 @@ namespace XTI_ApiGeneratorTask
             {
                 var generatedAppDefinition = new GeneratedAppDefinition(appName, appType, ActionsDirectory);
                 var appDefinition = generatedAppDefinition.Value();
+                var generatedFiles = new List<string>();
+                foreach (var group in appDefinition.Groups)
+                {
+                    var groupUsing = $"{ActionsDirectory}.{group.Name}";
+                    var groupBuilderClass = new GeneratedGroupBuilderClass(group, ns).Value();
+                    generatedFiles.Add(OutputClass(groupBuilderClass, group.Name));
+                    var groupClass = new GeneratedGroupClass(group, ns).Value();
+                    generatedFiles.Add(OutputClass(groupClass, group.Name));
+                    var groupExtensionsClass = new GeneratedGroupExtensionsClass(group, ns).Value();
+                    generatedFiles.Add(OutputClass(groupExtensionsClass, group.Name));
+                }
+                var appBuilderClass = new GeneratedAppBuilderClass(appDefinition, ns).Value();
+                generatedFiles.Add(OutputClass(appBuilderClass));
+                var appKeyClass = new GeneratedAppKeyClass(appDefinition, ns).Value();
+                generatedFiles.Add(OutputClass(appKeyClass));
+                var appClass = new GeneratedAppClass(appDefinition, ns).Value();
+                generatedFiles.Add(OutputClass(appClass));
+                var appFactoryClass = new GeneratedAppFactoryClass(appDefinition, ns).Value();
+                generatedFiles.Add(OutputClass(appFactoryClass));
+                var extensionsClass = new GeneratedApiExtensionsClass(appDefinition, ns).Value();
+                generatedFiles.Add(OutputClass(extensionsClass));
                 var childDirs = Directory.GetDirectories(ApiDirectory)
                     .Where(d => !"bin".Equals(Path.GetFileName(d)) && !"obj".Equals(Path.GetFileName(d)))
                     .ToArray();
                 foreach (var childDir in childDirs)
                 {
-                    DeleteGeneratedFiles(childDir);
+                    DeleteGeneratedFiles(childDir, generatedFiles);
                     if (!Directory.GetFiles(childDir).Any() && !Directory.GetDirectories(childDir).Any())
                     {
                         Directory.Delete(childDir);
                     }
                 }
-                DeleteGeneratedFiles(ApiDirectory);
-                foreach (var group in appDefinition.Groups)
-                {
-                    var groupUsing = $"{ActionsDirectory}.{group.Name}";
-                    var groupBuilderClass = new GeneratedGroupBuilderClass(group, ns).Value();
-                    OutputClass(groupBuilderClass, group.Name);
-                    var groupClass = new GeneratedGroupClass(group, ns).Value();
-                    OutputClass(groupClass, group.Name);
-                    var groupExtensionsClass = new GeneratedGroupExtensionsClass(group, ns).Value();
-                    OutputClass(groupExtensionsClass, group.Name);
-                }
-                var appBuilderClass = new GeneratedAppBuilderClass(appDefinition, ns).Value();
-                OutputClass(appBuilderClass);
-                var appKeyClass = new GeneratedAppKeyClass(appDefinition, ns).Value();
-                OutputClass(appKeyClass);
-                var appClass = new GeneratedAppClass(appDefinition, ns).Value();
-                OutputClass(appClass);
-                var appFactoryClass = new GeneratedAppFactoryClass(appDefinition, ns).Value();
-                OutputClass(appFactoryClass);
-                var extensionsClass = new GeneratedApiExtensionsClass(appDefinition, ns).Value();
-                OutputClass(extensionsClass);
+                DeleteGeneratedFiles(ApiDirectory, generatedFiles);
             }
             catch (ApiGeneratorTaskException taskEx)
             {
-                foreach(var error in taskEx.Errors)
+                foreach (var error in taskEx.Errors)
                 {
                     LogError(message: error.Message, errorCode: error.ErrorCode, file: error.FilePath);
                 }
@@ -84,21 +86,22 @@ namespace XTI_ApiGeneratorTask
             {
                 Log.LogErrorFromException
                 (
-                    ex, 
-                    showStackTrace: true, 
-                    showDetail: true, 
+                    ex,
+                    showStackTrace: true,
+                    showDetail: true,
                     file: null
                 );
             }
             return !Log.HasLoggedErrors;
         }
 
-        private static void DeleteGeneratedFiles(string dir)
+        private void DeleteGeneratedFiles(string dir, IEnumerable<string> generatedFiles)
         {
-            var existingFiles = Directory.GetFiles(dir, "*.Generated.cs");
-            foreach (var existingFile in existingFiles)
+            var extraFiles = Directory.GetFiles(dir, "*.Generated.cs")
+                .Where(f => !generatedFiles.Any(gf => f.EndsWith(gf, StringComparison.OrdinalIgnoreCase)));
+            foreach (var extraFile in extraFiles)
             {
-                File.Delete(existingFile);
+                File.Delete(extraFile);
             }
         }
 
@@ -134,25 +137,32 @@ namespace XTI_ApiGeneratorTask
             );
         }
 
-        private void OutputClass(ClassDefinition classDefinition) =>
+        private string OutputClass(ClassDefinition classDefinition) =>
             OutputClass(classDefinition, "");
 
-        private void OutputClass(ClassDefinition classDefinition, string folderName)
+        private string OutputClass(ClassDefinition classDefinition, string folderName)
         {
-            var fileName = $"{classDefinition.ClassName}.Generated.cs";
+            var filePath = $"{classDefinition.ClassName}.Generated.cs";
             if (!string.IsNullOrWhiteSpace(folderName))
             {
-                fileName = Path.Combine(folderName, fileName);
+                filePath = Path.Combine(folderName, filePath);
                 if (!Directory.Exists(folderName))
                 {
                     Directory.CreateDirectory(folderName);
                 }
             }
-            if (File.Exists(fileName))
+            var existingContents = File.Exists(filePath) ?
+                File.ReadAllText(filePath) :
+                "";
+            if (!classDefinition.Contents.Equals(existingContents))
             {
-                File.Delete(fileName);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+                File.WriteAllText(filePath, classDefinition.Contents);
             }
-            File.WriteAllText(fileName, classDefinition.Contents);
+            return filePath;
         }
 
     }
