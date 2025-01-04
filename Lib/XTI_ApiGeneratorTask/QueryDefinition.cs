@@ -1,21 +1,23 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace XTI_ApiGeneratorTask
 {
     public sealed class QueryDefinition
     {
         public QueryDefinition()
-            : this("", "", "", "")
+            : this(new CsClass())
         {
         }
 
-        public QueryDefinition(string ns, string className, string requestDataName, string entityName)
+        internal QueryDefinition(CsClass csClass)
         {
-            Namespace = ns;
-            Name = GetName(className);
-            ClassName = className;
-            RequestDataName = requestDataName;
-            EntityName = entityName;
+            Namespace = csClass.Namespace;
+            Name = GetName(csClass.ClassName);
+            ClassName = csClass.ClassName;
+            IsPublic = csClass.IsPublic;
+            RequestDataName = csClass.BaseClassTypeArgs.ElementAtOrDefault(0) ?? "";
+            EntityName = csClass.BaseClassTypeArgs.ElementAtOrDefault(1) ?? "";
         }
 
         private static readonly Regex nameRegex = new Regex("^(?<Name>([a-z]|\\d)+)Action$", RegexOptions.IgnoreCase);
@@ -38,6 +40,7 @@ namespace XTI_ApiGeneratorTask
         public string Namespace { get; }
         public string Name { get; }
         public string ClassName { get; }
+        public bool IsPublic { get; }
         public string RequestDataName { get; }
         public string EntityName { get; }
 

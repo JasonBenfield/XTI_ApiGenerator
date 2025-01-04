@@ -2,7 +2,7 @@
 
 namespace XTI_TestServiceAppApi.Jobs;
 
-internal sealed class RunTestJob2Validation : AppActionValidation<EmptyRequest>
+public sealed class RunTestJob2Validation : AppActionValidation<EmptyRequest>
 {
     public Task Validate(ErrorList errors, EmptyRequest model, CancellationToken stoppingToken)
     {

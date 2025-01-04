@@ -38,6 +38,10 @@ namespace XTI_ApiGeneratorTask
 
         private CsClass GetCsClass(string ns, ClassDeclarationSyntax classDeclaration)
         {
+            var syntaxTokenModifiers = classDeclaration.Modifiers.OfType<SyntaxToken>();
+            var accessModifier = syntaxTokenModifiers
+                .Where(t => t.Text.Equals("public") || t.Text.Equals("private") || t.Text.Equals("internal") || t.Text.Equals("protected"))
+                .FirstOrDefault().Text;
             var baseClass = GetGenericBaseClass(classDeclaration);
             var baseTypeArguments = baseClass?.TypeArgumentList.Arguments ?? new SeparatedSyntaxList<TypeSyntax>();
             var baseTypeArgs = new List<string>();
@@ -49,6 +53,7 @@ namespace XTI_ApiGeneratorTask
             (
                 ns: ns,
                 filePath: filePath,
+                accessModifier: accessModifier,
                 className: classDeclaration.Identifier.Text,
                 baseClassName: baseClass?.Identifier.Text ?? "",
                 baseClassTypeArgs: baseTypeArgs.ToArray()

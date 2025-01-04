@@ -1,14 +1,27 @@
 ﻿using System.IO;
-using System.Linq;
 
 namespace XTI_ApiGeneratorTask
 {
     internal sealed class CsClass
     {
-        public CsClass(string ns, string filePath, string className, string baseClassName, string[] baseClassTypeArgs)
+        public CsClass()
+            : this("", "", "", "", "", new string[0])
+        {
+        }
+
+        public CsClass
+        (
+            string ns,
+            string filePath,
+            string accessModifier,
+            string className,
+            string baseClassName,
+            string[] baseClassTypeArgs
+        )
         {
             Namespace = ns;
             FilePath = filePath;
+            IsPublic = accessModifier.Equals("public");
             ClassName = className;
             BaseClassName = baseClassName;
             BaseClassTypeArgs = baseClassTypeArgs;
@@ -21,6 +34,7 @@ namespace XTI_ApiGeneratorTask
 
         public string Namespace { get; }
         public string FilePath { get; }
+        public bool IsPublic { get; }
         public string DirectoryPath { get; }
         public string DirectoryName { get; }
         public string ClassName { get; }
@@ -30,40 +44,26 @@ namespace XTI_ApiGeneratorTask
         public bool IsActionValidation { get; }
         public bool IsQuery { get; }
 
+
+
         public ActionDefinition ToActionDefinition()
         {
             return IsAction ?
-                new ActionDefinition
-                (
-                    ns: Namespace,
-                    className: ClassName,
-                    requestDataName: BaseClassTypeArgs.ElementAtOrDefault(0) ?? "",
-                    resultDataName: BaseClassTypeArgs.ElementAtOrDefault(1) ?? ""
-                ) : 
+                new ActionDefinition(this) :
                 new ActionDefinition();
         }
 
         public ActionValidationDefinition ToActionValidationDefinition()
         {
             return IsActionValidation ?
-                new ActionValidationDefinition
-                (
-                    className: ClassName,
-                    requestDataName: BaseClassTypeArgs.ElementAtOrDefault(0) ?? ""
-                ) :
+                new ActionValidationDefinition(this) :
                 new ActionValidationDefinition();
         }
 
         public QueryDefinition ToQueryDefinition()
         {
             return IsQuery ?
-                new QueryDefinition
-                (
-                    ns: Namespace,
-                    className: ClassName,
-                    requestDataName: BaseClassTypeArgs.ElementAtOrDefault(0) ?? "",
-                    entityName: BaseClassTypeArgs.ElementAtOrDefault(1) ?? ""
-                ) :
+                new QueryDefinition(this) :
                 new QueryDefinition();
         }
 

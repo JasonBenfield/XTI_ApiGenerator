@@ -29,14 +29,11 @@ namespace XTI_ApiGeneratorTask
                 throw new Exception($"Project Directory '{projectDir}' does not exist.");
             }
             var csClasses = GetCsClasses();
-            var actionClasses = csClasses
-                .Where(c => c.IsAction)
-                .ToArray();
             var groupLookup = csClasses
                 .ToLookup(c => new { c.DirectoryName, c.DirectoryPath });
             var errors = new List<ApiGeneratorTaskError>();
             var groups = new List<GroupDefinition>();
-            foreach(var groupedClasses in groupLookup)
+            foreach (var groupedClasses in groupLookup)
             {
                 var validations = groupedClasses
                     .Where(c => c.IsActionValidation)
@@ -62,32 +59,69 @@ namespace XTI_ApiGeneratorTask
                     )
                     .ToArray();
                 var unmatchedValidations = validations
-                    .Where(v => !actions.Any(a => a.ValidationClassName == v.ClassName))
-                    .ToArray();
-                foreach(var unmatchedValidation in unmatchedValidations)
-                {
-                    var error = new ApiGeneratorTaskError
+                    .Where(v => !actions.Any(a => a.ValidationClassName == v.ClassName));
+                var unmatchedValidationErrors = unmatchedValidations
+                    .Select
                     (
-                        message: $"Validation '{unmatchedValidation.Name}' does not have an action in group {groupedClasses.Key.DirectoryName}",
-                        errorCode: "XTI0101",
-                        filePath: Path.Combine(groupedClasses.Key.DirectoryPath, $"{unmatchedValidation.ClassName}.cs")
+                        v => new ApiGeneratorTaskError
+                        (
+                            message: $"Validation '{v.Name}' does not have an action in group {groupedClasses.Key.DirectoryName}",
+                            errorCode: "XTI0101",
+                            filePath: Path.Combine(groupedClasses.Key.DirectoryPath, $"{v.ClassName}.cs")
+                        )
                     );
-                    errors.Add(error);
-                }
+                errors.AddRange(unmatchedValidationErrors);
+                var nonPublicValidationErrors = validations
+                    .Except(unmatchedValidations)
+                    .Where(v => !v.IsPublic)
+                    .Select
+                    (
+                        v => new ApiGeneratorTaskError
+                        (
+                            message: $"Validation '{v.Name}' in group {groupedClasses.Key.DirectoryName} is not public",
+                            errorCode: "XTI0102",
+                            filePath: Path.Combine(groupedClasses.Key.DirectoryPath, $"{v.ClassName}.cs")
+                        )
+                    );
+                errors.AddRange(nonPublicValidationErrors);
+                var nonPublicActionErrors = actions
+                    .Where(v => !v.IsPublic)
+                    .Select
+                    (
+                        a => new ApiGeneratorTaskError
+                        (
+                            message: $"Action '{a.Name}' in group {groupedClasses.Key.DirectoryName} is not public",
+                            errorCode: "XTI0102",
+                            filePath: Path.Combine(groupedClasses.Key.DirectoryPath, $"{a.ClassName}.cs")
+                        )
+                    );
+                errors.AddRange(nonPublicActionErrors);
                 if (actions.Any())
                 {
                     var group = new GroupDefinition(groupedClasses.Key.DirectoryName, actions);
                     groups.Add(group);
                 }
             }
-            if (errors.Any())
-            {
-                throw new ApiGeneratorTaskException(errors.ToArray());
-            }
             var queries = csClasses
                 .Where(c => c.IsQuery)
                 .Select(c => c.ToQueryDefinition())
                 .ToArray();
+            var nonPublicQueryErrors = queries
+                .Where(v => !v.IsPublic)
+                .Select
+                (
+                    a => new ApiGeneratorTaskError
+                    (
+                        message: $"Query '{a.Name}' is not public",
+                        errorCode: "XTI0102",
+                        filePath: Path.Combine(projectDir, $"{a.ClassName}.cs")
+                    )
+                );
+            errors.AddRange(nonPublicQueryErrors);
+            if (errors.Any())
+            {
+                throw new ApiGeneratorTaskException(errors.ToArray());
+            }
             return new AppDefinition(appName, appType, groups.ToArray(), queries);
         }
 

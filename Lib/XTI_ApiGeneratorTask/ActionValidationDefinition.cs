@@ -1,23 +1,21 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace XTI_ApiGeneratorTask
 {
     public sealed class ActionValidationDefinition
     {
         public ActionValidationDefinition()
-            : this("", "")
+            : this(new CsClass())
         {
         }
 
-        public ActionValidationDefinition
-        (
-            string className,
-            string requestDataName
-        )
+        internal ActionValidationDefinition(CsClass csClass)
         {
-            Name = GetName(className);
-            ClassName = className;
-            RequestDataName = requestDataName;
+            Name = GetName(csClass.ClassName);
+            IsPublic = csClass.IsPublic;
+            ClassName = csClass.ClassName;
+            RequestDataName = csClass.BaseClassTypeArgs.ElementAtOrDefault(0) ?? "";
         }
 
         private static readonly Regex nameRegex = new Regex("^(?<Name>([a-z]|\\d)+)Validation$", RegexOptions.IgnoreCase);
@@ -39,6 +37,7 @@ namespace XTI_ApiGeneratorTask
 
         public string Name { get; }
         public string ClassName { get; }
+        public bool IsPublic { get; }
         public string RequestDataName { get; }
 
         public bool IsEmpty() => string.IsNullOrWhiteSpace(Name);
