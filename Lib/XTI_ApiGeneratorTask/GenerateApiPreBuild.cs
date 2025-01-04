@@ -73,9 +73,22 @@ namespace XTI_ApiGeneratorTask
                 var extensionsClass = new GeneratedApiExtensionsClass(appDefinition, ns).Value();
                 OutputClass(extensionsClass);
             }
+            catch (ApiGeneratorTaskException taskEx)
+            {
+                foreach(var error in taskEx.Errors)
+                {
+                    LogError(message: error.Message, errorCode: error.ErrorCode, file: error.FilePath);
+                }
+            }
             catch (Exception ex)
             {
-                Log.LogErrorFromException(ex, showStackTrace: true);
+                Log.LogErrorFromException
+                (
+                    ex, 
+                    showStackTrace: true, 
+                    showDetail: true, 
+                    file: null
+                );
             }
             return !Log.HasLoggedErrors;
         }
@@ -89,14 +102,14 @@ namespace XTI_ApiGeneratorTask
             }
         }
 
-        private void LogError(string message)
+        private void LogError(string message, string errorCode = "XTI0100", string file = null)
         {
             Log.LogError
             (
                 subcategory: null,
-                errorCode: "XTI0100",
+                errorCode: errorCode,
                 helpKeyword: null,
-                file: "",
+                file: file,
                 lineNumber: 0,
                 columnNumber: 0,
                 endLineNumber: 0,
