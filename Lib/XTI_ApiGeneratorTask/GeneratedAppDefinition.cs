@@ -32,45 +32,63 @@ namespace XTI_ApiGeneratorTask
             var actionClasses = csClasses
                 .Where(c => c.IsAction)
                 .ToArray();
-            var groups = csClasses
-                .ToLookup(c => new { c.DirectoryName, c.DirectoryPath })
-                .Select
-                (
-                    g =>
-                    {
-                        var validations = g
-                            .Where(c => c.IsActionValidation)
-                            .Select(c => c.ToActionValidationDefinition())
-                            .ToArray();
-                        var actions = g
-                            .Where(c => c.IsAction)
-                            .Select
-                            (
-                                c =>
-                                {
-                                    var action = c.ToActionDefinition();
-                                    var validationClassName = validations
-                                        .Where(v => v.Name == action.Name)
-                                        .FirstOrDefault()?.ClassName ??
-                                        "";
-                                    if (!string.IsNullOrWhiteSpace(validationClassName))
-                                    {
-                                        action = action.WithValidationClassName(validationClassName);
-                                    }
-                                    return action;
-                                }
-                            )
-                            .ToArray();
-                        return new GroupDefinition(g.Key.DirectoryName, actions);
-                    }
-                )
-                .Where(g => g.Actions.Any())
-                .ToArray();
+            var groupLookup = csClasses
+                .ToLookup(c => new { c.DirectoryName, c.DirectoryPath });
+            var errors = new List<ApiGeneratorTaskError>();
+            var groups = new List<GroupDefinition>();
+            foreach(var groupedClasses in groupLookup)
+            {
+                var validations = groupedClasses
+                    .Where(c => c.IsActionValidation)
+                    .Select(c => c.ToActionValidationDefinition())
+                    .ToArray();
+                var actions = groupedClasses
+                    .Where(c => c.IsAction)
+                    .Select
+                    (
+                        c =>
+                        {
+                            var action = c.ToActionDefinition();
+                            var validationClassName = validations
+                                .Where(v => v.Name == action.Name)
+                                .FirstOrDefault()?.ClassName ??
+                                "";
+                            if (!string.IsNullOrWhiteSpace(validationClassName))
+                            {
+                                action = action.WithValidationClassName(validationClassName);
+                            }
+                            return action;
+                        }
+                    )
+                    .ToArray();
+                var unmatchedValidations = validations
+                    .Where(v => !actions.Any(a => a.ValidationClassName == v.ClassName))
+                    .ToArray();
+                foreach(var unmatchedValidation in unmatchedValidations)
+                {
+                    var error = new ApiGeneratorTaskError
+                    (
+                        message: $"Validation '{unmatchedValidation.Name}' does not have an action in group {groupedClasses.Key.DirectoryName}",
+                        errorCode: "XTI0101",
+                        filePath: Path.Combine(groupedClasses.Key.DirectoryPath, $"{unmatchedValidation.ClassName}.cs")
+                    );
+                    errors.Add(error);
+                }
+                if (actions.Any())
+                {
+                    var group = new GroupDefinition(groupedClasses.Key.DirectoryName, actions);
+                    groups.Add(group);
+                }
+            }
+            if (errors.Any())
+            {
+                throw new ApiGeneratorTaskException(errors.ToArray());
+            }
             var queries = csClasses
                 .Where(c => c.IsQuery)
                 .Select(c => c.ToQueryDefinition())
                 .ToArray();
-            return new AppDefinition(appName, appType, groups, queries);
+            return new AppDefinition(appName, appType, groups.ToArray(), queries);
         }
 
         private CsClass[] GetCsClasses() =>
