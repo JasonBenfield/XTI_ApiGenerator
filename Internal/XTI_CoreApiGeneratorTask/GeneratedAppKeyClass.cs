@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace XTI_ApiGeneratorTask
+namespace XTI_CoreApiGeneratorTask
 {
     public sealed class GeneratedAppKeyClass
     {

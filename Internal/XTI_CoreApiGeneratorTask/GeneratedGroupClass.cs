@@ -5,19 +5,19 @@ using System.Collections.Generic;
 using System.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace XTI_ApiGeneratorTask
+namespace XTI_CoreApiGeneratorTask
 {
-    public sealed class GeneratedAppClass
+    public sealed class GeneratedGroupClass
     {
-        private readonly AppDefinition app;
+        private readonly GroupDefinition group;
         private readonly string ns;
         private readonly string className;
 
-        public GeneratedAppClass(AppDefinition app, string ns)
+        public GeneratedGroupClass(GroupDefinition group, string baseNS)
         {
-            this.app = app;
-            this.ns = ns;
-            className = app.ClassName;
+            this.group = group;
+            ns = $"{baseNS}.{group.Name}";
+            className = group.ClassName;
         }
 
         public ClassDefinition Value()
@@ -35,9 +35,7 @@ namespace XTI_ApiGeneratorTask
             (
                 List
                 (
-                    app.GetTargetNamespaces(ns)
-                        .Select(u => UsingDirective(IdentifierName(u)))
-                        .ToArray()
+                    group.Namespaces().Select(u => UsingDirective(IdentifierName(u))).ToArray()
                 )
             )
             .WithMembers
@@ -99,7 +97,7 @@ namespace XTI_ApiGeneratorTask
                         (
                             SingletonSeparatedList<BaseTypeSyntax>
                             (
-                                SimpleBaseType(IdentifierName(GetBaseTypeName()))
+                                SimpleBaseType(IdentifierName("AppApiGroupWrapper"))
                             )
                         )
                     )
@@ -113,24 +111,6 @@ namespace XTI_ApiGeneratorTask
             };
         }
 
-        private string GetBaseTypeName()
-        {
-            string baseTypeName;
-            if (app.IsWebApp)
-            {
-                baseTypeName = "WebAppApiWrapper";
-            }
-            else if (app.IsConsoleApp)
-            {
-                baseTypeName = "ConsoleAppApiWrapper";
-            }
-            else
-            {
-                baseTypeName = "AppApiWrapper";
-            }
-            return baseTypeName;
-        }
-
         private MemberDeclarationSyntax[] MembersForClass()
         {
             var members = new List<MemberDeclarationSyntax>
@@ -138,13 +118,9 @@ namespace XTI_ApiGeneratorTask
                 DeclarationForCtor(),
                 GeneratedConfigureMethod.Declaration()
             };
-            foreach (var group in app.Groups)
+            foreach (var action in group.Actions)
             {
-                members.Add(DeclarationForGroup(group));
-            }
-            foreach (var query in app.Queries)
-            {
-                members.Add(DeclarationForQuery(query));
+                members.Add(DeclarationForAction(action));
             }
             return members.ToArray();
         }
@@ -166,9 +142,9 @@ namespace XTI_ApiGeneratorTask
                             new[]
                             {
                                 Parameter(Identifier("source"))
-                                    .WithType(IdentifierName("AppApi")),
+                                    .WithType(IdentifierName("AppApiGroup")),
                                 Parameter(Identifier("builder"))
-                                    .WithType(IdentifierName(app.BuilderClassName))
+                                    .WithType(IdentifierName(group.BuilderClassName))
                             }
                         )
                     )
@@ -180,12 +156,9 @@ namespace XTI_ApiGeneratorTask
                         SyntaxKind.BaseConstructorInitializer,
                         ArgumentList
                         (
-                            SeparatedList
+                            SingletonSeparatedList
                             (
-                                new[]
-                                {
-                                    Argument(IdentifierName("source"))
-                                }
+                                Argument(IdentifierName("source"))
                             )
                         )
                     )
@@ -196,18 +169,17 @@ namespace XTI_ApiGeneratorTask
                     (
                         SeparatedList
                         (
-                            AssignmentsForGroups()
-                            .Union(AssignmentsForQueries())
+                            AssignmentsForAction()
                             .Union(new[] { GeneratedConfigureMethod.Invocation() })
                         )
                     )
                 );
         }
 
-        private StatementSyntax[] AssignmentsForGroups()
+        private StatementSyntax[] AssignmentsForAction()
         {
             var statements = new List<StatementSyntax>();
-            foreach (var group in app.Groups)
+            foreach (var action in group.Actions)
             {
                 statements.Add
                 (
@@ -216,7 +188,7 @@ namespace XTI_ApiGeneratorTask
                         AssignmentExpression
                         (
                             SyntaxKind.SimpleAssignmentExpression,
-                            IdentifierName(group.Name),
+                            IdentifierName(action.Name),
                             InvocationExpression
                             (
                                 MemberAccessExpression
@@ -226,7 +198,7 @@ namespace XTI_ApiGeneratorTask
                                     (
                                         SyntaxKind.SimpleMemberAccessExpression,
                                         IdentifierName("builder"),
-                                        IdentifierName(Identifier(group.Name))
+                                        IdentifierName(action.Name)
                                     ),
                                     IdentifierName("Build")
                                 )
@@ -238,84 +210,27 @@ namespace XTI_ApiGeneratorTask
             return statements.ToArray();
         }
 
-        private StatementSyntax[] AssignmentsForQueries()
-        {
-            var statements = new List<StatementSyntax>();
-            foreach (var query in app.Queries)
-            {
-                statements.Add
-                (
-                    ExpressionStatement
-                    (
-                        AssignmentExpression
-                        (
-                            SyntaxKind.SimpleAssignmentExpression,
-                            IdentifierName(query.Name),
-                            InvocationExpression
-                            (
-                                MemberAccessExpression
-                                (
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    MemberAccessExpression
-                                    (
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("builder"),
-                                        IdentifierName(Identifier(query.Name))
-                                    ),
-                                    IdentifierName("Build")
-                                )
-                            )
-                        )
-                    )
-                );
-            }
-            return statements.ToArray();
-        }
-
-        private PropertyDeclarationSyntax DeclarationForGroup(GroupDefinition group)
+        private PropertyDeclarationSyntax DeclarationForAction(ActionDefinition action)
         {
             return PropertyDeclaration
             (
-                IdentifierName(Identifier(group.ClassName)),
-                Identifier(group.Name)
-            )
-            .WithModifiers
-            (
-                TokenList(Token(SyntaxKind.PublicKeyword))
-            )
-            .WithAccessorList
-            (
-                AccessorList
-                (
-                    SingletonList
-                    (
-                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                    )
-                )
-            );
-        }
-
-        private PropertyDeclarationSyntax DeclarationForQuery(QueryDefinition query)
-        {
-            return PropertyDeclaration
-            (
-                GenericName(Identifier("ODataGroup"))
+                GenericName(Identifier("AppApiAction"))
                     .WithTypeArgumentList
                     (
                         TypeArgumentList
                         (
                             SeparatedList<TypeSyntax>
                             (
-                                new[]
+                                new SyntaxNodeOrToken[]
                                 {
-                                    IdentifierName(query.RequestDataName),
-                                    IdentifierName(query.EntityName)
+                                    IdentifierName(action.RequestDataName),
+                                    Token(SyntaxKind.CommaToken),
+                                    IdentifierName(action.ResultDataName)
                                 }
                             )
                         )
                     ),
-                Identifier(query.Name)
+                    Identifier(action.Name)
             )
             .WithModifiers
             (

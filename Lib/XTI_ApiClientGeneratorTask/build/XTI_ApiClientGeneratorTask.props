@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<XTI_ApiClientGeneratorAssembly>$(MSBuildThisFileDirectory)..\lib\netstandard2.0\$(MSBuildThisFileName).dll</XTI_ApiClientGeneratorAssembly>
+	</PropertyGroup>
+
+	<UsingTask TaskName="$(MSBuildThisFileName).GenerateApiClients" AssemblyFile="$(XTI_ApiClientGeneratorAssembly)"/>
+
+	<PropertyGroup>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<XTI_ApiDirectory Condition="'$(XTI_ApiDirectory)' == ''">$(MSBuildProjectDirectory)</XTI_ApiDirectory>
+		<XTI_ApiToolPath Condition="'$(XTI_ApiToolPath)' == ''">$(MSBuildThisFileDirectory)..\tools\XTI_ApiGeneratorTool.exe</XTI_ApiToolPath>
+		<XTI_ApiAppName Condition="'$(XTI_ApiAppName)' == ''">[Default]</XTI_ApiAppName>
+		<XTI_ApiAppType Condition="'$(XTI_ApiAppType)' == ''">[Default]</XTI_ApiAppType>
+		<XTI_ApiVersionKey Condition="'$(XTI_ApiVersionKey)' == ''">$(XtiVersion)</XTI_ApiVersionKey>
+		<XTI_ApiVersionKey Condition="'$(XTI_ApiVersionKey)' == ''">Current</XTI_ApiVersionKey>
+		<XTI_ApiSkipControllers Condition="'$(XTI_ApiSkipControllers)' == ''">false</XTI_ApiSkipControllers>
+		<XTI_ApiControllersProjectPath Condition="'$(XTI_ApiControllersProjectPath)' == ''">[Default]</XTI_ApiControllersProjectPath>
+		<XTI_ApiSkipCsClient Condition="'$(XTI_ApiSkipCsClient)' == ''">false</XTI_ApiSkipCsClient>
+		<XTI_ApiCsClientProjectPath Condition="'$(XTI_ApiCsClientProjectPath)' == ''">[Default]</XTI_ApiCsClientProjectPath>
+		<XTI_ApiSkipTsClient Condition="'$(XTI_ApiSkipTsClient)' == ''">false</XTI_ApiSkipTsClient>
+		<XTI_ApiTsClientPath Condition="'$(XTI_ApiTsClientPath)' == ''">[Default]</XTI_ApiTsClientPath>
+	</PropertyGroup>
+</Project>

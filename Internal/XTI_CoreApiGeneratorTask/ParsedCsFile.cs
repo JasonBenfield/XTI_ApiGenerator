@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace XTI_ApiGeneratorTask
+namespace XTI_CoreApiGeneratorTask
 {
     internal sealed class ParsedCsFile
     {

@@ -1,26 +1,34 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace XTI_ApiGeneratorTask
+namespace XTI_CoreApiGeneratorTask
 {
-    public sealed class QueryDefinition
+    public sealed class ActionDefinition
     {
-        public QueryDefinition()
-            : this(new CsClass())
+        private readonly CsClass csClass;
+
+        private static readonly Regex nameRegex = new Regex("^(?<Name>([a-z]|\\d)+)(Action|Page)$", RegexOptions.IgnoreCase);
+
+        public ActionDefinition()
+            : this(new CsClass(), "")
         {
         }
 
-        internal QueryDefinition(CsClass csClass)
+        internal ActionDefinition
+        (
+            CsClass csClass,
+            string validationClassName = ""
+        )
         {
+            this.csClass = csClass;
             Namespace = csClass.Namespace;
             Name = GetName(csClass.ClassName);
             ClassName = csClass.ClassName;
             IsPublic = csClass.IsPublic;
             RequestDataName = csClass.BaseClassTypeArgs.ElementAtOrDefault(0) ?? "";
-            EntityName = csClass.BaseClassTypeArgs.ElementAtOrDefault(1) ?? "";
+            ResultDataName = csClass.BaseClassTypeArgs.ElementAtOrDefault(1) ?? "";
+            ValidationClassName = validationClassName;
         }
-
-        private static readonly Regex nameRegex = new Regex("^(?<Name>([a-z]|\\d)+)Action$", RegexOptions.IgnoreCase);
 
         private static string GetName(string className)
         {
@@ -42,7 +50,15 @@ namespace XTI_ApiGeneratorTask
         public string ClassName { get; }
         public bool IsPublic { get; }
         public string RequestDataName { get; }
-        public string EntityName { get; }
+        public string ResultDataName { get; }
+        public string ValidationClassName { get; }
+
+        public ActionDefinition WithValidationClassName(string validationClassName) =>
+            new ActionDefinition
+            (
+                csClass: csClass,
+                validationClassName: validationClassName
+            );
 
         public bool IsEmpty() => string.IsNullOrWhiteSpace(Name);
     }

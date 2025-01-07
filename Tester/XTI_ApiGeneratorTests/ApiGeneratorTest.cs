@@ -1,5 +1,5 @@
-﻿using XTI_ApiGeneratorTask;
-using XTI_Core.Extensions;
+﻿using XTI_Core.Extensions;
+using XTI_CoreApiGeneratorTask;
 
 namespace XTI_ApiGeneratorTests;
 

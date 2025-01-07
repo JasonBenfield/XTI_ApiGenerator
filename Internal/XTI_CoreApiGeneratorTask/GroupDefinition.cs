@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace XTI_ApiGeneratorTask
+namespace XTI_CoreApiGeneratorTask
 {
     public sealed class GroupDefinition
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace XTI_ApiGeneratorTask
+namespace XTI_CoreApiGeneratorTask
 {
     internal sealed class GeneratedCodeComment
     {
