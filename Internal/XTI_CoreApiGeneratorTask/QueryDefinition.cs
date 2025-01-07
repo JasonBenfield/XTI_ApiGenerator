@@ -1,24 +1,26 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace XTI_ApiGeneratorTask
+namespace XTI_CoreApiGeneratorTask
 {
-    public sealed class ActionValidationDefinition
+    public sealed class QueryDefinition
     {
-        public ActionValidationDefinition()
+        public QueryDefinition()
             : this(new CsClass())
         {
         }
 
-        internal ActionValidationDefinition(CsClass csClass)
+        internal QueryDefinition(CsClass csClass)
         {
+            Namespace = csClass.Namespace;
             Name = GetName(csClass.ClassName);
-            IsPublic = csClass.IsPublic;
             ClassName = csClass.ClassName;
+            IsPublic = csClass.IsPublic;
             RequestDataName = csClass.BaseClassTypeArgs.ElementAtOrDefault(0) ?? "";
+            EntityName = csClass.BaseClassTypeArgs.ElementAtOrDefault(1) ?? "";
         }
 
-        private static readonly Regex nameRegex = new Regex("^(?<Name>([a-z]|\\d)+)Validation$", RegexOptions.IgnoreCase);
+        private static readonly Regex nameRegex = new Regex("^(?<Name>([a-z]|\\d)+)Action$", RegexOptions.IgnoreCase);
 
         private static string GetName(string className)
         {
@@ -35,10 +37,12 @@ namespace XTI_ApiGeneratorTask
             return name;
         }
 
+        public string Namespace { get; }
         public string Name { get; }
         public string ClassName { get; }
         public bool IsPublic { get; }
         public string RequestDataName { get; }
+        public string EntityName { get; }
 
         public bool IsEmpty() => string.IsNullOrWhiteSpace(Name);
     }

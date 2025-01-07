@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace XTI_ApiGeneratorTask
+namespace XTI_CoreApiGeneratorTask
 {
     public sealed class ParsedApiNamespace
     {
@@ -8,6 +8,7 @@ namespace XTI_ApiGeneratorTask
 
         public ParsedApiNamespace(string ns)
         {
+            Namespace = ns;
             var match = regex.Match(ns);
             if (match.Success)
             {
@@ -26,5 +27,6 @@ namespace XTI_ApiGeneratorTask
         public string Prefix { get; }
         public string AppName { get; }
         public string AppType { get; }
+        public string Namespace { get; }
     }
 }

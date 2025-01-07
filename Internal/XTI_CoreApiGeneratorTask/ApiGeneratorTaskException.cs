@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 
-namespace XTI_ApiGeneratorTask
+namespace XTI_CoreApiGeneratorTask
 {
-    internal sealed class ApiGeneratorTaskException : Exception
+    public sealed class ApiGeneratorTaskException : Exception
     {
         public ApiGeneratorTaskException(ApiGeneratorTaskError[] errors)
             : base(string.Join("\r\n", errors.Select(e => e.Message)))

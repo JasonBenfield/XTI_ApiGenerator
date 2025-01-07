@@ -11,7 +11,7 @@ public sealed class ExpandedJobEntry
 {
 }
 
-internal sealed class JobQueryAction : QueryAction<JobQueryRequest, ExpandedJobEntry>
+public sealed class JobQueryAction : QueryAction<JobQueryRequest, ExpandedJobEntry>
 {
     public Task<IQueryable<ExpandedJobEntry>> Execute(ODataQueryOptions<ExpandedJobEntry> options, JobQueryRequest model)
     {

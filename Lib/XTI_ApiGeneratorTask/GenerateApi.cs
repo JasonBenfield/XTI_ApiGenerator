@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using XTI_CoreApiGeneratorTask;
 
 namespace XTI_ApiGeneratorTask
 {
-    public sealed class GenerateApiPreBuild : Microsoft.Build.Utilities.Task
+    public sealed class GenerateApi : Microsoft.Build.Utilities.Task
     {
         [Required]
         public string ApiDirectory { get; set; } = "";
@@ -20,25 +21,50 @@ namespace XTI_ApiGeneratorTask
 
         public override bool Execute()
         {
-            var ns = new DirectoryInfo(ApiDirectory).Name;
-            var parsedNamespace = new ParsedApiNamespace(ns);
-            var appName = string.IsNullOrWhiteSpace(AppName) || AppName == "[Default]" ?
-                parsedNamespace.AppName :
-                "";
-            var appType = string.IsNullOrWhiteSpace(AppType) || AppName == "[Default]" ?
-                parsedNamespace.AppType :
-                "";
-            LogCriticalMessage($"Generating API AppName: '{appName}', AppType: '{appType}'");
-            if (string.IsNullOrWhiteSpace(appName))
-            {
-                LogError("App Name is required.");
-            }
-            if (string.IsNullOrWhiteSpace(appType))
-            {
-                LogError("App Type is required.");
-            }
             try
             {
+                if (!Directory.Exists(ActionsDirectory))
+                {
+                    throw new Exception($"Actions Directory '{ActionsDirectory}' does not exist.");
+                }
+                if (string.IsNullOrWhiteSpace(ApiDirectory) || ApiDirectory == "[Default]")
+                {
+                    var actionsDirectoryName = new DirectoryInfo(ActionsDirectory).Name;
+                    if (!actionsDirectoryName.EndsWith("Actions"))
+                    {
+                        throw new Exception($"API Directory not found from Actions Directory '{ActionsDirectory}'");
+                    }
+                    ApiDirectory = Path.GetFullPath
+                    (
+                        Path.Combine
+                        (
+                            ActionsDirectory,
+                            "..",
+                            actionsDirectoryName.Remove(actionsDirectoryName.Length - 7)
+                        )
+                    );
+                }
+                if (!Directory.Exists(ApiDirectory))
+                {
+                    throw new Exception($"API Directory '{ApiDirectory}' does not exist.");
+                }
+                var ns = new DirectoryInfo(ApiDirectory).Name;
+                var parsedNamespace = new ParsedApiNamespace(ns);
+                var appName = string.IsNullOrWhiteSpace(AppName) || AppName == "[Default]" ?
+                    parsedNamespace.AppName :
+                    "";
+                var appType = string.IsNullOrWhiteSpace(AppType) || AppName == "[Default]" ?
+                    parsedNamespace.AppType :
+                    "";
+                LogCriticalMessage($"Generating API AppName: '{appName}', AppType: '{appType}', ApiDirectory: '{ApiDirectory}', ActionsDirectory: '{ActionsDirectory}'");
+                if (string.IsNullOrWhiteSpace(appName))
+                {
+                    throw new Exception("App Name is required.");
+                }
+                if (string.IsNullOrWhiteSpace(appType))
+                {
+                    throw new Exception("App Type is required.");
+                }
                 var generatedAppDefinition = new GeneratedAppDefinition(appName, appType, ActionsDirectory);
                 var appDefinition = generatedAppDefinition.Value();
                 var generatedFiles = new List<string>();
@@ -142,15 +168,16 @@ namespace XTI_ApiGeneratorTask
 
         private string OutputClass(ClassDefinition classDefinition, string folderName)
         {
-            var filePath = $"{classDefinition.ClassName}.Generated.cs";
+            var targetDirectory = ApiDirectory;
             if (!string.IsNullOrWhiteSpace(folderName))
             {
-                filePath = Path.Combine(folderName, filePath);
-                if (!Directory.Exists(folderName))
+                targetDirectory = Path.Combine(targetDirectory, folderName);
+                if (!Directory.Exists(targetDirectory))
                 {
-                    Directory.CreateDirectory(folderName);
+                    Directory.CreateDirectory(targetDirectory);
                 }
             }
+            var filePath = Path.Combine(targetDirectory, $"{classDefinition.ClassName}.Generated.cs");
             var existingContents = File.Exists(filePath) ?
                 File.ReadAllText(filePath) :
                 "";

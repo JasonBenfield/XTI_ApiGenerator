@@ -1,4 +1,4 @@
-﻿namespace XTI_ApiGeneratorTask
+﻿namespace XTI_CoreApiGeneratorTask
 {
     internal sealed class QualifiedClassName
     {
