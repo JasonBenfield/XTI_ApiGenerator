@@ -154,7 +154,7 @@ namespace XTI_ApiGeneratorTask
                 subcategory: "",
                 code: "XTI0001",
                 helpKeyword: null,
-                file: "MyTask",
+                file: "ApiGenerator",
                 lineNumber: 0,
                 columnNumber: 0,
                 endLineNumber: 0,

@@ -10,6 +10,9 @@ internal sealed class ToolOptions
     [Option(nameof(AssemblyNamespace), Required = false)]
     public string AssemblyNamespace { get; set; } = "";
 
+    [Option(nameof(SolutionDirectory), Required = false)]
+    public string SolutionDirectory { get; set; } = "";
+
     [Option(nameof(FactoryClassName), Required = false)]
     public string FactoryClassName { get; set; } = "";
 
@@ -31,7 +34,10 @@ internal sealed class ToolOptions
     [Option(nameof(TsClientPath), Required = false)]
     public string TsClientPath { get; set; } = "";
 
-    [Option(nameof(VersionKey), Required = false)]
-    public string VersionKey { get; set; } = "";
+    [Option(nameof(RepoOwner), Required = false)]
+    public string RepoOwner { get; set; } = "";
+
+    [Option(nameof(RepoName), Required = false)]
+    public string RepoName { get; set; } = "";
 
 }

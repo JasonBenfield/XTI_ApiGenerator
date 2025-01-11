@@ -2,23 +2,43 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using XTI_ApiGeneratorTool;
-using XTI_App.Abstractions;
 using XTI_App.Api;
+using XTI_Secrets.Extensions;
 using XTI_WebApp.ClientGenerator.CSharp;
 using XTI_WebApp.ClientGenerator.Typescript;
 using XTI_WebApp.ControllerGenerator;
 
-var options = new ToolOptions();
-Parser.Default.ParseArguments<ToolOptions>(args)
-    .WithParsed
-    (
-        o =>
-        {
-            options = o;
-        }
-    );
+var services = new ServiceCollection();
+services.AddFileSecretCredentials();
+services.AddSingleton<VersionKeyAccessor>();
+services.AddSingleton
+(
+    _ =>
+    {
+        var options = new ToolOptions();
+        Parser.Default.ParseArguments<ToolOptions>(args)
+            .WithParsed
+            (
+                o =>
+                {
+                    options = o;
+                }
+            );
+        return options;
+    }
+);
+var sp = services.BuildServiceProvider();
+var options = sp.GetRequiredService<ToolOptions>();
 try
 {
+    if (string.IsNullOrWhiteSpace(options.SolutionDirectory))
+    {
+        throw new Exception("Solution Directory is required");
+    }
+    if (!Directory.Exists(options.SolutionDirectory))
+    {
+        throw new Exception($"Solution Directory '{options.SolutionDirectory}' was not found.");
+    }
     if (string.IsNullOrWhiteSpace(options.AssemblyPath))
     {
         throw new Exception("Assembly Path is required");
@@ -42,7 +62,6 @@ try
     {
         throw new Exception($"Factory type '{factoryTypeName}' was not found.");
     }
-    var sp = new ServiceCollection().BuildServiceProvider();
     var factory = (AppApiFactory?)Activator.CreateInstance
     (
         factoryType,
@@ -52,13 +71,13 @@ try
     {
         throw new NullReferenceException("factory cannot be null");
     }
-    var template = factory.CreateTemplate();
-    var versionKeyText = Environment.GetEnvironmentVariable("XtiVersion");
-    if (string.IsNullOrWhiteSpace(versionKeyText))
+    var versionKeyAccessor = sp.GetRequiredService<VersionKeyAccessor>();
+    var versionKey = await versionKeyAccessor.Value();
+    if (versionKey.IsNone())
     {
-        versionKeyText = "Current";
+        throw new Exception("Version Key is required");
     }
-    var versionKey = AppVersionKey.Parse(versionKeyText);
+    var template = factory.CreateTemplate();
     if (!options.SkipControllers)
     {
         if (string.IsNullOrWhiteSpace(options.ControllersProjectPath))

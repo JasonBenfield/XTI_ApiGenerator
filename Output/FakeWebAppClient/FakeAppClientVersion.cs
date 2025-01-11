@@ -12,7 +12,7 @@ public sealed partial class FakeAppClientVersion
         string value;
         if (hostEnv.IsProduction())
         {
-            value = "V0";
+            value = "V1419";
         }
         else
         {
