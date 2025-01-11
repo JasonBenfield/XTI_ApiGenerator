@@ -11,35 +11,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<!-- These lines pack the build props/targets files to the `build` folder in the generated package.
-         By convention, the .NET SDK will look for build\<Package Id>.props and build\<Package Id>.targets
-         for automatic inclusion in the build. -->
-		<Content Include="build\XTI_ApiClientGeneratorTask.props" PackagePath="build\" />
-		<Content Include="build\XTI_ApiClientGeneratorTask.targets" PackagePath="build\" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Include="tools\XTI_ApiGeneratorTool.exe">
-			<PackagePath>tools\</PackagePath>
-		</Content>
-		<Content Include="tools\XTI_ApiGeneratorTool.pdb">
-			<PackagePath>tools\</PackagePath>
-		</Content>
-		<Content Include="tools\XTI_WebApp.ClientGenerator.CSharp.pdb">
-			<PackagePath>tools\</PackagePath>
-		</Content>
-		<Content Include="tools\XTI_WebApp.ClientGenerator.Typescript.pdb">
-			<PackagePath>tools\</PackagePath>
-		</Content>
-		<Content Include="tools\XTI_WebApp.CodeGeneration.CSharp.pdb">
-			<PackagePath>tools\</PackagePath>
-		</Content>
-		<Content Include="tools\XTI_WebApp.CodeGeneration.pdb">
-			<PackagePath>tools\</PackagePath>
-		</Content>
-		<Content Include="tools\XTI_WebApp.ControllerGenerator.pdb">
-			<PackagePath>tools\</PackagePath>
-		</Content>
+		<Content Include="build\*" PackagePath="build\" />
+		<Content Include="tools\*" PackagePath="tools\" />
 	</ItemGroup>
 
 	<ItemGroup>

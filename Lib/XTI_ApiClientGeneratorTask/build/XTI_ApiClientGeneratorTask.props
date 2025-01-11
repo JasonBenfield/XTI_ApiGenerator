@@ -12,8 +12,9 @@
 		<XTI_ApiToolPath Condition="'$(XTI_ApiToolPath)' == ''">$(MSBuildThisFileDirectory)..\tools\XTI_ApiGeneratorTool.exe</XTI_ApiToolPath>
 		<XTI_ApiAppName Condition="'$(XTI_ApiAppName)' == ''">[Default]</XTI_ApiAppName>
 		<XTI_ApiAppType Condition="'$(XTI_ApiAppType)' == ''">[Default]</XTI_ApiAppType>
-		<XTI_ApiVersionKey Condition="'$(XTI_ApiVersionKey)' == ''">$(XtiVersion)</XTI_ApiVersionKey>
-		<XTI_ApiVersionKey Condition="'$(XTI_ApiVersionKey)' == ''">Current</XTI_ApiVersionKey>
+		<XTI_ApiSolutionDirectory Condition="'$(XTI_ApiSolutionDirectory)' == ''">$(SolutionDir)</XTI_ApiSolutionDirectory>
+		<XTI_ApiRepoOwner Condition="'$(XTI_ApiRepoOwner)' == ''">[Default]</XTI_ApiRepoOwner>
+		<XTI_ApiRepoName Condition="'$(XTI_ApiRepoName)' == ''">[Default]</XTI_ApiRepoName>
 		<XTI_ApiSkipControllers Condition="'$(XTI_ApiSkipControllers)' == ''">false</XTI_ApiSkipControllers>
 		<XTI_ApiControllersProjectPath Condition="'$(XTI_ApiControllersProjectPath)' == ''">[Default]</XTI_ApiControllersProjectPath>
 		<XTI_ApiSkipCsClient Condition="'$(XTI_ApiSkipCsClient)' == ''">false</XTI_ApiSkipCsClient>
