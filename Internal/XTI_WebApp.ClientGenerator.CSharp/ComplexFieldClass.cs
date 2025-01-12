@@ -66,12 +66,11 @@ public sealed class ComplexFieldClass
             (
                 TokenList
                 (
-                    new[]
-                    {
+                    [
                         Token(SyntaxKind.PublicKeyword),
                         Token(SyntaxKind.SealedKeyword),
                         Token(SyntaxKind.PartialKeyword)
-                    }
+                    ]
                 )
             )
             .WithBaseList

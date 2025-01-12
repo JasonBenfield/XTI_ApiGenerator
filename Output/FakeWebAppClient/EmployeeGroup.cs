@@ -5,8 +5,10 @@ public sealed partial class EmployeeGroup : AppClientGroup
     public EmployeeGroup(IHttpClientFactory httpClientFactory, XtiTokenAccessor xtiTokenAccessor, AppClientUrl clientUrl, AppClientOptions options) : base(httpClientFactory, xtiTokenAccessor, clientUrl, options, "Employee")
     {
         Actions = new EmployeeGroupActions(Index: CreateGetAction<EmptyRequest>("Index"), AddEmployee: CreatePostAction<AddEmployeeForm, int>("AddEmployee"), AddEmployeeFormView: CreateGetAction<EmptyRequest>("AddEmployeeFormView"), AddEmployeeForm: CreatePostAction<EmptyRequest, IDictionary<string, object>>("AddEmployeeForm"), Employee: CreatePostAction<int, Employee>("Employee"), DownloadAttachment: CreateFileAction<EmptyRequest>("DownloadAttachment"), GetContent: CreateContentAction<EmptyRequest>("GetContent"));
+        Configure();
     }
 
+    partial void Configure();
     public EmployeeGroupActions Actions { get; }
 
     public Task<int> AddEmployee(string modifier, AddEmployeeForm requestData, CancellationToken ct = default) => Actions.AddEmployee.Post(modifier, requestData, ct);

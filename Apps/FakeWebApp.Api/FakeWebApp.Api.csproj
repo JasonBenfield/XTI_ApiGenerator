@@ -9,9 +9,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="XTI_Forms" Version="1.8.48" />
-		<PackageReference Include="XTI_ODataQuery.Api" Version="1.8.48" />
-		<PackageReference Include="XTI_WebApp.Api" Version="1.8.48" />
+		<PackageReference Include="XTI_Forms" Version="1.8.53-dev250111160851036" />
+		<PackageReference Include="XTI_ODataQuery.Api" Version="1.8.53-dev250111160851036" />
+		<PackageReference Include="XTI_WebApp.Api" Version="1.8.53-dev250111160851036" />
 	</ItemGroup>
 
 </Project>
