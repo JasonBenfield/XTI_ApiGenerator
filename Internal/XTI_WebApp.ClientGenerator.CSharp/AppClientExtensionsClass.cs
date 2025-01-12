@@ -21,12 +21,12 @@ internal sealed class AppClientExtensionsClass
 
     public async Task Output()
     {
-        var groupClient = classFile();
+        var groupClient = GenerateCode();
         var className = getClassName();
         await outputClass(groupClient, className);
     }
 
-    private CompilationUnitSyntax classFile()
+    private CompilationUnitSyntax GenerateCode()
     {
         return CompilationUnit()
             .WithUsings
@@ -74,14 +74,14 @@ internal sealed class AppClientExtensionsClass
                         (
                             List
                             (
-                                classDeclaration()
+                                DeclarationForClass()
                             )
                         )
                 )
             );
     }
 
-    private MemberDeclarationSyntax[] classDeclaration()
+    private MemberDeclarationSyntax[] DeclarationForClass()
     {
         var extensionsClass = new List<MemberDeclarationSyntax>();
         extensionsClass.Add
@@ -91,11 +91,10 @@ internal sealed class AppClientExtensionsClass
                 (
                     TokenList
                     (
-                        new[]
-                        {
+                        [
                             Token(SyntaxKind.PublicKeyword),
                             Token(SyntaxKind.StaticKeyword)
-                        }
+                        ]
                     )
                 )
                 .WithMembers
@@ -111,11 +110,10 @@ internal sealed class AppClientExtensionsClass
                         (
                             TokenList
                             (
-                                new[]
-                                {
+                                [
                                     Token(SyntaxKind.PublicKeyword),
                                     Token(SyntaxKind.StaticKeyword)
-                                }
+                                ]
                             )
                         )
                         .WithParameterList
@@ -137,6 +135,56 @@ internal sealed class AppClientExtensionsClass
                         (
                             Block
                             (
+                                ExpressionStatement
+                                (
+                                    InvocationExpression
+                                    (
+                                        MemberAccessExpression
+                                        (
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("services"),
+                                            GenericName(Identifier("TryAddScoped"))
+                                                .WithTypeArgumentList
+                                                (
+                                                    TypeArgumentList
+                                                    (
+                                                        SeparatedList<TypeSyntax>
+                                                        (
+                                                            [
+                                                                IdentifierName("IAppClientSessionKey"),
+                                                                IdentifierName("EmptyAppClientSessionKey")
+                                                            ]
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                    )
+                                ),
+                                ExpressionStatement
+                                (
+                                    InvocationExpression
+                                    (
+                                        MemberAccessExpression
+                                        (
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("services"),
+                                            GenericName(Identifier("TryAddScoped"))
+                                                .WithTypeArgumentList
+                                                (
+                                                    TypeArgumentList
+                                                    (
+                                                        SeparatedList<TypeSyntax>
+                                                        (
+                                                            [
+                                                                IdentifierName("IAppClientRequestKey"),
+                                                                IdentifierName("EmptyAppClientRequestKey")
+                                                            ]
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                    )
+                                ),
                                 ExpressionStatement
                                 (
                                     InvocationExpression

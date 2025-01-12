@@ -22,12 +22,12 @@ internal sealed class AppClientFactoryClass
 
     public async Task Output()
     {
-        var appClient = GetRoslyn();
+        var clientFactoryCode = GenerateCode();
         var className = GetClassName();
-        await OutputClass(appClient, className);
+        await OutputClass(clientFactoryCode, className);
     }
 
-    private CompilationUnitSyntax GetRoslyn() =>
+    private CompilationUnitSyntax GenerateCode() =>
         CompilationUnit()
         .WithMembers
         (
@@ -130,12 +130,33 @@ internal sealed class AppClientFactoryClass
                                     ),
                                     FieldDeclaration
                                     (
-                                        VariableDeclaration(IdentifierName("AppClientOptions"))
+                                        VariableDeclaration(IdentifierName("IAppClientSessionKey"))
                                         .WithVariables
                                         (
                                             SingletonSeparatedList
                                             (
-                                                VariableDeclarator(Identifier("options"))
+                                                VariableDeclarator(Identifier("sessionKey"))
+                                            )
+                                        )
+                                    )
+                                    .WithModifiers
+                                    (
+                                        TokenList
+                                        (
+                                            [
+                                                Token(SyntaxKind.PrivateKeyword),
+                                                Token(SyntaxKind.ReadOnlyKeyword)
+                                            ]
+                                        )
+                                    ),
+                                    FieldDeclaration
+                                    (
+                                        VariableDeclaration(IdentifierName("IAppClientRequestKey"))
+                                        .WithVariables
+                                        (
+                                            SingletonSeparatedList
+                                            (
+                                                VariableDeclarator(Identifier("requestKey"))
                                             )
                                         )
                                     )
@@ -179,25 +200,22 @@ internal sealed class AppClientFactoryClass
                                     (
                                         ParameterList
                                         (
-                                            SeparatedList<ParameterSyntax>
+                                            SeparatedList
                                             (
-                                                new SyntaxNodeOrToken[]
-                                                {
+                                                [
                                                     Parameter(Identifier("httpClientFactory"))
                                                         .WithType(IdentifierName("IHttpClientFactory")),
-                                                    Token(SyntaxKind.CommaToken),
                                                     Parameter(Identifier("xtiTokenAccessorFactory"))
                                                         .WithType(IdentifierName("XtiTokenAccessorFactory")),
-                                                    Token(SyntaxKind.CommaToken),
                                                     Parameter(Identifier("clientUrl"))
                                                         .WithType(IdentifierName("AppClientUrl")),
-                                                    Token(SyntaxKind.CommaToken),
-                                                    Parameter(Identifier("options"))
-                                                        .WithType(IdentifierName("AppClientOptions")),
-                                                    Token(SyntaxKind.CommaToken),
+                                                    Parameter(Identifier("sessionKey"))
+                                                        .WithType(IdentifierName("IAppClientSessionKey")),
+                                                    Parameter(Identifier("requestKey"))
+                                                        .WithType(IdentifierName("IAppClientRequestKey")),
                                                     Parameter(Identifier("version"))
                                                         .WithType(IdentifierName($"{template.Name}AppClientVersion"))
-                                                }
+                                                ]
                                             )
                                         )
                                     )
@@ -256,9 +274,23 @@ internal sealed class AppClientFactoryClass
                                                     (
                                                         SyntaxKind.SimpleMemberAccessExpression,
                                                         ThisExpression(),
-                                                        IdentifierName("options")
+                                                        IdentifierName("sessionKey")
                                                     ),
-                                                    IdentifierName("options")
+                                                    IdentifierName("sessionKey")
+                                                )
+                                            ),
+                                            ExpressionStatement
+                                            (
+                                                AssignmentExpression
+                                                (
+                                                    SyntaxKind.SimpleAssignmentExpression,
+                                                    MemberAccessExpression
+                                                    (
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        ThisExpression(),
+                                                        IdentifierName("requestKey")
+                                                    ),
+                                                    IdentifierName("requestKey")
                                                 )
                                             ),
                                             ExpressionStatement
@@ -295,20 +327,16 @@ internal sealed class AppClientFactoryClass
                                             (
                                                 ArgumentList
                                                 (
-                                                    SeparatedList<ArgumentSyntax>
+                                                    SeparatedList
                                                     (
-                                                        new SyntaxNodeOrToken[]
-                                                        {
+                                                        [
                                                             Argument(IdentifierName("httpClientFactory")),
-                                                            Token(SyntaxKind.CommaToken),
                                                             Argument(IdentifierName("xtiTokenAccessorFactory")),
-                                                            Token(SyntaxKind.CommaToken),
                                                             Argument(IdentifierName("clientUrl")),
-                                                            Token(SyntaxKind.CommaToken),
-                                                            Argument(IdentifierName("options")),
-                                                            Token(SyntaxKind.CommaToken),
+                                                            Argument(IdentifierName("sessionKey")),
+                                                            Argument(IdentifierName("requestKey")),
                                                             Argument(IdentifierName("version"))
-                                                        }
+                                                        ]
                                                     )
                                                 )
                                             )

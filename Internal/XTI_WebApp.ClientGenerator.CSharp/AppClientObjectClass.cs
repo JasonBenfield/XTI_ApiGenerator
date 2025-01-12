@@ -53,12 +53,11 @@ public sealed class AppClientObjectClass
                                     (
                                         TokenList
                                         (
-                                            new[]
-                                            {
+                                            [
                                                 Token(SyntaxKind.PublicKeyword),
                                                 Token(SyntaxKind.SealedKeyword),
                                                 Token(SyntaxKind.PartialKeyword)
-                                            }
+                                            ]
                                         )
                                     )
                                     .WithMembers
@@ -94,13 +93,12 @@ public sealed class AppClientObjectClass
                     (
                         List
                         (
-                            new AccessorDeclarationSyntax[]
-                            {
+                            [
                                 AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                                     .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
                                 AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
                                     .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                            }
+                            ]
                         )
                     )
                 );
@@ -194,14 +192,12 @@ public sealed class AppClientObjectClass
                                     (
                                         TypeArgumentList
                                         (
-                                            SeparatedList<TypeSyntax>
+                                            SeparatedList
                                             (
-                                                new SyntaxNodeOrToken[]
-                                                {
+                                                [
                                                     GetTypeSyntaxFromValueTemplate(dict.KeyTemplate),
-                                                    Token(SyntaxKind.CommaToken),
                                                     GetTypeSyntaxFromValueTemplate(dict.ValueTemplate)
-                                                }
+                                                ]
                                             )
                                         )
                                     )
