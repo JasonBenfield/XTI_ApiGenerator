@@ -1,10 +1,17 @@
-﻿using XTI_ApiGeneratorTask;
-using XTI_Core.Extensions;
+﻿using XTI_Core.Extensions;
+using XTI_CoreApiGeneratorTask;
 
 namespace XTI_ApiGeneratorTests;
 
 public sealed class ApiGeneratorTest
 {
+    [Test]
+    public void ShouldGetSolutionDirectory()
+    {
+        var solutionDirectoryPath = @"C:\XTI\src\JasonBenfield\HubWebApp\";
+        var directoryInfo = new DirectoryInfo(solutionDirectoryPath);
+    }
+
     [Test]
     public void ShouldGenerateGroupsForAppDefinition()
     {

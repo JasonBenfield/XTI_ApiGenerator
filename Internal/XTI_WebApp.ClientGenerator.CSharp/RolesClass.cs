@@ -65,12 +65,11 @@ internal sealed class RolesClass
                 (
                     TokenList
                     (
-                        new[]
-                        {
+                        [
                             Token(SyntaxKind.PublicKeyword),
                             Token(SyntaxKind.SealedKeyword),
                             Token(SyntaxKind.PartialKeyword)
-                        }
+                        ]
                     )
                 )
                 .WithMembers
@@ -113,12 +112,11 @@ internal sealed class RolesClass
             (
                 TokenList
                 (
-                    new[]
-                    {
+                    [
                         Token(SyntaxKind.PublicKeyword),
                         Token(SyntaxKind.StaticKeyword),
                         Token(SyntaxKind.ReadOnlyKeyword)
-                    }
+                    ]
                 )
             );
 

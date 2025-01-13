@@ -18,8 +18,11 @@
 		<!-- These lines pack the build props/targets files to the `build` folder in the generated package.
          By convention, the .NET SDK will look for build\<Package Id>.props and build\<Package Id>.targets
          for automatic inclusion in the build. -->
-		<Content Include="build\XTI_ApiGeneratorTask.props" PackagePath="build\" />
-		<Content Include="build\XTI_ApiGeneratorTask.targets" PackagePath="build\" />
+		<Content Include="build\*" PackagePath="build\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Internal\XTI_CoreApiGeneratorTask\XTI_CoreApiGeneratorTask.csproj" PrivateAssets="all" />
 	</ItemGroup>
 
 	<PropertyGroup>

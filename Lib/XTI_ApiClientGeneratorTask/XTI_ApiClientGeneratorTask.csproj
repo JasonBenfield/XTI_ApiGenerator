@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="build\*" PackagePath="build\" />
+		<Content Include="tools\*" PackagePath="tools\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Internal\XTI_CoreApiGeneratorTask\XTI_CoreApiGeneratorTask.csproj" PrivateAssets="all" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="$(PackAsComponent) != ''">
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CustomBuildOutput</TargetsForTfmSpecificBuildOutput>
+	</PropertyGroup>
+
+	<Target Name="CustomBuildOutput">
+		<ItemGroup>
+			<BuildOutputInPackage Include="$(OutputPath)*.dll" Exclude="$(TargetPath)" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
+		<ItemGroup>
+			<!--The dependencies of your MSBuild task must be packaged inside the package, they cannot be expressed as normal PackageReferences-->
+			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" TargetPath="%(ReferenceCopyLocalPaths.DestinationSubPath)" />
+		</ItemGroup>
+	</Target>
+
+	<!--This target adds the generated deps.json file to our package output-->
+	<Target Name="AddBuildDependencyFileToBuiltProjectOutputGroupOutput" BeforeTargets="BuiltProjectOutputGroup" Condition=" '$(GenerateDependencyFile)' == 'true'">
+
+		<ItemGroup>
+			<BuiltProjectOutputGroupOutput Include="$(ProjectDepsFilePath)" TargetPath="$(ProjectDepsFileName)" FinalOutputPath="$(ProjectDepsFilePath)" />
+		</ItemGroup>
+	</Target>
+</Project>

@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Lib\XTI_ApiGeneratorTask\XTI_ApiGeneratorTask.csproj" />
+    <ProjectReference Include="..\..\Internal\XTI_CoreApiGeneratorTask\XTI_CoreApiGeneratorTask.csproj" />
   </ItemGroup>
 
   <ItemGroup>

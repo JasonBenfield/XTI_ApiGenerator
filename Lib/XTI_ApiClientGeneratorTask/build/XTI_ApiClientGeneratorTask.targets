@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Target Name="AfterBuild">
+		<PropertyGroup>
+			<XTI_ApiAssemblyPath Condition="'$(XTI_ApiAssemblyPath)' == ''">$(TargetPath)</XTI_ApiAssemblyPath>
+		</PropertyGroup>
+		<GenerateApiClients
+			ApiDirectory="$(XTI_ApiDirectory)"
+			ApiAssemblyPath="$(XTI_ApiAssemblyPath)"
+			ToolPath="$(XTI_ApiToolPath)"
+			AppName="$(XTI_ApiAppName)"
+			AppType="$(XTI_ApiAppType)"
+			SolutionDirectory="$(XTI_ApiSolutionDirectory)"
+			RepoOwner="$(XTI_ApiRepoOwner)"
+			RepoName="$(XTI_ApiRepoName)"
+			SkipControllers="$(XTI_ApiSkipControllers)"
+			ControllersProjectPath="$(XTI_ApiControllersProjectPath)"
+			SkipCsClient="$(XTI_ApiSkipCsClient)"
+			CsClientProjectPath="$(XTI_ApiCsClientProjectPath)"
+			SkipTsClient="$(XTI_ApiSkipTsClient)"
+			TsClientPath="$(XTI_ApiTsClientPath)"
+			>
+		</GenerateApiClients>
+	</Target>
+</Project>

@@ -71,7 +71,8 @@ public sealed class CsClient : CodeGenerator
             "XTI_App.Abstractions",
             "XTI_WebApp.Abstractions",
             "XTI_WebAppClient",
-            "Microsoft.Extensions.Hosting"
+            "Microsoft.Extensions.Hosting",
+            "Microsoft.Extensions.DependencyInjection.Extensions"
         };
         await new GlobalUsingsClass(createStream, namespaces).Output();
     }

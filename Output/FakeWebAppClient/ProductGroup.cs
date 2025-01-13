@@ -5,8 +5,10 @@ public sealed partial class ProductGroup : AppClientGroup
     public ProductGroup(IHttpClientFactory httpClientFactory, XtiTokenAccessor xtiTokenAccessor, AppClientUrl clientUrl, AppClientOptions options) : base(httpClientFactory, xtiTokenAccessor, clientUrl, options, "Product")
     {
         Actions = new ProductGroupActions(Index: CreateGetAction<EmptyRequest>("Index"), GetInfo: CreatePostAction<EmptyRequest, string>("GetInfo"), AddProduct: CreatePostAction<AddProductModel, int>("AddProduct"), Product: CreatePostAction<int, Product>("Product"));
+        Configure();
     }
 
+    partial void Configure();
     public ProductGroupActions Actions { get; }
 
     public Task<string> GetInfo(CancellationToken ct = default) => Actions.GetInfo.Post("", new EmptyRequest(), ct);

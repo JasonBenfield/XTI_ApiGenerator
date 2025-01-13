@@ -23,12 +23,12 @@ public sealed class AppClientClass
 
     public async Task Output()
     {
-        var appClient = createAppClient();
-        var className = getAppClassName();
-        await outputClass(appClient, className);
+        var appClient = CodeForClass();
+        var className = GetAppClassName();
+        await OutputClass(appClient, className);
     }
 
-    private CompilationUnitSyntax createAppClient()
+    private CompilationUnitSyntax CodeForClass()
     {
         return CompilationUnit()
             .WithMembers
@@ -49,7 +49,7 @@ public sealed class AppClientClass
                         (
                             SingletonList<MemberDeclarationSyntax>
                             (
-                                ClassDeclaration(getAppClassName())
+                                ClassDeclaration(GetAppClassName())
                                     .WithModifiers
                                     (
                                         TokenList
@@ -67,7 +67,7 @@ public sealed class AppClientClass
                                         (
                                             SeparatedList
                                             (
-                                                appBaseList()
+                                                BaseTypeForCtor()
                                             )
                                         )
                                     )
@@ -75,7 +75,7 @@ public sealed class AppClientClass
                                     (
                                         List
                                         (
-                                            appMembers()
+                                            DeclarationForMembers()
                                         )
                                     )
                                 )
@@ -84,14 +84,15 @@ public sealed class AppClientClass
                 );
     }
 
-    private static string getGroupClassName(AppApiGroupTemplate groupTemplate) => $"{groupTemplate.Name}Group";
+    private static string GetGroupClassName(AppApiGroupTemplate groupTemplate) => $"{groupTemplate.Name}Group";
 
-    private string getAppClassName() => $"{template.Name}AppClient";
+    private string GetAppClassName() => $"{template.Name}AppClient";
 
-    private MemberDeclarationSyntax[] appMembers()
+    private MemberDeclarationSyntax[] DeclarationForMembers()
     {
         var members = new List<MemberDeclarationSyntax>();
-        members.Add(appCtor());
+        members.Add(DeclarationForCtor());
+        members.Add(GeneratedConfigureMethod.Declaration());
         members.Add
         (
             PropertyDeclaration
@@ -207,9 +208,9 @@ public sealed class AppClientClass
         return members.ToArray();
     }
 
-    private ConstructorDeclarationSyntax appCtor()
+    private ConstructorDeclarationSyntax DeclarationForCtor()
     {
-        return ConstructorDeclaration(Identifier(getAppClassName()))
+        return ConstructorDeclaration(Identifier(GetAppClassName()))
             .WithModifiers
             (
                 TokenList(Token(SyntaxKind.PublicKeyword))
@@ -218,9 +219,9 @@ public sealed class AppClientClass
             (
                 ParameterList
                 (
-                    SeparatedList<ParameterSyntax>
+                    SeparatedList
                     (
-                        appCtorArgs()
+                        ArgumentsForCtor()
                     )
                 )
             )
@@ -231,9 +232,9 @@ public sealed class AppClientClass
                     SyntaxKind.BaseConstructorInitializer,
                     ArgumentList
                     (
-                        SeparatedList<ArgumentSyntax>
+                        SeparatedList
                         (
-                            appBaseCtorArgs()
+                            BaseArgumentsForCtor()
                         )
                     )
                 )
@@ -244,13 +245,13 @@ public sealed class AppClientClass
                 (
                     List
                     (
-                        appCtorBodyStatements()
+                        StatementsForCtorBody()
                     )
                 )
             );
     }
 
-    private StatementSyntax[] appCtorBodyStatements()
+    private StatementSyntax[] StatementsForCtorBody()
     {
         var statements = new List<StatementSyntax>();
         foreach (var group in template.GroupTemplates.Where(gt => !gt.IsUser() && !gt.IsUserCache()))
@@ -273,11 +274,10 @@ public sealed class AppClientClass
                                     (
                                         SeparatedList
                                         (
-                                            new[]
-                                            {
+                                            [
                                                 new TypeSyntaxFromValueTemplate(group.ActionTemplates.First().ModelTemplate).Value(),
                                                 new TypeSyntaxFromValueTemplate(group.QueryableTemplates().First().ElementTemplate).Value()
-                                            }
+                                            ]
                                         )
                                     )
                                 )
@@ -324,40 +324,32 @@ public sealed class AppClientClass
                                             (
                                                 ParameterList
                                                 (
-                                                    SeparatedList<ParameterSyntax>
+                                                    SeparatedList
                                                     (
-                                                        new SyntaxNodeOrToken[]
-                                                        {
+                                                        [
                                                             Parameter(Identifier("_clientFactory")),
-                                                            Token(SyntaxKind.CommaToken),
                                                             Parameter(Identifier("_tokenAccessor")),
-                                                            Token(SyntaxKind.CommaToken),
                                                             Parameter(Identifier("_url")),
-                                                            Token(SyntaxKind.CommaToken),
                                                             Parameter(Identifier("_options"))
-                                                        }
+                                                        ]
                                                     )
                                                 )
                                             )
                                             .WithExpressionBody
                                             (
-                                                ObjectCreationExpression(IdentifierName(getGroupClassName(group)))
+                                                ObjectCreationExpression(IdentifierName(GetGroupClassName(group)))
                                                     .WithArgumentList
                                                     (
                                                         ArgumentList
                                                         (
-                                                            SeparatedList<ArgumentSyntax>
+                                                            SeparatedList
                                                             (
-                                                                new SyntaxNodeOrToken[]
-                                                                {
+                                                                [
                                                                     Argument(IdentifierName("_clientFactory")),
-                                                                    Token(SyntaxKind.CommaToken),
                                                                     Argument(IdentifierName("_tokenAccessor")),
-                                                                    Token(SyntaxKind.CommaToken),
                                                                     Argument(IdentifierName("_url")),
-                                                                    Token(SyntaxKind.CommaToken),
                                                                     Argument(IdentifierName("_options"))
-                                                                }
+                                                                ]
                                                             )
                                                         )
                                                     )
@@ -370,80 +362,60 @@ public sealed class AppClientClass
                 )
             );
         }
+        statements.Add(GeneratedConfigureMethod.Invocation());
         return statements.ToArray();
     }
 
-    private static BaseTypeSyntax[] appBaseList()
+    private static BaseTypeSyntax[] BaseTypeForCtor()
     {
         var baseTypes = new List<BaseTypeSyntax>();
         baseTypes.Add(SimpleBaseType(IdentifierName("AppClient")));
         return baseTypes.ToArray();
     }
 
-    private SyntaxNodeOrToken[] appCtorArgs()
-    {
-        var args = new List<SyntaxNodeOrToken>();
-        args.AddRange
-        (
-            new SyntaxNodeOrToken[]
-            {
-                Parameter(Identifier("httpClientFactory"))
-                    .WithType(IdentifierName("IHttpClientFactory")),
-                Token(SyntaxKind.CommaToken),
-                Parameter(Identifier("xtiTokenAccessorFactory"))
-                    .WithType(IdentifierName("XtiTokenAccessorFactory")),
-                Token(SyntaxKind.CommaToken),
-                Parameter(Identifier("clientUrl"))
-                    .WithType(IdentifierName("AppClientUrl")),
-                Token(SyntaxKind.CommaToken),
-                Parameter(Identifier("options"))
-                    .WithType(IdentifierName("AppClientOptions")),
-                Token(SyntaxKind.CommaToken),
-                Parameter(Identifier("version"))
-                    .WithType(IdentifierName($"{template.Name}AppClientVersion"))
-            }
-        );
-        return args.ToArray();
-    }
+    private ParameterSyntax[] ArgumentsForCtor() =>
+        [
+            Parameter(Identifier("httpClientFactory"))
+                .WithType(IdentifierName("IHttpClientFactory")),
+            Parameter(Identifier("xtiTokenAccessorFactory"))
+                .WithType(IdentifierName("XtiTokenAccessorFactory")),
+            Parameter(Identifier("clientUrl"))
+                .WithType(IdentifierName("AppClientUrl")),
+            Parameter(Identifier("sessionKey"))
+                .WithType(IdentifierName("IAppClientSessionKey")),
+            Parameter(Identifier("requestKey"))
+                .WithType(IdentifierName("IAppClientRequestKey")),
+            Parameter(Identifier("version"))
+                .WithType(IdentifierName($"{template.Name}AppClientVersion"))
+        ];
 
-    private SyntaxNodeOrToken[] appBaseCtorArgs()
-    {
-        var args = new List<SyntaxNodeOrToken>();
-        args.AddRange
-        (
-            [
-                Argument(IdentifierName("httpClientFactory")),
-                Token(SyntaxKind.CommaToken),
-                Argument(IdentifierName("xtiTokenAccessorFactory")),
-                Token(SyntaxKind.CommaToken),
-                Argument(IdentifierName("clientUrl")),
-                Token(SyntaxKind.CommaToken),
-                Argument(IdentifierName("options")),
-                Token(SyntaxKind.CommaToken),
-                Argument
+    private ArgumentSyntax[] BaseArgumentsForCtor() =>
+        [
+            Argument(IdentifierName("httpClientFactory")),
+            Argument(IdentifierName("xtiTokenAccessorFactory")),
+            Argument(IdentifierName("clientUrl")),
+            Argument(IdentifierName("sessionKey")),
+            Argument(IdentifierName("requestKey")),
+            Argument
+            (
+                LiteralExpression
                 (
-                    LiteralExpression
-                    (
-                        SyntaxKind.StringLiteralExpression,
-                        Literal(template.Name)
-                    )
-                ),
-                Token(SyntaxKind.CommaToken),
-                Argument
-                (
-                    MemberAccessExpression
-                    (
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("version"),
-                        IdentifierName("Value")
-                    )
+                    SyntaxKind.StringLiteralExpression,
+                    Literal(template.Name)
                 )
-            ]
-        );
-        return args.ToArray();
-    }
+            ),
+            Argument
+            (
+                MemberAccessExpression
+                (
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName("version"),
+                    IdentifierName("Value")
+                )
+            )
+        ];
 
-    private Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
+    private Task OutputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
     {
         var cSharpFile = new CSharpFile(compilationUnitSyntax, createStream, className);
         return cSharpFile.Output();

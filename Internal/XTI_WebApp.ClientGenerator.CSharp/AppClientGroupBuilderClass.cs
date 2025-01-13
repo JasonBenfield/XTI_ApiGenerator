@@ -24,7 +24,7 @@ public sealed class AppClientGroupBuilderClass
     {
         var groupClient = CreateGroupDocument();
         var className = GetGroupClassName();
-        await outputClass(groupClient, className);
+        await OutputClass(groupClient, className);
     }
 
     private CompilationUnitSyntax CreateGroupDocument()
@@ -48,14 +48,14 @@ public sealed class AppClientGroupBuilderClass
                         (
                             List
                             (
-                                CreateGroupClassDeclaration()
+                                DeclarationForClass()
                             )
                         )
                 )
             );
     }
 
-    private MemberDeclarationSyntax[] CreateGroupClassDeclaration()
+    private MemberDeclarationSyntax[] DeclarationForClass()
     {
         var groupClass = new List<MemberDeclarationSyntax>();
         groupClass.Add
@@ -65,12 +65,11 @@ public sealed class AppClientGroupBuilderClass
                 (
                     TokenList
                     (
-                        new[]
-                        {
+                        [
                             Token(SyntaxKind.PublicKeyword),
                             Token(SyntaxKind.SealedKeyword),
                             Token(SyntaxKind.PartialKeyword)
-                        }
+                        ]
                     )
                 )
                 .WithBaseList
@@ -90,17 +89,18 @@ public sealed class AppClientGroupBuilderClass
                 (
                     List
                     (
-                        GetGroupMembers()
+                        DeclarationForMembers()
                     )
                 )
         );
         return groupClass.ToArray();
     }
 
-    private MemberDeclarationSyntax[] GetGroupMembers()
+    private MemberDeclarationSyntax[] DeclarationForMembers()
     {
         var members = new List<MemberDeclarationSyntax>();
-        members.Add(CreateCtorDeclaration());
+        members.Add(DeclarationForCtor());
+        members.Add(GeneratedConfigureMethod.Declaration());
         members.Add
         (
             PropertyDeclaration
@@ -130,15 +130,15 @@ public sealed class AppClientGroupBuilderClass
             (
                 new[]
                 {
-                    CreateActionDeclaration(action)
+                    DeclarationForAction(action)
                 }
             );
         }
-        members.Add(CreateActionsClassDeclaration());
+        members.Add(DeclarationForActionsClass());
         return members.ToArray();
     }
 
-    private MemberDeclarationSyntax CreateCtorDeclaration()
+    private MemberDeclarationSyntax DeclarationForCtor()
     {
         return ConstructorDeclaration(Identifier(GetGroupClassName()))
             .WithModifiers
@@ -202,11 +202,11 @@ public sealed class AppClientGroupBuilderClass
             )
             .WithBody
             (
-                Block(CreateCtorBody())
+                Block(StatmentsForCtorBody())
             );
     }
 
-    private IEnumerable<StatementSyntax> CreateCtorBody()
+    private IEnumerable<StatementSyntax> StatmentsForCtorBody()
     {
         var statements = new List<StatementSyntax>();
         statements.Add
@@ -231,6 +231,7 @@ public sealed class AppClientGroupBuilderClass
                 )
             )
         );
+        statements.Add(GeneratedConfigureMethod.Invocation());
         return statements;
     }
 
@@ -339,7 +340,7 @@ public sealed class AppClientGroupBuilderClass
         return args.ToArray();
     }
 
-    private MethodDeclarationSyntax CreateActionDeclaration(AppApiActionTemplate action)
+    private MethodDeclarationSyntax DeclarationForAction(AppApiActionTemplate action)
     {
         return MethodDeclaration
         (
@@ -368,7 +369,7 @@ public sealed class AppClientGroupBuilderClass
             (
                 SeparatedList
                 (
-                    GetActionMethodDeclarationArgs(action, template.HasModifier)
+                    ArgsForActionMethodDeclaration(action, template.HasModifier)
                 )
             )
         )
@@ -376,13 +377,13 @@ public sealed class AppClientGroupBuilderClass
         (
             ArrowExpressionClause
             (
-                CreateActionMethodInvocation(action)
+                InvocationForActionMethod(action)
             )
         )
         .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
     }
 
-    private static ParameterSyntax[] GetActionMethodDeclarationArgs(AppApiActionTemplate actionTemplate, bool includeModifier)
+    private static ParameterSyntax[] ArgsForActionMethodDeclaration(AppApiActionTemplate actionTemplate, bool includeModifier)
     {
         var parameters = new List<ParameterSyntax>();
         if (includeModifier)
@@ -423,7 +424,7 @@ public sealed class AppClientGroupBuilderClass
         return parameters.ToArray();
     }
 
-    private InvocationExpressionSyntax CreateActionMethodInvocation(AppApiActionTemplate action)
+    private InvocationExpressionSyntax InvocationForActionMethod(AppApiActionTemplate action)
     {
         if (action.IsFile())
         {
@@ -447,7 +448,7 @@ public sealed class AppClientGroupBuilderClass
                 (
                     SeparatedList<ArgumentSyntax>
                     (
-                        GetActionMethodInvocationArgs(action, template.HasModifier)
+                        ArgsForActionMethodInvocation(action, template.HasModifier)
                     )
                 )
             );
@@ -474,7 +475,7 @@ public sealed class AppClientGroupBuilderClass
                 (
                     SeparatedList<ArgumentSyntax>
                     (
-                        GetActionMethodInvocationArgs(action, template.HasModifier)
+                        ArgsForActionMethodInvocation(action, template.HasModifier)
                     )
                 )
             );
@@ -499,13 +500,13 @@ public sealed class AppClientGroupBuilderClass
             (
                 SeparatedList<ArgumentSyntax>
                 (
-                    GetActionMethodInvocationArgs(action, template.HasModifier)
+                    ArgsForActionMethodInvocation(action, template.HasModifier)
                 )
             )
         );
     }
 
-    private static SyntaxNodeOrToken[] GetActionMethodInvocationArgs(AppApiActionTemplate actionTemplate, bool includeModifier)
+    private static SyntaxNodeOrToken[] ArgsForActionMethodInvocation(AppApiActionTemplate actionTemplate, bool includeModifier)
     {
         var args = new List<SyntaxNodeOrToken>();
         args.AddRange
@@ -544,7 +545,7 @@ public sealed class AppClientGroupBuilderClass
         return args.ToArray();
     }
 
-    private RecordDeclarationSyntax CreateActionsClassDeclaration()
+    private RecordDeclarationSyntax DeclarationForActionsClass()
     {
         return RecordDeclaration
         (
@@ -688,7 +689,7 @@ public sealed class AppClientGroupBuilderClass
 
     private string GetGroupClassName() => $"{template.Name}Group";
 
-    private Task outputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
+    private Task OutputClass(CompilationUnitSyntax compilationUnitSyntax, string className)
     {
         var cSharpFile = new CSharpFile(compilationUnitSyntax, createStream, className);
         return cSharpFile.Output();
