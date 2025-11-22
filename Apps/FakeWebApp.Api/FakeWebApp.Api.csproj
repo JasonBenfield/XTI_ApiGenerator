@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -9,9 +9,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="XTI_Forms" Version="1.8.53" />
-		<PackageReference Include="XTI_ODataQuery.Api" Version="1.8.53" />
-		<PackageReference Include="XTI_WebApp.Api" Version="1.8.53" />
+		<PackageReference Include="XTI_Forms" Version="1.8.54-dev251122161951096" />
+		<PackageReference Include="XTI_ODataQuery.Api" Version="1.8.54-dev251122161951096" />
+		<PackageReference Include="XTI_WebApp.Api" Version="1.8.54-dev251122161951096" />
 	</ItemGroup>
 
 </Project>
