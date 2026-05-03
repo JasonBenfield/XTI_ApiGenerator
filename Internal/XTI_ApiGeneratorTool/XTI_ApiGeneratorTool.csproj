@@ -9,9 +9,9 @@
 
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
-		<PackageReference Include="XTI_Git.Abstractions" Version="1.2.25" />
-		<PackageReference Include="XTI_Secrets.Extensions" Version="1.8.14-dev251122160128621" />
-		<PackageReference Include="XTI_WebApp.Api" Version="1.8.54-dev251122161951096" />
+		<PackageReference Include="XTI_Git.Abstractions" Version="1.2.26-dev260424142207931" />
+		<PackageReference Include="XTI_Secrets.Extensions" Version="1.8.14-dev260424143319067" />
+		<PackageReference Include="XTI_WebApp.Api" Version="1.8.54-dev260424145310111" />
 		<PackageReference Include="LibGit2Sharp" Version="0.31.0" />
 		<PackageReference Include="Octokit" Version="14.0.0" />
 	</ItemGroup>

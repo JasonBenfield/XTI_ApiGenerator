@@ -18,11 +18,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
-		<PackageReference Include="XTI_WebApp.Fakes" Version="1.8.54-dev251122161951096" />
-		<PackageReference Include="XTI_Core.Extensions" Version="1.10.26-dev251122155254802" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
+		<PackageReference Include="XTI_WebApp.Fakes" Version="1.8.54-dev260424145310111" />
+		<PackageReference Include="XTI_Core.Extensions" Version="1.10.26-dev260424141958857" />
 	</ItemGroup>
 
 	<ItemGroup>

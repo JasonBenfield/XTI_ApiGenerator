@@ -13,7 +13,7 @@ public sealed class ExpandedJobEntry
 
 public sealed class JobQueryAction : QueryAction<JobQueryRequest, ExpandedJobEntry>
 {
-    public Task<IQueryable<ExpandedJobEntry>> Execute(ODataQueryOptions<ExpandedJobEntry> options, JobQueryRequest model)
+    public Task<IQueryable<ExpandedJobEntry>> Execute(ODataQueryOptions<ExpandedJobEntry> options, JobQueryRequest model, CancellationToken ct)
     {
         return Task.FromResult(new ExpandedJobEntry[0].AsQueryable());
     }

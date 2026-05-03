@@ -15,7 +15,7 @@
     @RenderBody()
     <script>
         @{
-            var serializedPageContext = await pageContext.Serialize();
+            var serializedPageContext = await pageContext.Serialize(Context.RequestAborted);
         }
         pageContext = @Html.Raw(serializedPageContext);
     </script>

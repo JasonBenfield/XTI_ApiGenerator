@@ -42,11 +42,9 @@ internal sealed class ComplexFieldClassGenerator
         var baseClass = isForm ? "BaseForm" : "ComplexFieldFormGroup";
         tsFile.AddLine($"export class {className} extends {baseClass} {{");
         tsFile.Indent();
-        tsFile.AddLine($"protected readonly view: {className}View;");
-        tsFile.AddLine();
         var ctorArgs = isForm ? "" : "prefix: string, name: string, ";
         var vmClassName = isForm ? "FormComponentViewModel" : "BlockViewModel";
-        tsFile.AddLine($"constructor({ctorArgs}view: {className}View) {{");
+        tsFile.AddLine($"constructor({ctorArgs}protected readonly view: {className}View) {{");
         tsFile.Indent();
         var superArgs = isForm ? $"'{className}'" : "prefix, name";
         tsFile.AddLine($"super({superArgs}, view);");
@@ -135,7 +133,7 @@ internal sealed class ComplexFieldClassGenerator
         foreach (var field in fields)
         {
             tsFile.AddLine("");
-            tsFile.Append($"readonly {field.Name} = ");
+            tsFile.Append($"get {field.Name}() {{ return ");
             if (field is IComplexField complex)
             {
                 tsFile.Append($"this.addFormGroup(new {complex.TypeName}(this.getName(), '{field.Name}', this.view.{field.Name}))");
@@ -248,7 +246,7 @@ internal sealed class ComplexFieldClassGenerator
                 {
                     throw new NotSupportedException($"Simple field of type {field.GetType()} is not supported");
                 }
-                tsFile.Append($"this.{addFormGroup}('{field.Name}', this.view.{field.Name})");
+                tsFile.Append($"this.{addFormGroup}('{field.Name}', this.view.{field.Name}); }}");
             }
             tsFile.Append(";");
         }

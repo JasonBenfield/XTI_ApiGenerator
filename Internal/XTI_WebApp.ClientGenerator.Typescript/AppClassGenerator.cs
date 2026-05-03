@@ -21,7 +21,7 @@ internal sealed class AppClassGenerator
         var appClassName = $"{appTemplate.Name}AppClient";
         var tsFile = new TypeScriptFile(appClassName, createStream);
         tsFile.AddLine();
-        tsFile.AddLine("import { AppClient } from \"@jasonbenfield/sharedwebapp/Http/AppClient\";");
+        tsFile.AddLine("import { AppClient, IGetUserAccessRequest, AppClientMethod } from \"@jasonbenfield/sharedwebapp/Http/AppClient\";");
         tsFile.AddLine("import { AppClientEvents } from \"@jasonbenfield/sharedwebapp/Http/AppClientEvents\";");
         tsFile.AddLine("import { AppClientQuery } from \"@jasonbenfield/sharedwebapp/Http/AppClientQuery\";");
         foreach (var groupTemplate in appTemplate.GroupTemplates.Where(g => !g.IsODataGroup() && !g.IsUser() && !g.IsUserCache()))
@@ -70,6 +70,10 @@ internal sealed class AppClassGenerator
                 tsFile.AddLine($"readonly {groupTemplate.Name}: {groupTemplate.Name}Group;");
             }
         }
+        tsFile.AddLine();
+        tsFile.AddLine($"getAccessRequest(getAction: (api: {appClassName}) => AppClientMethod, modKey?: string) {{ return this._getAccessRequest(getAction, modKey); }}");
+        tsFile.AddLine();
+        tsFile.AddLine($"getUserAccess(resources: IGetUserAccessRequest<{appClassName}>) {{ return this._getUserAccess(resources); }}");
         tsFile.Outdent();
         tsFile.AddLine("}");
         return tsFile.Output();

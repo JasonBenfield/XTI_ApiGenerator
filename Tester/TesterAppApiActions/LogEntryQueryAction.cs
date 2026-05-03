@@ -13,7 +13,7 @@ public sealed class ExpandedLogEntry
 
 public sealed class LogEntryQueryAction : QueryAction<LogEntryQueryRequest, ExpandedLogEntry>
 {
-    public Task<IQueryable<ExpandedLogEntry>> Execute(ODataQueryOptions<ExpandedLogEntry> options, LogEntryQueryRequest model)
+    public Task<IQueryable<ExpandedLogEntry>> Execute(ODataQueryOptions<ExpandedLogEntry> options, LogEntryQueryRequest model, CancellationToken ct)
     {
         return Task.FromResult(new ExpandedLogEntry[0].AsQueryable());
     }

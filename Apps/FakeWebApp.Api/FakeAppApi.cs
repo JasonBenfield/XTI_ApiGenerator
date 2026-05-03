@@ -86,7 +86,7 @@ public sealed record QueryEmployeesRequest(string Department);
 
 public sealed class QueryEmployeesAction : QueryAction<QueryEmployeesRequest, Employee>
 {
-    public Task<IQueryable<Employee>> Execute(ODataQueryOptions<Employee> options, QueryEmployeesRequest model) =>
+    public Task<IQueryable<Employee>> Execute(ODataQueryOptions<Employee> options, QueryEmployeesRequest model, CancellationToken ct) =>
         Task.FromResult
         (
             Enumerable.Range(1, 3)

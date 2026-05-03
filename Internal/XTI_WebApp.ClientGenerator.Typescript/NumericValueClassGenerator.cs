@@ -69,9 +69,9 @@ internal sealed class NumericValueClassGenerator
         tsFile.Outdent();
         tsFile.AddLine("}");
         tsFile.AddLine();
-        tsFile.AddLine($"equalsAny: (...other: this[] | I{className}[] | number[] | string[]) => boolean;");
+        tsFile.AddLine($"declare equalsAny: (...other: this[] | I{className}[] | number[] | string[]) => boolean;");
         tsFile.AddLine();
-        tsFile.AddLine($"equals: (other: this | I{className} | number | string) => boolean;");
+        tsFile.AddLine($"declare equals: (other: this | I{className} | number | string) => boolean;");
         tsFile.Outdent();
         tsFile.AddLine("}");
         return tsFile.Output();

@@ -135,7 +135,7 @@ internal sealed class ComplexFieldViewClassGenerator
         var baseClass = isForm ? "BaseFormView" : "ComplexFieldFormGroupView";
         tsFile.AddLine($"export class {className} extends {baseClass} {{");
         tsFile.Indent();
-        tsFile.AddLine($"private formGroups: I{className};");
+        tsFile.AddLine($"private formGroups: I{className} | null = null;");
         tsFile.AddLine();
         tsFile.AddLine("constructor(container: BasicComponentView) {");
         tsFile.Indent();
@@ -156,7 +156,7 @@ internal sealed class ComplexFieldViewClassGenerator
         tsFile.AddLine();
         foreach (var field in fields)
         {
-            tsFile.AddLine($"get {field.Name}() {{ return this.formGroups.{field.Name}; }}");
+            tsFile.AddLine($"get {field.Name}() {{ return this.formGroups!.{field.Name}; }}");
         }
         tsFile.Outdent();
         tsFile.AddLine("}");
